@@ -1,6 +1,8 @@
-import { Heart, ShoppingCart, UserRound } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
+import LoggedOutProfile from "./LoggedOutProfile";
+import LoggedInProfile from "./LoggedInProfile";
 
 export default function Header() {
   return (
@@ -10,17 +12,8 @@ export default function Header() {
 
         <SearchBar />
         <div className="ml-auto flex max-w-md items-center justify-between gap-8">
-          <div className="flex justify-center">
-            <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full border border-gray-300">
-              <UserRound size={16} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-zinc-500 uppercase">
-                Account
-              </span>
-              <span className="text-xs">Sign in / Register</span>
-            </div>
-          </div>
+          <LoggedOutProfile />
+          {/* <LoggedInProfile /> */}
 
           <div className="flex items-center gap-2.5">
             <div className="relative cursor-pointer">
