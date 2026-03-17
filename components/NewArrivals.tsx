@@ -83,7 +83,7 @@ export default function NewArrivals() {
   return (
     <section className="py-20">
       <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-primary text-2xl font-semibold">New Arrivals</h2>
+        <h2 className="text-foreground text-2xl font-semibold">New Arrivals</h2>
 
         <div className="hover:bg-primary cursor-pointer rounded-full bg-zinc-100 px-4 py-2 text-sm text-black transition-all hover:text-white">
           view all

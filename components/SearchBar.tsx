@@ -3,22 +3,32 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 
+import { Field } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+
 export default function SearchBar() {
   const [query, setQuery] = useState("");
 
+  console.log(query);
+
   return (
-    <div className="relative h-10 rounded-full border">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search ..."
-        className="h-full w-full rounded-full border-0 pr-12 pl-4 outline-none placeholder:text-sm"
-      />
-      <Search
-        size={20}
-        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2"
-      />
-    </div>
+    <Field>
+      <InputGroup>
+        <InputGroupInput
+          value={query}
+          type="text"
+          onChange={(e) => setQuery(e.target.value)}
+          id="input-group-url"
+          placeholder="Search ..."
+        />
+        <InputGroupAddon align="inline-end">
+          <Search />
+        </InputGroupAddon>
+      </InputGroup>
+    </Field>
   );
 }

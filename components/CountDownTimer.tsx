@@ -32,11 +32,11 @@ function formatUnit(value: number) {
 
 function TimeBlock({ value, label }: { value: number; label: string }) {
   return (
-    <div className="min-w-20 rounded-xl border border-indigo-200 bg-white/80 px-4 py-3 text-center shadow-sm backdrop-blur-sm">
+    <div className="border-accent-100 bg-accent-50 min-w-20 rounded-xl border px-4 py-3 text-center shadow-sm backdrop-blur-sm">
       <p className="text-primary text-2xl leading-none font-semibold">
         {formatUnit(value)}
       </p>
-      <p className="mt-1 text-xs tracking-wider text-zinc-500 uppercase">
+      <p className="text-accent-200 mt-1 text-xs tracking-wider uppercase">
         {label}
       </p>
     </div>

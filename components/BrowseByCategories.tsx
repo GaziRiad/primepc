@@ -28,7 +28,7 @@ const Categories: Category[] = [
 export default function BrowseByCategories() {
   return (
     <section className="py-20">
-      <h2 className="text-primary mb-8 text-center text-2xl font-semibold">
+      <h2 className="text-foreground mb-8 text-center text-2xl font-semibold">
         Browse by Category
       </h2>
       <ul className="flex items-center justify-center gap-24">

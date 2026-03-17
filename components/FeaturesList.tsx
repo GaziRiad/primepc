@@ -41,7 +41,7 @@ export default function FeaturesList() {
         <li key={index} className="flex items-center gap-4">
           <span>{feature.icon}</span>
           <div className="flex flex-col">
-            <span className="text-primary">{feature.title}</span>
+            <span className="text-foreground">{feature.title}</span>
             <span className="text-sm text-zinc-500">{feature.description}</span>
           </div>
         </li>
