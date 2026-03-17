@@ -1,6 +1,23 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
+}
+
+const DZD_FORMATTER = new Intl.NumberFormat("fr-DZ", {
+  style: "currency",
+  currency: "DZD",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+export function formatDZD(amount: number) {
+  return DZD_FORMATTER.format(amount);
+}
+
+export function getDiscountedPrice(price: number, discountPercent: number) {
+  const safeDiscount = Math.min(Math.max(discountPercent, 0), 100);
+  const discountedAmount = price * (safeDiscount / 100);
+  return Math.round(price - discountedAmount);
 }

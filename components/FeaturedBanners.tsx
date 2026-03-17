@@ -1,11 +1,38 @@
+import img1 from "@/public/images/marketing1.jpg";
+import img2 from "@/public/images/marketing2.jpg";
+import img3 from "@/public/images/marketing3.jpg";
+import Image from "next/image";
+
 export default function FeaturedBanners() {
   return (
-    <div className="grid grid-cols-[70fr_30fr] gap-x-5 py-12">
-      <span className="h-120 w-full rounded-lg bg-green-600" />
-      <div className="flex flex-col gap-5">
-        <span className="h-full w-full rounded-lg bg-red-600" />
-        <span className="h-full w-full rounded-lg bg-blue-600" />
+    <section className="grid grid-cols-[70fr_30fr] gap-x-5 py-12">
+      <div className="relative aspect-square h-120 w-full overflow-hidden rounded-lg bg-red-600">
+        <Image
+          fill
+          src={img1}
+          alt="banner image from PRIMEPC algeria."
+          className="object-cover"
+        />
       </div>
-    </div>
+
+      <div className="flex flex-col gap-5">
+        <div className="relative h-full w-full overflow-hidden rounded-lg bg-blue-500">
+          <Image
+            fill
+            src={img2}
+            alt="banner image from PRIMEPC algeria."
+            className="object-cover"
+          />
+        </div>
+        <div className="relative h-full w-full overflow-hidden rounded-lg bg-blue-500">
+          <Image
+            fill
+            src={img3}
+            alt="banner image from PRIMEPC algeria."
+            className="object-cover"
+          />
+        </div>
+      </div>
+    </section>
   );
 }

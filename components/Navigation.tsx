@@ -28,7 +28,7 @@ const Pages: NavItem[] = [
 export default function Navigation() {
   return (
     <nav className="border-b">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <ul className="flex items-center gap-4 text-sm">
           {Pages.map((link, index) => (
             <li

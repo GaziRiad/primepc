@@ -6,8 +6,8 @@ import LoggedInProfile from "./LoggedInProfile";
 
 export default function Header() {
   return (
-    <header className="border-b py-8">
-      <div className="mx-auto grid max-w-6xl grid-cols-[25fr_35fr_40fr]">
+    <header className="border-b py-6">
+      <div className="mx-auto grid max-w-7xl grid-cols-[25fr_35fr_40fr]">
         <Logo />
 
         <SearchBar />
