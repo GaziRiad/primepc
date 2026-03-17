@@ -13,7 +13,7 @@ export default function MainDiscount() {
     <section className="bg-accent-400 relative mb-20 overflow-hidden rounded-lg px-6 py-16 md:px-10 md:py-24">
       {/* Diagonal Grid with Light */}
       <div
-        className="pointer-events-none absolute inset-0 z-10 w-full"
+        className="pointer-events-none absolute inset-0 z-10 w-full opacity-75"
         style={{
           backgroundImage: `
           repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.1) 0, rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 20px),
@@ -25,7 +25,7 @@ export default function MainDiscount() {
 
       {/* Midnight Mist */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 translate-x-1/4"
         style={{
           backgroundImage: `
           radial-gradient(circle at 50% 100%, rgba(70, 85, 110, 0.5) 0%, transparent 60%),
