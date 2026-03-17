@@ -4,16 +4,10 @@ import Image from "next/image";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
+import { type Product } from "@/lib/types";
+
 type ProductCardProps = {
-  product: {
-    title: string;
-    brand: string;
-    price: number;
-    href: string;
-    discount: number;
-    image: string;
-    category: string;
-  };
+  product: Product;
   newArrival?: boolean;
 };
 

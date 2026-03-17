@@ -5,7 +5,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const Features = [
+type Feature = {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+};
+
+const Features: Feature[] = [
   {
     icon: <Rocket size={32} className="stroke-primary" />,
     title: "Free Shipping",

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import ProductCard from "./ProductCard";
 
-const Products = [
+import { type Product } from "@/lib/types";
+
+const Products: Product[] = [
   {
     title: "MacBook Air (M5, 2026)",
     brand: "Apple",

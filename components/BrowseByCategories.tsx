@@ -1,7 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const Categories = [
+type Category = {
+  name: string;
+  image: string;
+};
+
+const Categories: Category[] = [
   {
     name: "Laptops for studying",
     image: "/images/sutdy.png",
