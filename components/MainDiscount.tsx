@@ -10,7 +10,7 @@ const EventProduct = {
 
 export default function MainDiscount() {
   return (
-    <section className="bg-accent-400 relative mb-20 overflow-hidden rounded-lg px-6 py-16 md:px-10 md:py-24">
+    <section className="bg-accent-700 relative mb-20 overflow-hidden rounded-lg px-6 py-16 md:px-10 md:py-24">
       {/* Diagonal Grid with Light */}
       <div
         className="pointer-events-none absolute inset-0 z-10 w-full opacity-75"

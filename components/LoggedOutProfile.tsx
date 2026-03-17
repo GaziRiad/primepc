@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function LoggedOutProfile() {
   return (
-    <div className="flex justify-center gap-3">
+    <div className="flex justify-center gap-2">
       <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300">
         <UserRound size={16} />
       </div>

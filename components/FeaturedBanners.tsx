@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function FeaturedBanners() {
   return (
-    <section className="grid grid-cols-[70fr_30fr] gap-x-5 py-12">
+    <section className="mb-12 grid grid-cols-[70fr_30fr] gap-x-5">
       <div className="relative aspect-square h-120 w-full overflow-hidden rounded-lg bg-red-600">
         <Image
           fill

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import ProductCard from "./ProductCard";
 
 import { type Product } from "@/lib/types";
@@ -85,7 +84,7 @@ export default function NewArrivals() {
       <div className="mb-8 flex items-center justify-between">
         <h2 className="text-foreground text-2xl font-semibold">New Arrivals</h2>
 
-        <div className="hover:bg-primary cursor-pointer rounded-full bg-zinc-100 px-4 py-2 text-sm text-black transition-all hover:text-white">
+        <div className="hover:bg-primary cursor-pointer rounded-full border bg-zinc-100 px-4 py-2 text-sm text-black transition-all hover:text-white">
           view all
         </div>
       </div>
@@ -93,9 +92,7 @@ export default function NewArrivals() {
       <ul className="grid grid-cols-4 gap-6">
         {Products.map((product, index) => (
           <li key={index}>
-            <Link href={product.href}>
-              <ProductCard product={product} newArrival={true} />
-            </Link>
+            <ProductCard product={product} newArrival={true} />
           </li>
         ))}
       </ul>

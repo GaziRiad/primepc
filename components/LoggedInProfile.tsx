@@ -3,14 +3,17 @@ import Link from "next/link";
 
 export default function LoggedInProfile() {
   return (
-    <div className="flex justify-center gap-3">
+    <div className="flex justify-center gap-2">
       <Avatar>
         <AvatarImage src="https://github.com/shadcn.png" />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
-        <span className="text-[10px] text-zinc-500 uppercase">Account</span>
-        <Link href="/profile" className="text-xs transition-all">
+        <span className="text-accent-200 text-[10px] uppercase">Account</span>
+        <Link
+          href="/my-account"
+          className="hover:text-primary text-xs transition-all"
+        >
           Riad Hallouch
         </Link>
       </div>
