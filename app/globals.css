@@ -84,7 +84,7 @@ body {
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: oklch(92.191% 0.0001 271.152 / 0.8);
+  --border: oklch(0.97 0 0);
 
   --input: oklch(0.922 0 0);
 

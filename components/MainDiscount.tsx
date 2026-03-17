@@ -12,7 +12,7 @@ export default function MainDiscount() {
   return (
     <section className="bg-accent-400 relative mb-20 rounded-lg px-10 py-24">
       <div className="max-w-4/6">
-        <p className="text-accent-900">Don&apos;t Miss!!</p>
+        <p className="text-accent-100">Don&apos;t Miss!!</p>
         <p className="text-primary mb-6 max-w-sm text-4xl font-semibold">
           Enhance Your Work Experience
         </p>

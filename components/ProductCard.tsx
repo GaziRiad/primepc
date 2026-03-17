@@ -15,7 +15,7 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
   const finalPrice = getDiscountedPrice(product.price, product.discount);
 
   return (
-    <Card className="py-10 transition-all hover:shadow-md">
+    <Card className="py-10 transition-all hover:-translate-y-2 hover:shadow-md">
       <CardContent className="flex items-center justify-center">
         <div className="relative flex aspect-square w-3/4">
           <Image
@@ -27,7 +27,9 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col items-start">
-        <p className="-mb-1 text-xs text-zinc-500 uppercase">{product.brand}</p>
+        <p className="text-accent-400 -mb-1 text-xs uppercase">
+          {product.brand}
+        </p>
         <p className="mb-2">{product.title}</p>
 
         {newArrival && (
@@ -40,7 +42,7 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
           <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>
           {product.discount > 0 && (
             <>
-              <p className="text-sm text-zinc-500 line-through">
+              <p className="text-accent-300 text-sm line-through">
                 {formatDZD(product.price)}
               </p>
               <Badge variant="secondary">-{product.discount}%</Badge>
