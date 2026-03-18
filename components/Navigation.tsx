@@ -12,8 +12,8 @@ const Pages: NavItem[] = [
     href: "/popular",
   },
   {
-    label: "Shop",
-    href: "/shop",
+    label: "Products",
+    href: "/products",
   },
   {
     label: "About Us",

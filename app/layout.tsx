@@ -33,6 +33,11 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <Header />
         <main>{children}</main>
+        <footer className="h-96 bg-white">
+          <h2 className="text-accent mx-auto max-w-7xl py-24 text-2xl font-semibold">
+            Footer
+          </h2>
+        </footer>
         <Toaster />
       </body>
     </html>
