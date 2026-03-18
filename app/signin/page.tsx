@@ -1,3 +1,5 @@
+import Logo from "@/components/Logo";
+import { LoginForm } from "@/components/ui/login-form";
 import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -7,15 +9,13 @@ export default async function page() {
   if (session?.user) redirect("/my-account");
 
   return (
-    <div className="mx-auto max-w-6xl py-40">
-      <form
-        action={async () => {
-          "use server";
-          await signIn("google", { redirectTo: "/" });
-        }}
-      >
-        <button type="submit">Signin with Google</button>
-      </form>
+    <div className="mx-auto max-w-6xl py-6">
+      <div className="mx-auto flex max-w-sm flex-col gap-3">
+        <div className="flex scale-75 items-center justify-center">
+          <Logo />
+        </div>
+        <LoginForm />
+      </div>
     </div>
   );
 }
