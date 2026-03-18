@@ -1,11 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 
-export default function LoggedInProfile() {
+type LoggedInProfileProps = {
+  user: {
+    name: string;
+    email: string;
+    image: string;
+  };
+};
+
+export default function LoggedInProfile({ user }: LoggedInProfileProps) {
   return (
     <div className="flex justify-center gap-2">
       <Avatar>
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src={user.image} />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
@@ -14,7 +22,7 @@ export default function LoggedInProfile() {
           href="/my-account"
           className="hover:text-primary text-xs transition-all"
         >
-          Riad Hallouch
+          {user.name}
         </Link>
       </div>
     </div>

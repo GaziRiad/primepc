@@ -1,10 +1,15 @@
 import Sidebar from "@/components/(user)/Sidebar";
+import { auth } from "@/lib/auth";
 
-export default function layout({
+export default async function layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
+  if (!session?.user) return null;
+
   return (
     <div className="">
       <div className="mx-auto max-w-7xl py-8">

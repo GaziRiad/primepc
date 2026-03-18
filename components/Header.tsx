@@ -4,8 +4,13 @@ import SearchBar from "./SearchBar";
 import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
+import { auth } from "@/lib/auth";
 
-export default function Header() {
+export default async function Header() {
+  const session = await auth();
+
+  // console.log(session?.user);
+
   return (
     <header className="">
       <div className="border-b py-6">
@@ -14,8 +19,11 @@ export default function Header() {
 
           <SearchBar />
           <div className="ml-auto flex max-w-md items-center justify-between gap-8">
-            {/* <LoggedOutProfile /> */}
-            <LoggedInProfile />
+            {session?.user ? (
+              <LoggedInProfile user={session.user} />
+            ) : (
+              <LoggedOutProfile />
+            )}
 
             <div className="flex items-center gap-2.5">
               <div className="relative cursor-pointer">

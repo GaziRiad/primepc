@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 type Tab = {
   id: string;
@@ -44,12 +45,6 @@ const Tabs: Tab[] = [
     href: "/my-account/account-details",
     icon: User,
   },
-  {
-    label: "Logout",
-    id: "logout",
-    href: "/my-account/logout",
-    icon: LogOut,
-  },
 ] as const;
 
 export default function TabList() {
@@ -65,10 +60,10 @@ export default function TabList() {
           <li key={index}>
             <Link
               href={tab.href}
-              className={`group hover:bg-primary flex items-center gap-4 rounded-lg px-4 py-3 text-sm font-light transition-all ${isActive ? "bg-primary text-white" : "bg-accent-100/30 text-accent-500"}`}
+              className={`group hover:bg-primary flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-light transition-all ${isActive ? "bg-primary text-white" : "bg-accent-100/30 text-accent-500"}`}
             >
               <Icon
-                className={`stroke-1 transition-all ${
+                className={`stroke-[1.5px] transition-all ${
                   isActive
                     ? "stroke-white"
                     : "stroke-accent-500 group-hover:stroke-white"
@@ -81,6 +76,15 @@ export default function TabList() {
           </li>
         );
       })}
+      <li>
+        <button
+          className="group hover:bg-primary flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-light transition-all"
+          onClick={() => signOut({ redirectTo: "/" })}
+        >
+          <LogOut className="stroke-accent-500 stroke-[1.5px] transition-all group-hover:stroke-white" />
+          <span className="transition-all group-hover:text-white">Logout</span>
+        </button>
+      </li>
     </ul>
   );
 }
