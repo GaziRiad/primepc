@@ -4,7 +4,7 @@ import FeaturesList from "@/components/FeaturesList";
 import MainDiscount from "@/components/MainDiscount";
 import NewArrivals from "@/components/NewArrivals";
 
-export default function page() {
+export default async function page() {
   return (
     <div className="min-h-screen py-12">
       {/* <Navigation /> */}

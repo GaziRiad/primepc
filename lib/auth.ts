@@ -10,6 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account, profile, email, credentials }) {
       if (account?.provider === "google") {
         await startDbConnection();
+
         const userExists = await User.findOne({ email: user.email });
 
         if (!userExists) {

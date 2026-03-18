@@ -51,7 +51,7 @@ export default function TabList() {
   const pathname = usePathname();
 
   return (
-    <ul className="flex flex-col gap-4 px-8 py-6">
+    <ul className="flex flex-col gap-3 px-8 py-6">
       {Tabs.map((tab, index) => {
         const isActive = pathname === tab.href;
         const Icon = tab.icon;

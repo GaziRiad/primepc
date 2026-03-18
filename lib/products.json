@@ -1,0 +1,187 @@
+[
+  {
+    "name": "MacBook Air M5 2026",
+    "slug": "macbook-air-m5-2026",
+    "brand": "Apple",
+    "description": "Lightweight laptop for study and productivity.",
+    "price": 189000,
+    "discount": 10,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "cpu": "Apple M5",
+      "gpu": "Integrated"
+    },
+    "categories": ["laptops", "student"]
+  },
+  {
+    "name": "ASUS ROG Strix G16",
+    "slug": "asus-rog-strix-g16",
+    "brand": "ASUS",
+    "description": "Gaming laptop with high refresh display.",
+    "price": 245000,
+    "discount": 15,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "32GB",
+      "storage": "1TB SSD",
+      "cpu": "Intel i9",
+      "gpu": "RTX 4070"
+    },
+    "categories": ["laptops", "gaming"]
+  },
+  {
+    "name": "Lenovo IdeaPad Slim 5",
+    "slug": "lenovo-ideapad-slim-5",
+    "brand": "Lenovo",
+    "description": "Balanced laptop for office and school work.",
+    "price": 132000,
+    "discount": 8,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "cpu": "Ryzen 7",
+      "gpu": "Integrated"
+    },
+    "categories": ["laptops", "office"]
+  },
+  {
+    "name": "Dell XPS 14 Creator",
+    "slug": "dell-xps-14-creator",
+    "brand": "Dell",
+    "description": "Premium ultrabook for design and creative tasks.",
+    "price": 278000,
+    "discount": 12,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "32GB",
+      "storage": "1TB SSD",
+      "cpu": "Intel Ultra 9",
+      "gpu": "RTX 4050"
+    },
+    "categories": ["laptops", "design"]
+  },
+  {
+    "name": "HP Victus 15 Ryzen",
+    "slug": "hp-victus-15-ryzen",
+    "brand": "HP",
+    "description": "Entry gaming laptop with strong value.",
+    "price": 149000,
+    "discount": 20,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "cpu": "Ryzen 5",
+      "gpu": "RTX 3050"
+    },
+    "categories": ["laptops", "gaming"]
+  },
+  {
+    "name": "Logitech MX Master 3S",
+    "slug": "logitech-mx-master-3s",
+    "brand": "Logitech",
+    "description": "Precision wireless mouse for power users.",
+    "price": 16900,
+    "discount": 5,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": { "ram": "N/A", "storage": "N/A", "cpu": "N/A", "gpu": "N/A" },
+    "categories": ["accessories"]
+  },
+  {
+    "name": "Keychron K2 Pro RGB",
+    "slug": "keychron-k2-pro-rgb",
+    "brand": "Keychron",
+    "description": "Mechanical keyboard with hot-swap switches.",
+    "price": 14500,
+    "discount": 0,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": { "ram": "N/A", "storage": "N/A", "cpu": "N/A", "gpu": "N/A" },
+    "categories": ["accessories", "gaming"]
+  },
+  {
+    "name": "Samsung 990 Pro 1TB",
+    "slug": "samsung-990-pro-1tb",
+    "brand": "Samsung",
+    "description": "High-speed NVMe SSD for upgrades.",
+    "price": 18900,
+    "discount": 18,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "N/A",
+      "storage": "1TB NVMe",
+      "cpu": "N/A",
+      "gpu": "N/A"
+    },
+    "categories": ["accessories"]
+  },
+  {
+    "name": "MSI Pro MP275 27 Inch",
+    "slug": "msi-pro-mp275-27-inch",
+    "brand": "MSI",
+    "description": "27-inch IPS monitor for daily productivity.",
+    "price": 32900,
+    "discount": 7,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": { "ram": "N/A", "storage": "N/A", "cpu": "N/A", "gpu": "N/A" },
+    "categories": ["monitors", "office"]
+  },
+  {
+    "name": "Acer Nitro 5 2026",
+    "slug": "acer-nitro-5-2026",
+    "brand": "Acer",
+    "description": "Mid-range gaming laptop for smooth 1080p play.",
+    "price": 171000,
+    "discount": 14,
+    "coverImage": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "images": [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    ],
+    "specs": {
+      "ram": "16GB",
+      "storage": "1TB SSD",
+      "cpu": "Intel i7",
+      "gpu": "RTX 4060"
+    },
+    "categories": ["laptops", "gaming"]
+  }
+]

@@ -1,84 +1,9 @@
+import { getAllProducts } from "@/lib/services";
 import ProductCard from "./ProductCard";
 
-import { type Product } from "@/lib/types";
+export default async function NewArrivals() {
+  const products = await getAllProducts();
 
-const Products: Product[] = [
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 86000,
-    href: "/product1",
-    discount: 20,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 120000,
-    href: "/product2",
-    discount: 35,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 62000,
-    href: "/product3",
-    discount: 10,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 225000,
-    href: "/product4",
-    discount: 25,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  //
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 86000,
-    href: "/product5",
-    discount: 20,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 120000,
-    href: "/product6",
-    discount: 35,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 62000,
-    href: "/product7",
-    discount: 10,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-  {
-    title: "MacBook Air (M5, 2026)",
-    brand: "Apple",
-    price: 225000,
-    href: "/product8",
-    discount: 25,
-    image: "/images/sutdy.png",
-    category: "Student",
-  },
-];
-
-export default function NewArrivals() {
   return (
     <section className="py-20">
       <div className="mb-8 flex items-center justify-between">
@@ -90,7 +15,7 @@ export default function NewArrivals() {
       </div>
 
       <ul className="grid grid-cols-4 gap-6">
-        {Products.map((product, index) => (
+        {products.slice(0, 8).map((product, index) => (
           <li key={index}>
             <ProductCard product={product} newArrival={true} />
           </li>

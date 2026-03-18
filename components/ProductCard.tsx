@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
-import { type Product } from "@/lib/types";
+import { type Product } from "@/types/types";
 import { Heart } from "lucide-react";
 import Link from "next/link";
 
@@ -22,9 +22,9 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
         <div className="relative flex aspect-square w-3/4">
           <Image
             fill
-            src={product.image}
-            alt={`Image of ${product.title} from PRIMEPC algeria.`}
-            className="object-contain"
+            src={product.coverImage}
+            alt={`Image of ${product.name} from PRIMEPC algeria.`}
+            className="object-cover"
           />
         </div>
       </CardContent>
@@ -33,17 +33,25 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
           {product.brand}
         </p>
         <Link
-          href={product.href}
+          href={`/products/${product.slug}`}
           className="mb-2 underline-offset-2 transition-all hover:underline"
         >
-          {product.title}
+          {product.name}
         </Link>
 
         {newArrival && (
-          <Badge className="mb-4 bg-blue-600" variant="default">
+          <Badge className="mb-2 bg-blue-600" variant="default">
             Latest & Greatest
           </Badge>
         )}
+
+        <ul className="mb-4">
+          {Object.entries(product.specs ?? {}).map(([key, value]) => (
+            <li key={key}>
+              <span>{key}</span>: <span>{value}</span>
+            </li>
+          ))}
+        </ul>
 
         <div className="mb-6 flex items-center gap-2">
           <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>
