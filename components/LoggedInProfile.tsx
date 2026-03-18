@@ -1,20 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
+import type { Session } from "next-auth";
 
 type LoggedInProfileProps = {
-  user: {
-    name: string;
-    email: string;
-    image: string;
-  };
+  user: Session["user"];
 };
 
 export default function LoggedInProfile({ user }: LoggedInProfileProps) {
+  const initials = user.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <div className="flex justify-center gap-2">
       <Avatar>
-        <AvatarImage src={user.image} />
-        <AvatarFallback>CN</AvatarFallback>
+        <AvatarImage src={user.image!} />
+        <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
         <span className="text-accent-200 text-[10px] uppercase">Account</span>

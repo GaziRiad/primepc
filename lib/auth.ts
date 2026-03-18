@@ -1,6 +1,58 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import startDbConnection from "./db";
+import User from "@/models/User";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  session: { strategy: "jwt" },
   providers: [Google],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      if (account?.provider === "google") {
+        await startDbConnection();
+        const userExists = await User.findOne({ email: user.email });
+
+        if (!userExists) {
+          const newUser = await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+
+          user.id = newUser._id.toString();
+        } else {
+          user.id = userExists._id.toString();
+        }
+      }
+
+      return true;
+    },
+    authorized: async ({ auth }) => {
+      // Logged in users are authenticated, otherwise redirect to login page
+      return !!auth;
+    },
+
+    async jwt({ token, user }) {
+      if (user?.email) {
+        const dbUser = await User.findOne({ email: user.email }).select(
+          "_id role createdAt",
+        );
+        if (dbUser) {
+          token.id = dbUser._id.toString();
+          token.role = dbUser.role;
+          token.createdAt = dbUser.createdAt;
+        }
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.createdAt = token.createdAt;
+      }
+      return session;
+    },
+  },
 });

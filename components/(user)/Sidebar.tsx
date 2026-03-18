@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import TabList from "./TabList";
+import { format } from "date-fns";
 
 export default async function Sidebar() {
   const session = await auth();
@@ -19,10 +20,11 @@ export default async function Sidebar() {
           </Avatar>
 
           <div className="flex flex-col">
-            <p className="text-primary-500 mb-1 text-sm">
-              {session?.user?.name}
+            <p className="text-primary-500 mb-1 text-sm">{session.user.name}</p>
+            <p className="text-xs">
+              Member Since{" "}
+              {format(new Date(session.user.createdAt), "MMMM dd yyyy")}
             </p>
-            <p className="text-xs">Member Since Sep 2020</p>
           </div>
         </div>
       </div>

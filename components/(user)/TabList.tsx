@@ -79,7 +79,9 @@ export default function TabList() {
       <li>
         <button
           className="group hover:bg-primary flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-sm font-light transition-all"
-          onClick={() => signOut({ redirectTo: "/" })}
+          onClick={() => {
+            signOut({ redirectTo: "/" });
+          }}
         >
           <LogOut className="stroke-accent-500 stroke-[1.5px] transition-all group-hover:stroke-white" />
           <span className="transition-all group-hover:text-white">Logout</span>

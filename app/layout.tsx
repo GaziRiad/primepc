@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import { cn } from "@/lib/utils";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "PRIMEPC",
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <Header />
         <main>{children}</main>
+        <Toaster />
       </body>
     </html>
   );
