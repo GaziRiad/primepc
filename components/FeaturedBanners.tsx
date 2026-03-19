@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function FeaturedBanners() {
   return (
     <section className="mb-12 grid grid-cols-[70fr_30fr] gap-x-5">
-      <div className="relative aspect-square h-120 w-full overflow-hidden rounded-lg bg-red-600">
+      <div className="relative aspect-square h-120 w-full overflow-hidden rounded-lg">
         <Image
           fill
           src={img1}
@@ -16,7 +16,7 @@ export default function FeaturedBanners() {
       </div>
 
       <div className="flex flex-col gap-5">
-        <div className="relative h-full w-full overflow-hidden rounded-lg bg-blue-500">
+        <div className="relative h-full w-full overflow-hidden rounded-lg">
           <Image
             fill
             src={img2}
@@ -24,7 +24,7 @@ export default function FeaturedBanners() {
             className="object-cover"
           />
         </div>
-        <div className="relative h-full w-full overflow-hidden rounded-lg bg-blue-500">
+        <div className="relative h-full w-full overflow-hidden rounded-lg">
           <Image
             fill
             src={img3}

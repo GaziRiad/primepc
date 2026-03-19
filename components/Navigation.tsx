@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type NavItem = {
   label: string;
@@ -26,6 +29,10 @@ const Pages: NavItem[] = [
 ] as const;
 
 export default function Navigation() {
+  const pathname = usePathname();
+
+  console.log(pathname);
+
   return (
     <nav className="border-b">
       <div className="mx-auto max-w-7xl">
@@ -33,7 +40,7 @@ export default function Navigation() {
           {Pages.map((link, index) => (
             <li
               key={index}
-              className="hover:text-primary hover:border-primary border-background border-t-3 py-4 transition-all"
+              className={`hover:text-primary hover:border-primary border-background border-t-3 py-4 transition-all ${pathname === link.href ? "text-primary border-primary border-t-3" : "border-t-0"}`}
             >
               <Link href={link.href}>{link.label}</Link>
             </li>

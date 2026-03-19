@@ -1,6 +1,6 @@
 import Logo from "@/components/Logo";
 import { LoginForm } from "@/components/ui/login-form";
-import { auth, signIn } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function page() {

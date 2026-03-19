@@ -45,13 +45,13 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
           </Badge>
         )}
 
-        <ul className="mb-4">
+        {/* <ul className="mb-4">
           {Object.entries(product.specs ?? {}).map(([key, value]) => (
             <li key={key}>
               <span>{key}</span>: <span>{value}</span>
             </li>
           ))}
-        </ul>
+        </ul> */}
 
         <div className="mb-6 flex items-center gap-2">
           <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>

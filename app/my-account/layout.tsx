@@ -11,12 +11,12 @@ export default async function layout({
   if (!session?.user) return null;
 
   return (
-    <div className="">
+    <div>
       <div className="mx-auto max-w-7xl py-8">
         <h2 className="text-accent text-2xl font-semibold">My account</h2>
       </div>
 
-      <section className="bg-accent-50 h-180 py-12">
+      <section className="bg-accent-50 py-14">
         <div className="mx-auto grid max-w-6xl grid-cols-[27fr_73fr] gap-8">
           <Sidebar />
 
