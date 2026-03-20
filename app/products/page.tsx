@@ -1,7 +1,5 @@
-import FilterBlock from "@/components/(user)/FilterBlock";
 import Filters from "@/components/(user)/Filters";
 import SorterFilter from "@/components/(user)/SorterFilter";
-import NewArrivals from "@/components/NewArrivals";
 import ProductCard from "@/components/ProductCard";
 import { getAllProducts } from "@/lib/services";
 

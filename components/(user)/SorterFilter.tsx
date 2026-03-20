@@ -1,12 +1,15 @@
+"use client";
+
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const sortOptions = [
   { value: "priceHighToLow", label: "Price: High to Low" },
@@ -14,8 +17,22 @@ const sortOptions = [
 ];
 
 export default function SorterFilter() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const currentSort = searchParams.get("sort") || "";
+
+  function handleSorting(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("sort", value);
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
   return (
-    <Select>
+    <Select value={currentSort} onValueChange={handleSorting}>
       <SelectTrigger size="sm" className="w-full max-w-48">
         <SelectValue placeholder="Sort By:" />
       </SelectTrigger>
