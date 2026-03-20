@@ -21,7 +21,7 @@ export default async function page() {
           <Filters />
 
           {/*  */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
               <SorterFilter />
               <p className="text-sm">Showing 6 of 10 Products</p>

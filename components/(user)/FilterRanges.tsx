@@ -10,13 +10,13 @@ export default function FilterRanges({ range }: { range: number[] }) {
         <span className="flex items-center justify-center border-r p-1.5 text-xs">
           DA
         </span>
-        <span className="p-1.5">{formatDZD(min)}</span>
+        <span className="text-accent p-1.5">{formatDZD(min)}</span>
       </div>
       <div className="text-accent-300 flex items-center border">
         <span className="flex items-center justify-center border-r p-1.5 text-xs">
           DA
         </span>
-        <span className="p-1.5">{formatDZD(max)}</span>
+        <span className="text-accent p-1.5">{formatDZD(max)}</span>
       </div>
     </div>
   );

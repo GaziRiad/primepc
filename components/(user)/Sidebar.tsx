@@ -17,8 +17,6 @@ export default async function Sidebar() {
     .toUpperCase()
     .slice(0, 2);
 
-  console.log(session.user.image);
-
   return (
     <div className="rounded-xl border-[0.5px] bg-white shadow-xs">
       <div className="gap-4 border-b py-6">

@@ -45,7 +45,7 @@ const ProductSchema = new Schema(
       of: String,
       default: {},
     },
-    categories: [{ type: String }],
+    categories: [{ type: Schema.Types.ObjectId, ref: "Category", index: true }],
 
     createdAt: { type: Date, default: Date.now() },
   },
