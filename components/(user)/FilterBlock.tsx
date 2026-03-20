@@ -3,11 +3,12 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-export default function FilterBlock({
-  children,
-}: {
+type FilterBlockProps = {
+  title: string;
   children: React.ReactNode;
-}) {
+};
+
+export default function FilterBlock({ title, children }: FilterBlockProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -19,7 +20,7 @@ export default function FilterBlock({
         onClick={() => setIsOpen((curr) => !curr)}
       >
         <div className="flex w-full items-center justify-between px-5">
-          <p>Price:</p>
+          <p>{title}:</p>
           <ChevronDown
             size={20}
             className={`stroke-accent-300 transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"}`}
@@ -27,7 +28,6 @@ export default function FilterBlock({
         </div>
       </button>
 
-      {/* Keep content mounted so close animation can play smoothly. */}
       <div
         className="grid transition-[grid-template-rows] duration-300 ease-in-out"
         style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}

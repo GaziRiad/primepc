@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "../ui/field";
@@ -14,6 +17,8 @@ const Categories = [
 ];
 
 export default function Filters() {
+  const [range, setRange] = useState([25000, 50000]);
+
   return (
     <div className="flex flex-col gap-5 text-sm">
       <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
@@ -26,7 +31,7 @@ export default function Filters() {
         </Button>
       </div>
 
-      <FilterBlock>
+      <FilterBlock title="Categories">
         <FieldSet>
           <FieldGroup>
             {Categories.map((category, index) => (
@@ -45,15 +50,16 @@ export default function Filters() {
         </FieldSet>
       </FilterBlock>
 
-      <FilterBlock>
+      <FilterBlock title="Price">
         <Slider
-          defaultValue={[25, 50]}
-          max={100}
-          step={5}
+          defaultValue={range}
+          onValueChange={setRange}
+          max={200000}
+          step={1000}
           className="mx-auto mb-6 w-full max-w-xs"
         />
 
-        <FilterRanges />
+        <FilterRanges range={range} />
       </FilterBlock>
     </div>
   );
