@@ -44,16 +44,17 @@ body {
 
   /* Accent scale */
   --brand-accent-50: #fafafb;
-  --brand-accent-100: #e6e8ec;
-  --brand-accent-200: #99a5b1;
-  --brand-accent-300: #66778b;
-  --brand-accent-400: #334a64;
-  --brand-accent-500: #001d3d;
-  --brand-accent-600: #001731;
-  --brand-accent-700: #001125;
-  --brand-accent-800: #000c18;
-  --brand-accent-900: #00060c;
-  --brand-accent-950: #000306;
+  --brand-accent-100: #d6d8d9;
+  --brand-accent-200: #aeb0b3;
+  --brand-accent-300: #85898c;
+  --brand-accent-400: #5d6166;
+  /* --brand-accent-500: #001d3d; */
+  --brand-accent-500: #343a40;
+  --brand-accent-600: #2a2e33;
+  --brand-accent-700: #1f2326;
+  --brand-accent-800: #15171a;
+  --brand-accent-900: #0a0c0d;
+  --brand-accent-950: #050606;
 
   /* --background: var(--brand-accent-100); */
   --background: #fff;
@@ -83,7 +84,7 @@ body {
 
   --accent: var(--brand-accent-500);
 
-  --accent-foreground: oklch(0.205 0 0);
+  --accent-foreground: var(--brand-accent-50);
 
   --destructive: oklch(0.577 0.245 27.325);
 

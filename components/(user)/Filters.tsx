@@ -39,9 +39,13 @@ export default function Filters() {
                 <Checkbox
                   id={category}
                   name={category}
+                  className="cursor-pointer"
                   //   defaultChecked
                 />
-                <FieldLabel htmlFor={category} className="font-normal">
+                <FieldLabel
+                  htmlFor={category}
+                  className="cursor-pointer font-normal"
+                >
                   {category}
                 </FieldLabel>
               </Field>

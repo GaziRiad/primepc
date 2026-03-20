@@ -10,14 +10,20 @@ import Link from "next/link";
 
 type ProductCardProps = {
   product: Product;
-  newArrival?: boolean;
+  large?: boolean;
 };
 
-export default function ProductCard({ product, newArrival }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  large = false,
+}: ProductCardProps) {
   const finalPrice = getDiscountedPrice(product.price, product.discount);
 
   return (
-    <Card className="py-10 transition-all hover:shadow-lg">
+    <Card
+      size={!large ? "sm" : "default"}
+      className={`h-full py-10 transition-all ${large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"} `}
+    >
       <CardContent className="flex items-center justify-center">
         <div className="relative flex aspect-square w-3/4">
           <Image
@@ -28,7 +34,7 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
           />
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col items-start">
+      <CardFooter className="flex h-full flex-col items-start">
         <p className="text-accent-400 -mb-1 text-xs uppercase">
           {product.brand}
         </p>
@@ -39,35 +45,33 @@ export default function ProductCard({ product, newArrival }: ProductCardProps) {
           {product.name}
         </Link>
 
-        {newArrival && (
+        {large && (
           <Badge className="mb-2 bg-blue-600" variant="default">
             Latest & Greatest
           </Badge>
         )}
 
-        {/* <ul className="mb-4">
-          {Object.entries(product.specs ?? {}).map(([key, value]) => (
-            <li key={key}>
-              <span>{key}</span>: <span>{value}</span>
-            </li>
-          ))}
-        </ul> */}
-
-        <div className="mb-6 flex items-center gap-2">
+        <div
+          className={`mb-6 flex gap-0 ${large ? "flex-row gap-2" : "flex-col gap-0"}`}
+        >
           <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>
           {product.discount > 0 && (
-            <>
+            <div className="flex items-center gap-2">
               <p className="text-accent-300 text-sm line-through">
                 {formatDZD(product.price)}
               </p>
               <Badge variant="secondary">-{product.discount}%</Badge>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button className="cursor-pointer">Add to cart</Button>
-          <Heart className="hover:color-red-600 cursor-pointer stroke-1 transition-all hover:fill-red-600 hover:stroke-red-600" />
+        <div className="mt-auto flex items-center gap-2">
+          <Button size={large ? "default" : "sm"} className="cursor-pointer">
+            Add to cart
+          </Button>
+          <Heart
+            className={`hover:color-red-600 cursor-pointer stroke-1 transition-all hover:fill-red-600 hover:stroke-red-600 ${large ? "" : "size-5"}`}
+          />
         </div>
       </CardFooter>
     </Card>

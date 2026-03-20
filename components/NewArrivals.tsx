@@ -17,7 +17,7 @@ export default async function NewArrivals() {
       <ul className="grid grid-cols-4 gap-6">
         {products.slice(0, 8).map((product, index) => (
           <li key={index}>
-            <ProductCard product={product} newArrival={true} />
+            <ProductCard product={product} large={true} />
           </li>
         ))}
       </ul>
