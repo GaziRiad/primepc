@@ -18,9 +18,10 @@ const Categories = [
 ];
 
 export default function Filters() {
-  const [range, setRange] = useState([25000, 50000]);
-  const maxPrice = range[1];
-  const minPrice = range[1];
+  const DEFAULT_MIN = 25000;
+  const DEFAULT_MAX = 50000;
+
+  const [range, setRange] = useState([DEFAULT_MIN, DEFAULT_MAX]);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,8 +46,17 @@ export default function Filters() {
   }
 
   function handlePriceChange(values: number[]) {
-    const params = new URLSearchParams(searchParams.toString());
     setRange(values);
+  }
+
+  function handlePriceCommit(values: number[]) {
+    const [min, max] = values;
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("minPrice", min.toString());
+    params.set("maxPrice", max.toString());
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   function handleClear() {
@@ -94,6 +104,7 @@ export default function Filters() {
         <Slider
           defaultValue={range}
           onValueChange={handlePriceChange}
+          onValueCommit={handlePriceCommit}
           max={200000}
           step={1000}
           className="mx-auto mb-6 w-full max-w-xs"
