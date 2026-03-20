@@ -8,15 +8,24 @@ export default async function Sidebar() {
 
   if (!session?.user) return null;
 
-  const userImage = session?.user?.image ?? undefined; // convert null -> undefined
+  // const userImage = session.user.image ?? undefined; // convert null -> undefined
+
+  const initials = session.user.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  console.log(session.user.image);
 
   return (
     <div className="rounded-xl border-[0.5px] bg-white shadow-xs">
       <div className="gap-4 border-b py-6">
         <div className="flex items-center gap-4 px-8">
           <Avatar className="h-14 w-14">
-            <AvatarImage src={userImage} />
-            <AvatarFallback>{session.user.name}</AvatarFallback>
+            <AvatarImage src={session.user.image!} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
 
           <div className="flex flex-col">
