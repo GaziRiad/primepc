@@ -1,5 +1,6 @@
 import Filters from "@/components/(user)/Filters";
 import SorterFilter from "@/components/(user)/SorterFilter";
+import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 import { getAllCategories, getAllProducts } from "@/lib/services";
 
@@ -31,14 +32,22 @@ export default async function page({
               <p className="text-sm">Showing 6 of 10 Products</p>
             </div>
 
-            <div className="rounded-xl border-[0.5px] bg-white px-5 py-6 shadow-xs">
-              <ul className="grid grid-cols-4 gap-6">
-                {products?.slice(0, 8).map((product, index) => (
-                  <li key={index}>
-                    <ProductCard product={product} />
-                  </li>
-                ))}
-              </ul>
+            <div className="flex min-h-194 flex-col rounded-xl border-[0.5px] bg-white px-5 py-6 shadow-xs">
+              {products.length === 0 ? (
+                <div className="flex flex-1 items-center justify-center">
+                  <p className="text-muted-foreground">No products found.</p>
+                </div>
+              ) : (
+                <ul className="grid flex-1 grid-cols-4 content-start gap-6">
+                  {products.slice(0, 8).map((product, index) => (
+                    <li key={index}>
+                      <ProductCard product={product} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {products.length > 0 && <PaginationTable />}
             </div>
           </div>
         </div>

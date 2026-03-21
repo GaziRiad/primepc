@@ -3,32 +3,51 @@
 import Category from "@/models/Category";
 import startDbConnection from "./db";
 import Product from "@/models/Product";
+import { cache } from "react";
 
-export async function getAllProducts(query: {
-  [key: string]: string | string[] | undefined;
-}) {
-  try {
-    startDbConnection();
+export const getAllProducts = cache(
+  async (query?: { [key: string]: string | string[] | undefined }) => {
+    try {
+      await startDbConnection();
 
-    const category = await Category.findOne({ slug: query.categories }).lean();
+      // 1. normalize, make it defulat to string[]
+      const categories = Array.isArray(query?.categories)
+        ? query?.categories
+        : query?.categories
+          ? [query?.categories]
+          : [];
 
-    const products = await Product.find().lean();
+      // 2. get category IDs
+      const categoryDocs = await Category.find({
+        slug: { $in: categories },
+      }).lean();
 
-    console.log(products);
+      const categoryIds = categoryDocs.map((c) => c._id);
 
-    return products;
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Internal server error";
+      // 3. build query
+      const mongoQuery: { categories?: { $in: typeof categoryIds } } = {};
 
-    throw new Error(message);
-  }
-}
+      if (categoryIds.length) {
+        mongoQuery.categories = { $in: categoryIds };
+      }
 
-export async function getProduct(id: string) {
+      // 4. fetch
+      const products = await Product.find(mongoQuery).lean();
+
+      return products;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
+
+      throw new Error(message);
+    }
+  },
+);
+
+export const getProduct = cache(async (id: string) => {
   try {
     // console.log(query);
-    startDbConnection();
+    await startDbConnection();
     const product = await Product.findById(id).populate("categories").lean();
 
     // console.log();
@@ -40,12 +59,12 @@ export async function getProduct(id: string) {
 
     throw new Error(message);
   }
-}
+});
 
-export async function getAllCategories() {
+export const getAllCategories = cache(async () => {
   try {
     // console.log(query);
-    startDbConnection();
+    await startDbConnection();
     const categories = await Category.find()
       .select("name slug image -_id")
       .lean();
@@ -59,4 +78,4 @@ export async function getAllCategories() {
 
     throw new Error(message);
   }
-}
+});

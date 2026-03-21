@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "prod": "npm run build && npm run start",
     "db:seed:products": "tsx lib/seed-products.ts",
     "db:seed:products:reset": "tsx lib/seed-products.ts --reset"
   },

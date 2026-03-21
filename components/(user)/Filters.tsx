@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Field, FieldGroup, FieldLabel, FieldSet } from "../ui/field";
@@ -20,6 +20,7 @@ export default function Filters({ categories }: FiltersProps) {
   const DEFAULT_MAX = 50000;
 
   const [range, setRange] = useState([DEFAULT_MIN, DEFAULT_MAX]);
+  const [isPending, startTransition] = useTransition();
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,20 +28,22 @@ export default function Filters({ categories }: FiltersProps) {
 
   const currentCategories = searchParams.getAll("categories");
 
-  function handleCategoryChange(category: string) {
+  const [selected, setSelected] = useState(currentCategories);
+
+  function handleCategoryChange(slug: string) {
+    const next = selected.includes(slug)
+      ? selected.filter((s) => s !== slug)
+      : [...selected, slug];
+
+    setSelected(next); // instant UI feedback
+
     const params = new URLSearchParams(searchParams.toString());
+    params.delete("categories");
+    next.forEach((c) => params.append("categories", c));
 
-    if (currentCategories.includes(category)) {
-      // when checked, remove the category from the query
-      const updated = currentCategories.filter((cat) => cat !== category);
-      params.delete("categories");
-      updated.forEach((cat) => params.append("categories", cat));
-    } else {
-      // when not checked, add newly checked category
-      params.append("categories", category);
-    }
-
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   }
 
   function handlePriceChange(values: number[]) {
@@ -84,7 +87,7 @@ export default function Filters({ categories }: FiltersProps) {
                   id={category.slug}
                   name={category.name}
                   className="cursor-pointer"
-                  checked={currentCategories.includes(category.slug)}
+                  checked={selected.includes(category.slug)}
                   onCheckedChange={() => handleCategoryChange(category.slug)}
                 />
                 <FieldLabel

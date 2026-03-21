@@ -6,6 +6,7 @@ import User from "@/models/User";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   providers: [Google],
+  trustHost: true, // Add this line
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       if (account?.provider === "google") {

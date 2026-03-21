@@ -61,5 +61,8 @@ ProductSchema.pre("validate", function () {
   }
 });
 
+ProductSchema.index({ categories: 1 });
+ProductSchema.index({ price: 1 });
+
 const Product = models.Product || model("Product", ProductSchema);
 export default Product;
