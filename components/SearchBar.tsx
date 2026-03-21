@@ -13,8 +13,6 @@ import {
 export default function SearchBar() {
   const [query, setQuery] = useState("");
 
-  console.log(query);
-
   return (
     <Field>
       <InputGroup>
@@ -23,7 +21,7 @@ export default function SearchBar() {
           type="text"
           onChange={(e) => setQuery(e.target.value)}
           id="input-group-url"
-          placeholder="Search ..."
+          placeholder="I am shopping for..."
         />
         <InputGroupAddon align="inline-end">
           <Search />

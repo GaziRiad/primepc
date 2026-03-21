@@ -31,8 +31,6 @@ const Pages: NavItem[] = [
 export default function Navigation() {
   const pathname = usePathname();
 
-  console.log(pathname);
-
   return (
     <nav className="border-b">
       <div className="mx-auto max-w-7xl">

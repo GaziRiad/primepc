@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 import type { Connection } from "mongoose";
 
-const url = process.env?.MONGODB_URI?.replace(
-  "<db_password>",
-  process.env.DB_PASSWORD || "",
-);
 let connection: Connection | null = null;
 
 const startDbConnection = async () => {
+  const url = process.env?.MONGODB_URI?.replace(
+    "<db_password>",
+    process.env.DB_PASSWORD || "",
+  );
+
   if (!connection) {
     if (!url) {
       throw new Error("MONGODB_URI environment variable is not set");

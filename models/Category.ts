@@ -28,5 +28,11 @@ const CategorySchema = new Schema(
   },
 );
 
+CategorySchema.virtual("products", {
+  ref: "Product",
+  localField: "_id",
+  foreignField: "categories",
+});
+
 const Category = models.Category || model("Category", CategorySchema);
 export default Category;

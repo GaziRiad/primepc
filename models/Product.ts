@@ -45,9 +45,9 @@ const ProductSchema = new Schema(
       of: String,
       default: {},
     },
-    categories: [{ type: Schema.Types.ObjectId, ref: "Category", index: true }],
-
     createdAt: { type: Date, default: Date.now() },
+
+    categories: [{ type: Schema.Types.ObjectId, ref: "Category", index: true }],
   },
   {
     toJSON: { virtuals: true },

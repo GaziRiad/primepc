@@ -9,15 +9,13 @@ import FilterBlock from "./FilterBlock";
 import FilterRanges from "./FilterRanges";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-const Categories = [
-  "Studies",
-  "Gaming",
-  "Design-Creativity",
-  "Work",
-  "Accessories",
-];
+// type CategoryFilterItem = { name: string; slug: string; image?: string };
 
-export default function Filters() {
+type FiltersProps = {
+  categories: { name: string; slug: string; image?: string }[];
+};
+
+export default function Filters({ categories }: FiltersProps) {
   const DEFAULT_MIN = 25000;
   const DEFAULT_MAX = 50000;
 
@@ -27,7 +25,7 @@ export default function Filters() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const currentCategories = searchParams.getAll("category");
+  const currentCategories = searchParams.getAll("categories");
 
   function handleCategoryChange(category: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -35,11 +33,11 @@ export default function Filters() {
     if (currentCategories.includes(category)) {
       // when checked, remove the category from the query
       const updated = currentCategories.filter((cat) => cat !== category);
-      params.delete("category");
-      updated.forEach((cat) => params.append("category", cat));
+      params.delete("categories");
+      updated.forEach((cat) => params.append("categories", cat));
     } else {
       // when not checked, add newly checked category
-      params.append("category", category);
+      params.append("categories", category);
     }
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -60,6 +58,7 @@ export default function Filters() {
   }
 
   function handleClear() {
+    if (!searchParams.toString()) return;
     router.replace(pathname, { scroll: false });
   }
 
@@ -79,20 +78,20 @@ export default function Filters() {
       <FilterBlock title="Categories">
         <FieldSet>
           <FieldGroup>
-            {Categories.map((category, index) => (
+            {categories.map((category, index) => (
               <Field key={index} orientation="horizontal">
                 <Checkbox
-                  id={category}
-                  name={category}
+                  id={category.slug}
+                  name={category.name}
                   className="cursor-pointer"
-                  checked={currentCategories.includes(category)}
-                  onCheckedChange={() => handleCategoryChange(category)}
+                  checked={currentCategories.includes(category.slug)}
+                  onCheckedChange={() => handleCategoryChange(category.slug)}
                 />
                 <FieldLabel
-                  htmlFor={category}
+                  htmlFor={category.slug}
                   className="cursor-pointer font-normal"
                 >
-                  {category}
+                  {category.name}
                 </FieldLabel>
               </Field>
             ))}
