@@ -10,7 +10,7 @@ import {
 
 export default function PaginationTable() {
   return (
-    <Pagination className="mt-auto">
+    <Pagination className="mt-10">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious href="#" />

@@ -26,13 +26,14 @@ export default async function page({
         <div className="mx-auto grid max-w-7xl grid-cols-[27fr_73fr] gap-8">
           <Filters categories={categories} />
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col">
             <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
               <SorterFilter />
               <p className="text-sm">Showing 6 of 10 Products</p>
             </div>
 
-            <div className="flex min-h-194 flex-col rounded-xl border-[0.5px] bg-white px-5 py-6 shadow-xs">
+            {/* <div className="flex min-h-194 flex-col rounded-xl border-[0.5px] px-5 py-6 shadow-xs"> */}
+            <div className="flex flex-col py-3 shadow-xs">
               {products.length === 0 ? (
                 <div className="flex flex-1 items-center justify-center">
                   <p className="text-muted-foreground">No products found.</p>
