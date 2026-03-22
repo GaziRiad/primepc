@@ -10,29 +10,73 @@ export const getAllProducts = cache(
     try {
       await startDbConnection();
 
-      // 1. normalize, make it defulat to string[]
-      const categories = Array.isArray(query?.categories)
-        ? query?.categories
-        : query?.categories
-          ? [query?.categories]
-          : [];
+      const queryObj = {
+        ...query,
+      };
 
-      // 2. get category IDs
-      const categoryDocs = await Category.find({
-        slug: { $in: categories },
-      }).lean();
+      const excludedFields = ["page", "sort", "limit", "fields"];
 
-      const categoryIds = categoryDocs.map((c) => c._id);
+      excludedFields.forEach((field) => delete queryObj[field]);
 
-      // 3. build query
-      const mongoQuery: { categories?: { $in: typeof categoryIds } } = {};
+      const mongoQuery: any = { ...queryObj };
 
-      if (categoryIds.length) {
+      if (queryObj.categories) {
+        const categories = Array.isArray(queryObj.categories)
+          ? queryObj.categories
+          : [queryObj.categories];
+
+        const categoryDocs = await Category.find({
+          slug: { $in: categories },
+        }).lean();
+
+        const categoryIds = categoryDocs.map((c) => c._id);
+
+        if (!categoryIds.length) return [];
         mongoQuery.categories = { $in: categoryIds };
       }
 
+      //
+
+      if (queryObj.minPrice || queryObj.maxPrice) {
+        mongoQuery.price = {};
+
+        if (queryObj.minPrice) {
+          mongoQuery.price.$gte = Number(queryObj.minPrice);
+        }
+
+        if (queryObj.maxPrice) {
+          mongoQuery.price.$lte = Number(queryObj.maxPrice);
+        }
+      }
+
+      delete mongoQuery["minPrice"];
+      delete mongoQuery["maxPrice"];
+
+      let dbQuery = Product.find(mongoQuery);
+
+      // SORTING
+
+      if (typeof query?.sort === "string" && query?.sort.trim()) {
+        const isValidSort = /^-?[a-zA-Z0-9_]+(,-?[a-zA-Z0-9_]+)*$/.test(
+          query.sort,
+        );
+
+        if (isValidSort) {
+          const sortBy = query.sort.split(",").join(" ");
+          dbQuery = dbQuery.sort(sortBy);
+        }
+        // else: ignore invalid sort and keep default order
+      }
+
+      // PAGINATION
+      const page = Number(query?.page) || 1;
+      const limit = Number(query?.limit) || 8;
+      const skip = (page - 1) * limit;
+
+      dbQuery = dbQuery.skip(skip).limit(limit);
+
       // 4. fetch
-      const products = await Product.find(mongoQuery).lean();
+      const products = await dbQuery.lean();
 
       return products;
     } catch (error) {
@@ -46,11 +90,8 @@ export const getAllProducts = cache(
 
 export const getProduct = cache(async (id: string) => {
   try {
-    // console.log(query);
     await startDbConnection();
     const product = await Product.findById(id).populate("categories").lean();
-
-    // console.log();
 
     return product;
   } catch (error) {
@@ -63,13 +104,10 @@ export const getProduct = cache(async (id: string) => {
 
 export const getAllCategories = cache(async () => {
   try {
-    // console.log(query);
     await startDbConnection();
     const categories = await Category.find()
       .select("name slug image -_id")
       .lean();
-
-    // console.log();
 
     return categories;
   } catch (error) {

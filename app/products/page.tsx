@@ -3,6 +3,7 @@ import SorterFilter from "@/components/(user)/SorterFilter";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 import { getAllCategories, getAllProducts } from "@/lib/services";
+import { Product } from "@/types/types";
 
 export default async function page({
   searchParams,
@@ -10,8 +11,7 @@ export default async function page({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const query = await searchParams;
-  // console.log(query);
-  const products = await getAllProducts(query);
+  const products: Product[] = await getAllProducts(query);
   const categories = await getAllCategories();
 
   return (
@@ -39,7 +39,7 @@ export default async function page({
                 </div>
               ) : (
                 <ul className="grid flex-1 grid-cols-4 content-start gap-6">
-                  {products.slice(0, 8).map((product, index) => (
+                  {products.map((product, index) => (
                     <li key={index}>
                       <ProductCard product={product} />
                     </li>

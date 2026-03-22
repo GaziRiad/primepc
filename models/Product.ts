@@ -1,3 +1,5 @@
+import { getDiscountedPrice } from "@/lib/utils";
+import { type Product } from "@/types/types";
 import { model, models, Schema } from "mongoose";
 import slugify from "slugify";
 
@@ -21,7 +23,11 @@ const ProductSchema = new Schema(
       required: [true, "Product slug is required"],
       unique: true,
     },
-    brand: { type: String, default: "" },
+    brand: {
+      type: String,
+      default: "",
+      lowercase: true, // This field will always be lowercased
+    },
     description: { type: String, default: "" },
     price: {
       type: Number,
@@ -33,6 +39,12 @@ const ProductSchema = new Schema(
       default: 0,
       min: [0, "discount must be between 0 and 100."],
       max: [100, "discount must be between 0 and 100."],
+    },
+    finalPrice: {
+      type: Number,
+      default: function (this: Product) {
+        return getDiscountedPrice(this.price, this.discount);
+      },
     },
     coverImage: {
       type: String,

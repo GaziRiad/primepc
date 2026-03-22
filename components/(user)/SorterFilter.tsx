@@ -12,8 +12,8 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const sortOptions = [
-  { value: "priceHighToLow", label: "Price: High to Low" },
-  { value: "priceLowToHigh", label: "Price: Low to High" },
+  { value: "-finalPrice", label: "Price: High to Low" },
+  { value: "finalPrice", label: "Price: Low to High" },
 ];
 
 export default function SorterFilter() {

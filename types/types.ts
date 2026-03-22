@@ -5,6 +5,7 @@ export type Product = {
   description?: string;
   price: number;
   discount: number;
+  finalPrice: number;
   coverImage: string;
   images?: string;
   specs?: [string];

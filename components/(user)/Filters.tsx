@@ -16,17 +16,17 @@ type FiltersProps = {
 };
 
 export default function Filters({ categories }: FiltersProps) {
-  const DEFAULT_MIN = 25000;
-  const DEFAULT_MAX = 50000;
-
-  const [range, setRange] = useState([DEFAULT_MIN, DEFAULT_MAX]);
-  const [isPending, startTransition] = useTransition();
-
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const currentCategories = searchParams.getAll("categories");
+  const DEFAULT_MIN = Number(searchParams.get("minPrice")) || 25000;
+  const DEFAULT_MAX = Number(searchParams.get("maxPrice")) || 200000;
+
+  const [range, setRange] = useState([DEFAULT_MIN, DEFAULT_MAX]);
+  const [isPending, startTransition] = useTransition();
+
+  const currentCategories = searchParams.getAll("categories") || [];
 
   const [selected, setSelected] = useState(currentCategories);
 
@@ -46,10 +46,6 @@ export default function Filters({ categories }: FiltersProps) {
     });
   }
 
-  function handlePriceChange(values: number[]) {
-    setRange(values);
-  }
-
   function handlePriceCommit(values: number[]) {
     const [min, max] = values;
     const params = new URLSearchParams(searchParams.toString());
@@ -57,12 +53,17 @@ export default function Filters({ categories }: FiltersProps) {
     params.set("minPrice", min.toString());
     params.set("maxPrice", max.toString());
 
+    setRange(values);
+
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   function handleClear() {
     if (!searchParams.toString()) return;
+
     router.replace(pathname, { scroll: false });
+    setRange([DEFAULT_MIN, DEFAULT_MAX]);
+    setSelected([]);
   }
 
   return (
@@ -105,7 +106,7 @@ export default function Filters({ categories }: FiltersProps) {
       <FilterBlock title="Price">
         <Slider
           defaultValue={range}
-          onValueChange={handlePriceChange}
+          // onValueChange={handlePriceChange}
           onValueCommit={handlePriceCommit}
           max={200000}
           step={1000}
