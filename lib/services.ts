@@ -10,6 +10,9 @@ export const getAllProducts = cache(
     try {
       await startDbConnection();
 
+      const toSingle = (value: string | string[] | undefined) =>
+        Array.isArray(value) ? value[0] : value;
+
       const queryObj = {
         ...query,
       };
@@ -37,16 +40,25 @@ export const getAllProducts = cache(
 
       //
 
-      if (queryObj.minPrice || queryObj.maxPrice) {
+      const minRaw = toSingle(queryObj.minPrice);
+      const maxRaw = toSingle(queryObj.maxPrice);
+
+      if (
+        (minRaw && Number.isNaN(Number(minRaw))) ||
+        (maxRaw && Number.isNaN(Number(maxRaw)))
+      ) {
+        return [];
+      }
+
+      if (minRaw || maxRaw) {
+        const min = minRaw ? Number(minRaw) : undefined;
+        const max = maxRaw ? Number(maxRaw) : undefined;
+
+        if (min !== undefined && max !== undefined && min > max) return [];
+
         mongoQuery.price = {};
-
-        if (queryObj.minPrice) {
-          mongoQuery.price.$gte = Number(queryObj.minPrice);
-        }
-
-        if (queryObj.maxPrice) {
-          mongoQuery.price.$lte = Number(queryObj.maxPrice);
-        }
+        if (min !== undefined) mongoQuery.price.$gte = min;
+        if (max !== undefined) mongoQuery.price.$lte = max;
       }
 
       delete mongoQuery["minPrice"];

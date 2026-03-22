@@ -15,19 +15,24 @@ type FiltersProps = {
   categories: { name: string; slug: string; image?: string }[];
 };
 
+const DEFAULT_MIN = 25000;
+const DEFAULT_MAX = 200000;
+
 export default function Filters({ categories }: FiltersProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const DEFAULT_MIN = Number(searchParams.get("minPrice")) || 25000;
-  const DEFAULT_MAX = Number(searchParams.get("maxPrice")) || 200000;
-
-  const [range, setRange] = useState([DEFAULT_MIN, DEFAULT_MAX]);
-  const [isPending, startTransition] = useTransition();
+  const urlMin = Number(searchParams.get("minPrice")) || DEFAULT_MIN;
+  const urlMax = Number(searchParams.get("maxPrice")) || DEFAULT_MAX;
+  const sliderKey = `${urlMin}-${urlMax}`;
 
   const currentCategories = searchParams.getAll("categories") || [];
 
+  const [range, setRange] = useState([urlMin, urlMax]);
+  const [, startTransition] = useTransition();
+
+  // optimistic state
   const [selected, setSelected] = useState(currentCategories);
 
   function handleCategoryChange(slug: string) {
@@ -50,20 +55,23 @@ export default function Filters({ categories }: FiltersProps) {
     const [min, max] = values;
     const params = new URLSearchParams(searchParams.toString());
 
+    setRange(values);
     params.set("minPrice", min.toString());
     params.set("maxPrice", max.toString());
 
-    setRange(values);
-
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   }
-
   function handleClear() {
     if (!searchParams.toString()) return;
 
-    router.replace(pathname, { scroll: false });
-    setRange([DEFAULT_MIN, DEFAULT_MAX]);
     setSelected([]);
+    setRange([DEFAULT_MIN, DEFAULT_MAX]);
+
+    startTransition(() => {
+      router.replace(pathname, { scroll: false });
+    });
   }
 
   return (
@@ -105,9 +113,10 @@ export default function Filters({ categories }: FiltersProps) {
 
       <FilterBlock title="Price">
         <Slider
-          defaultValue={range}
-          // onValueChange={handlePriceChange}
+          key={sliderKey}
+          defaultValue={[urlMin, urlMax]}
           onValueCommit={handlePriceCommit}
+          onValueChange={setRange}
           max={200000}
           step={1000}
           className="mx-auto mb-6 w-full max-w-xs"
