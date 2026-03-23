@@ -1,12 +1,8 @@
 import { getAllProducts } from "@/lib/services";
 import ProductCard from "./ProductCard";
-import { auth } from "@/lib/auth";
 
 export default async function NewArrivals() {
-  // get user
-  const session = await auth();
-
-  const products = await getAllProducts(undefined, session?.user.id);
+  const products = await getAllProducts(undefined);
 
   return (
     <section className="py-20">

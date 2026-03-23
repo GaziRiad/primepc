@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "PRIMEPC",
@@ -31,7 +32,9 @@ export default function RootLayout({
       className={`${cn("font-sans", publicSans.variable)} ${cn("font-fjalla", fjalla.variable)}`}
     >
       <body className={`antialiased`}>
-        <Header />
+        <SessionProvider>
+          <Header />
+        </SessionProvider>
 
         <main>{children}</main>
         <footer className="h-96 bg-white">

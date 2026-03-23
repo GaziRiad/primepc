@@ -3,13 +3,7 @@ import SorterFilter from "@/components/(user)/SorterFilter";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 
-import { auth } from "@/lib/auth";
-
-import {
-  getAllCategories,
-  getAllProducts,
-  getMyFavoriteProductIds,
-} from "@/lib/services";
+import { getAllCategories, getAllProducts } from "@/lib/services";
 import { TProduct } from "@/types/types";
 
 export default async function page({
@@ -17,12 +11,9 @@ export default async function page({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // get user
-  const session = await auth();
-
   const query = await searchParams;
   const categories = await getAllCategories();
-  const products: TProduct[] = await getAllProducts(query, session?.user.id);
+  const products: TProduct[] = await getAllProducts(query);
 
   return (
     <div className="">

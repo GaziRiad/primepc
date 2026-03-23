@@ -1,13 +1,15 @@
+"use client";
+
 import { Heart, ShoppingCart } from "lucide-react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
-import { auth } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 
-export default async function Header() {
-  const session = await auth();
+export default function Header() {
+  const { data: session } = useSession();
 
   return (
     <header className="">

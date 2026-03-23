@@ -6,19 +6,16 @@ import NewArrivals from "@/components/NewArrivals";
 
 export default async function page() {
   return (
-    <div className="min-h-screen py-12">
-      {/* <Navigation /> */}
-      <div className="mx-auto max-w-7xl">
-        {/* <FeaturedBanners /> */}
+    <div className="mx-auto max-w-7xl py-12">
+      <FeaturedBanners />
 
-        <FeaturesList />
+      <FeaturesList />
 
-        {/* <BrowseByCategories /> */}
+      <BrowseByCategories />
 
-        <NewArrivals />
+      <NewArrivals />
 
-        <MainDiscount />
-      </div>
+      <MainDiscount />
     </div>
   );
 }

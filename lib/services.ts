@@ -11,7 +11,7 @@ import Favorite from "@/models/Favorite";
 
 type QueryParams = { [key: string]: string | string[] | undefined };
 
-export const getAllProducts = async (query?: QueryParams, userId?: string) => {
+export const getAllProducts = async (query?: QueryParams) => {
   try {
     await startDbConnection();
 
@@ -97,17 +97,6 @@ export const getAllProducts = async (query?: QueryParams, userId?: string) => {
     // 4. fetch
     const products = await dbQuery.lean();
     return products;
-
-    // NEW: only add favorite flag when a user is provided
-    // if (!userId) return products;
-
-    // const favoriteIds = await getMyFavoriteProductIds(userId);
-    // const favoriteSet = new Set(favoriteIds);
-
-    // return products.map((p) => ({
-    //   ...p,
-    //   isFavorite: favoriteSet.has(String(p._id)),
-    // }));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";
