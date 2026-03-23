@@ -1,5 +1,4 @@
 import { getDiscountedPrice } from "@/lib/utils";
-import { type Product } from "@/types/types";
 import { model, models, Schema } from "mongoose";
 import slugify from "slugify";
 
@@ -42,7 +41,7 @@ const ProductSchema = new Schema(
     },
     finalPrice: {
       type: Number,
-      default: function (this: Product) {
+      default: function (this) {
         return getDiscountedPrice(this.price, this.discount);
       },
     },

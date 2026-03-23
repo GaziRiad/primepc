@@ -2,15 +2,16 @@
 
 import Category from "@/models/Category";
 import startDbConnection from "./db";
-import Product from "@/models/Product";
 import { cache } from "react";
+import Product from "@/models/Product";
 
-import type { QueryFilter, InferSchemaType } from "mongoose";
+import type { QueryFilter } from "mongoose";
+import type { TProduct } from "@/types/types";
+import Favorite from "@/models/Favorite";
 
 type QueryParams = { [key: string]: string | string[] | undefined };
-type ProductDoc = InferSchemaType<typeof Product.schema>;
 
-export const getAllProducts = cache(async (query?: QueryParams) => {
+export const getAllProducts = async (query?: QueryParams, userId?: string) => {
   try {
     await startDbConnection();
 
@@ -25,9 +26,9 @@ export const getAllProducts = cache(async (query?: QueryParams) => {
 
     excludedFields.forEach((field) => delete queryObj[field]);
 
-    const mongoQuery: QueryFilter<ProductDoc> = {
+    const mongoQuery: QueryFilter<TProduct> = {
       ...queryObj,
-    } as QueryFilter<ProductDoc>;
+    } as QueryFilter<TProduct>;
 
     if (queryObj.categories) {
       const categories = Array.isArray(queryObj.categories)
@@ -95,15 +96,25 @@ export const getAllProducts = cache(async (query?: QueryParams) => {
 
     // 4. fetch
     const products = await dbQuery.lean();
-
     return products;
+
+    // NEW: only add favorite flag when a user is provided
+    // if (!userId) return products;
+
+    // const favoriteIds = await getMyFavoriteProductIds(userId);
+    // const favoriteSet = new Set(favoriteIds);
+
+    // return products.map((p) => ({
+    //   ...p,
+    //   isFavorite: favoriteSet.has(String(p._id)),
+    // }));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";
 
     throw new Error(message);
   }
-});
+};
 
 export const getProduct = cache(async (id: string) => {
   try {
@@ -118,6 +129,8 @@ export const getProduct = cache(async (id: string) => {
     throw new Error(message);
   }
 });
+
+//
 
 export const getAllCategories = cache(async () => {
   try {
@@ -134,3 +147,26 @@ export const getAllCategories = cache(async () => {
     throw new Error(message);
   }
 });
+
+// FAVORITES SERVICES
+
+export const getMyFavoriteProductIds = async (userId: string) => {
+  try {
+    await startDbConnection();
+
+    if (!userId) return [];
+
+    const userFavorites = await Favorite.find({
+      user: userId,
+    })
+      .select("product -_id")
+      .lean();
+
+    return userFavorites.map((f) => String(f.product));
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
+    throw new Error(message);
+  }
+};

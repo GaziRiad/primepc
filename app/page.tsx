@@ -9,11 +9,11 @@ export default async function page() {
     <div className="min-h-screen py-12">
       {/* <Navigation /> */}
       <div className="mx-auto max-w-7xl">
-        <FeaturedBanners />
+        {/* <FeaturedBanners /> */}
 
         <FeaturesList />
 
-        <BrowseByCategories />
+        {/* <BrowseByCategories /> */}
 
         <NewArrivals />
 

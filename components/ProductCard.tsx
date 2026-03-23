@@ -4,12 +4,12 @@ import Image from "next/image";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
-import { type Product } from "@/types/types";
-import { Heart } from "lucide-react";
+import { type TProduct } from "@/types/types";
 import Link from "next/link";
+import FavoriteButton from "./(user)/FavoriteButton";
 
 type ProductCardProps = {
-  product: Product;
+  product: TProduct;
   large?: boolean;
 };
 
@@ -65,14 +65,12 @@ export default function ProductCard({
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-2">
+        <form className="mt-auto flex items-center gap-2">
           <Button size={large ? "default" : "sm"} className="cursor-pointer">
             Add to cart
           </Button>
-          <Heart
-            className={`hover:color-red-600 cursor-pointer stroke-1 transition-all hover:fill-red-600 hover:stroke-red-600 ${large ? "" : "size-5"}`}
-          />
-        </div>
+          <FavoriteButton productId={product._id.toString()} large={large} />
+        </form>
       </CardFooter>
     </Card>
   );
