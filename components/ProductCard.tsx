@@ -46,7 +46,7 @@ export default function ProductCard({
         </Link>
 
         {large && (
-          <Badge className="mb-2 bg-blue-600" variant="default">
+          <Badge className="mb-2 bg-amber-400" variant="default">
             Latest & Greatest
           </Badge>
         )}

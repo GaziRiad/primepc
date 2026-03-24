@@ -15,6 +15,8 @@ export const getAllProducts = async (query?: QueryParams) => {
   try {
     await startDbConnection();
 
+    // await new Promise((resolve) => setTimeout(resolve, 4000));
+
     const toSingle = (value: string | string[] | undefined) =>
       Array.isArray(value) ? value[0] : value;
 
