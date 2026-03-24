@@ -7,23 +7,13 @@ import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
 import { useSession } from "next-auth/react";
-import useSWR from "swr";
-import { fetcher } from "@/lib/utils";
 import Link from "next/link";
-import { TFavoriteApiItem } from "@/types/types";
+import { useFavorites } from "@/hooks/useFavorites";
 
 export default function Header() {
   const { data: session } = useSession();
 
-  const {
-    data: favProducts = [],
-    mutate,
-    isLoading,
-  } = useSWR<TFavoriteApiItem[]>("/api/favorites", fetcher, {
-    refreshInterval: 2000,
-    revalidateOnFocus: true,
-    revalidateOnReconnect: true,
-  });
+  const { favorites: favProducts } = useFavorites();
 
   return (
     <header className="">
