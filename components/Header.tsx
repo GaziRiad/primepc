@@ -16,7 +16,7 @@ export default function Header() {
   const { favorites: favProducts } = useFavorites();
 
   return (
-    <header className="">
+    <header className="bg-background sticky top-0 z-50">
       <div className="border-b py-6">
         <div className="mx-auto grid max-w-7xl grid-cols-[25fr_35fr_40fr]">
           <Logo />
