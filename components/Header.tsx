@@ -7,9 +7,23 @@ import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
+import { fetcher } from "@/lib/utils";
+import Link from "next/link";
+import { TFavoriteApiItem } from "@/types/types";
 
 export default function Header() {
   const { data: session } = useSession();
+
+  const {
+    data: favProducts = [],
+    mutate,
+    isLoading,
+  } = useSWR<TFavoriteApiItem[]>("/api/favorites", fetcher, {
+    refreshInterval: 2000,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+  });
 
   return (
     <header className="">
@@ -26,12 +40,12 @@ export default function Header() {
             )}
 
             <div className="flex items-center gap-2.5">
-              <div className="relative cursor-pointer">
+              <Link href="/wishlist" className="relative cursor-pointer">
                 <Heart className="stroke-1" />
                 <span className="absolute -top-1.5 -right-1.5 rounded-full bg-red-600 px-1 py-0 text-[10px] text-white">
-                  0
+                  {favProducts.length || 0}
                 </span>
-              </div>
+              </Link>
               <div className="relative cursor-pointer">
                 <ShoppingCart className="stroke-1" />
                 <span className="absolute -top-1.5 -right-1.5 rounded-full bg-red-600 px-1 py-0 text-[10px] text-white">

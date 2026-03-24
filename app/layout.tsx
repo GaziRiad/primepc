@@ -42,7 +42,7 @@ export default function RootLayout({
             Footer
           </h2>
         </footer>
-        <Toaster />
+        <Toaster position="top-center" />
       </body>
     </html>
   );

@@ -21,3 +21,5 @@ export function getDiscountedPrice(price: number, discountPercent: number) {
   const discountedAmount = price * (safeDiscount / 100);
   return Math.round(price - discountedAmount);
 }
+
+export const fetcher = (url: string) => fetch(url).then((r) => r.json());

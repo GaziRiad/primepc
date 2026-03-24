@@ -31,20 +31,20 @@ body {
 
 :root {
   /* Primary scale */
-  --brand-primary-50: #fffefe;
-  --brand-primary-100: #fcefcc;
-  --brand-primary-200: #f9e099;
-  --brand-primary-300: #f6d066;
-  --brand-primary-400: #f3c133;
-  --brand-primary-500: #f0b100;
-  --brand-primary-600: #c08e00;
-  --brand-primary-700: #906a00;
-  --brand-primary-800: #604700;
-  --brand-primary-900: #302300;
+  --brand-primary-50: #f6f9ff;
+  --brand-primary-100: #d0dffe;
+  --brand-primary-200: #a1befd;
+  --brand-primary-300: #739efd;
+  --brand-primary-400: #447dfc;
+  --brand-primary-500: #155dfb;
+  --brand-primary-600: #114ac9;
+  --brand-primary-700: #0d3897;
+  --brand-primary-800: #041332;
+  --brand-primary-900: #020919;
 
   /* Accent scale */
   --brand-accent-50: #fafafb;
-  --brand-accent-100: #d6d8d9;
+  --brand-accent-100: #f3f3f4;
   --brand-accent-200: #aeb0b3;
   --brand-accent-300: #85898c;
   --brand-accent-400: #5d6166;

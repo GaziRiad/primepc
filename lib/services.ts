@@ -139,7 +139,7 @@ export const getAllCategories = cache(async () => {
 
 // FAVORITES SERVICES
 
-export const getMyFavoriteProductIds = async (userId: string) => {
+export const getMyFavoriteProducts = async (userId: string) => {
   try {
     await startDbConnection();
 
@@ -148,10 +148,11 @@ export const getMyFavoriteProductIds = async (userId: string) => {
     const userFavorites = await Favorite.find({
       user: userId,
     })
-      .select("product -_id")
+      .select("product")
+      .populate("product", "name price discount finalPrice coverImage slug _id")
       .lean();
 
-    return userFavorites.map((f) => String(f.product));
+    return userFavorites;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";

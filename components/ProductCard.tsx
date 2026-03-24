@@ -69,7 +69,7 @@ export default function ProductCard({
           <Button size={large ? "default" : "sm"} className="cursor-pointer">
             Add to cart
           </Button>
-          <FavoriteButton productId={product._id.toString()} large={large} />
+          <FavoriteButton productId={product?._id.toString()} large={large} />
         </form>
       </CardFooter>
     </Card>
