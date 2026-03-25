@@ -19,10 +19,9 @@ const CategorySchema = new Schema(
     },
 
     isActive: { type: Boolean, default: true },
-
-    createdAt: { type: Date, default: Date.now() },
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },

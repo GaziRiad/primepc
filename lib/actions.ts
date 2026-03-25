@@ -30,5 +30,4 @@ export const toggleFavoritesAction = async (productId: string) => {
   // always run, for both add/remove
   revalidatePath("/", "page");
   revalidatePath("/products", "page");
-  //   revalidatePath("/favorites");
 };

@@ -9,7 +9,11 @@ const UserSchema = new Schema(
     role: { type: String, default: "user" },
     lastLoginAt: { type: Date, default: Date.now },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
 );
 
 const User = models.User || model("User", UserSchema);

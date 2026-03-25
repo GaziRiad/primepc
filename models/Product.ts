@@ -56,11 +56,11 @@ const ProductSchema = new Schema(
       of: String,
       default: {},
     },
-    createdAt: { type: Date, default: Date.now() },
 
     categories: [{ type: Schema.Types.ObjectId, ref: "Category", index: true }],
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },

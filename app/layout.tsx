@@ -31,7 +31,7 @@ export default function RootLayout({
       lang="en"
       className={`${cn("font-sans", publicSans.variable)} ${cn("font-fjalla", fjalla.variable)}`}
     >
-      <body className={`antialiased`}>
+      <body className={`relative antialiased`}>
         <SessionProvider>
           <Header />
         </SessionProvider>
