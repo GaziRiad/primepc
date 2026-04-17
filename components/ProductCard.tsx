@@ -1,12 +1,12 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { formatDZD, getDiscountedPrice } from "@/lib/utils";
+import { formatDZD } from "@/lib/utils";
 import Image from "next/image";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 
 import { type TProduct } from "@/types/types";
 import Link from "next/link";
 import FavoriteButton from "./(user)/FavoriteButton";
+import AddToCartButton from "./AddToCartButton";
 
 type ProductCardProps = {
   product: TProduct;
@@ -17,7 +17,7 @@ export default function ProductCard({
   product,
   large = false,
 }: ProductCardProps) {
-  const finalPrice = getDiscountedPrice(product.price, product.discount);
+  const productId = String(product._id);
 
   return (
     <Card
@@ -54,7 +54,9 @@ export default function ProductCard({
         <div
           className={`mb-6 flex gap-0 ${large ? "flex-row gap-2" : "flex-col gap-0"}`}
         >
-          <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>
+          <p className="text-base font-semibold">
+            {formatDZD(product.finalPrice)}
+          </p>
           {product.discount > 0 && (
             <div className="flex items-center gap-2">
               <p className="text-accent-300 text-sm line-through">
@@ -65,12 +67,18 @@ export default function ProductCard({
           )}
         </div>
 
-        <form className="mt-auto flex items-center gap-2">
-          <Button size={large ? "default" : "sm"} className="cursor-pointer">
-            Add to cart
-          </Button>
-          <FavoriteButton productId={product?._id.toString()} large={large} />
-        </form>
+        <div className="mt-auto flex items-center gap-2">
+          <AddToCartButton
+            productId={productId}
+            product={{
+              name: product.name,
+              coverImage: product.coverImage,
+              finalPrice: product.finalPrice,
+            }}
+            large={large}
+          />
+          <FavoriteButton productId={productId} large={large} />
+        </div>
       </CardFooter>
     </Card>
   );

@@ -8,6 +8,8 @@ import Product from "@/models/Product";
 import type { QueryFilter } from "mongoose";
 import type { TProduct } from "@/types/types";
 import Favorite from "@/models/Favorite";
+import Cart from "@/models/Cart";
+import { auth } from "./auth";
 
 type QueryParams = { [key: string]: string | string[] | undefined };
 
@@ -155,6 +157,42 @@ export const getMyFavoriteProducts = async (userId: string) => {
       .lean();
 
     return userFavorites;
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+
+    throw new Error(message);
+  }
+};
+
+// CART SERVICES
+export const getCartItems = async () => {
+  try {
+    await startDbConnection();
+
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { items: [], itemsCount: 0 };
+    }
+
+    const cartDoc = await Cart.findOne({ user: session.user.id })
+      .populate(
+        "items.product",
+        "name price discount finalPrice coverImage slug",
+      )
+      .select("items");
+
+    if (!cartDoc) {
+      return { items: [], itemsCount: 0 };
+    }
+
+    const cart = cartDoc.toObject({ virtuals: true });
+
+    return {
+      items: cart.items ?? [],
+      itemsCount: Number(cart.itemsCount ?? 0),
+    };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";

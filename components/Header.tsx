@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart } from "lucide-react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import LoggedOutProfile from "./LoggedOutProfile";
@@ -34,7 +34,7 @@ export default function Header() {
               <Link href="/wishlist" className="relative cursor-pointer">
                 <Heart className="stroke-1" />
                 <span className="absolute -top-1.5 -right-1.5 rounded-full bg-red-600 px-1 py-0 text-[10px] text-white">
-                  {favProducts.length || 0}
+                  {favProducts?.length || 0}
                 </span>
               </Link>
 

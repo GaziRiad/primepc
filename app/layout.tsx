@@ -21,7 +21,7 @@ const fjalla = Fjalla_One({
   variable: "--font-fjalla",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -34,15 +34,14 @@ export default function RootLayout({
       <body className={`relative antialiased`}>
         <SessionProvider>
           <Header />
+          <main>{children}</main>
+          <footer className="h-96 bg-white">
+            <h2 className="text-accent mx-auto max-w-7xl py-24 text-2xl font-semibold">
+              Footer
+            </h2>
+          </footer>
+          <Toaster position="top-center" />
         </SessionProvider>
-
-        <main>{children}</main>
-        <footer className="h-96 bg-white">
-          <h2 className="text-accent mx-auto max-w-7xl py-24 text-2xl font-semibold">
-            Footer
-          </h2>
-        </footer>
-        <Toaster position="top-center" />
       </body>
     </html>
   );

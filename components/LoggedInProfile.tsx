@@ -1,6 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import type { Session } from "next-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 type LoggedInProfileProps = {
   user: Session["user"];

@@ -32,6 +32,30 @@ const cartSchema = new mongoose.Schema(
   },
 );
 
+cartSchema.pre("validate", function () {
+  const hasUser = !!this.user;
+  const hasSession = !!this.sessionId;
+
+  if (hasUser === hasSession)
+    throw new Error("Cart must have either user or sessionId, but not both");
+});
+
+// one cart per logged-in user
+cartSchema.index(
+  { user: 1 },
+  { unique: true, partialFilterExpression: { user: { $exists: true } } },
+);
+
+// one cart per guest session
+cartSchema.index(
+  { sessionId: 1 },
+  { unique: true, partialFilterExpression: { sessionId: { $exists: true } } },
+);
+
+cartSchema.virtual("itemsCount").get(function () {
+  return this.items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
+});
+
 const Cart = mongoose.models.Cart || mongoose.model("Cart", cartSchema);
 
 export default Cart;
