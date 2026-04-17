@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { SessionProvider } from "next-auth/react";
@@ -35,13 +37,9 @@ export default async function RootLayout({
         <SessionProvider>
           <Header />
           <main>{children}</main>
-          <footer className="h-96 bg-white">
-            <h2 className="text-accent mx-auto max-w-7xl py-24 text-2xl font-semibold">
-              Footer
-            </h2>
-          </footer>
           <Toaster position="top-center" />
         </SessionProvider>
+        <Footer />
       </body>
     </html>
   );
