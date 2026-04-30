@@ -9,7 +9,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
-import { ShoppingCart, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { formatDZD } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
@@ -22,12 +22,19 @@ type TCartDrawerItem = {
     name?: string;
     coverImage?: string;
     finalPrice?: number;
+    stock?: number;
   };
   quantity: number;
 };
 
 export default function CartDrawer() {
-  const { cartItems, itemsCount, removeFromCart } = useCart();
+  const {
+    cartItems,
+    itemsCount,
+    removeFromCart,
+    addToCart,
+    decrementFromCart,
+  } = useCart();
 
   const subtotal = cartItems.reduce(
     (sum: number, item: TCartDrawerItem) =>
@@ -63,49 +70,81 @@ export default function CartDrawer() {
             </div>
           ) : (
             <ul className="flex flex-col gap-8 pb-4">
-              {cartItems?.map((item: TCartDrawerItem) => (
-                <li key={String(item.product?._id ?? item.product?.id)}>
-                  <div className="grid grid-cols-[20fr_60fr_20fr] items-center gap-6 font-medium">
-                    <div className="relative flex aspect-square size-22 overflow-hidden rounded-lg">
-                      <Image
-                        fill
-                        src={
-                          item.product.coverImage ?? "/images/accessories.png"
-                        }
-                        alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-primary-700 flex items-center gap-2 text-base capitalize">
-                        <span>{item.product.name ?? "Unknown product"}</span>
-                        <span>({item.quantity})</span>
-                      </p>
+              {cartItems?.map((item: TCartDrawerItem) => {
+                const productId = String(item.product?._id ?? item.product?.id);
+                const stock =
+                  typeof item.product.stock === "number"
+                    ? item.product.stock
+                    : undefined;
+                const canIncrease =
+                  typeof stock === "number" ? item.quantity < stock : true;
 
-                      <p className="font-light">
-                        <span>Qty: </span>
-                        <span>{item.quantity}</span>
-                      </p>
-                      <p className="text-primary-700 text-sm">
-                        {formatDZD(item.product.finalPrice ?? 0)}
-                      </p>
-                    </div>
+                return (
+                  <li key={productId}>
+                    <div className="grid grid-cols-[20fr_60fr_20fr] items-center gap-6 font-medium">
+                      <div className="relative flex aspect-square size-22 overflow-hidden rounded-lg">
+                        <Image
+                          fill
+                          src={
+                            item.product.coverImage ?? "/images/accessories.png"
+                          }
+                          alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-primary-700 text-base capitalize">
+                          {item.product.name ?? "Unknown product"}
+                        </p>
+                        <p className="text-primary-700 text-sm">
+                          {formatDZD(item.product.finalPrice ?? 0)}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            aria-label="Decrease quantity"
+                            onClick={() => decrementFromCart(productId)}
+                            variant="secondary"
+                            className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
+                          >
+                            <Minus className="size-4" />
+                          </Button>
+                          <span className="w-6 text-center text-sm">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            type="button"
+                            aria-label="Increase quantity"
+                            onClick={() =>
+                              addToCart(productId, {
+                                name: item.product.name,
+                                coverImage: item.product.coverImage,
+                                finalPrice: item.product.finalPrice,
+                                stock: item.product.stock,
+                              })
+                            }
+                            variant="secondary"
+                            disabled={!canIncrease}
+                            className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
+                          >
+                            <Plus className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
 
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        removeFromCart(
-                          String(item.product?._id ?? item.product?.id),
-                        )
-                      }
-                      variant="secondary"
-                      className="hover:bg-destructive/5 hover:text-destructive/60 flex h-11 w-11 items-center justify-center rounded-full"
-                    >
-                      <Trash2 className="size-5 stroke-[1.5px]" />
-                    </Button>
-                  </div>
-                </li>
-              ))}
+                      <Button
+                        type="button"
+                        aria-label="Remove item from cart"
+                        onClick={() => removeFromCart(productId)}
+                        variant="secondary"
+                        className="hover:bg-destructive/5 hover:text-destructive/60 flex h-11 w-11 items-center justify-center rounded-full"
+                      >
+                        <Trash2 className="size-5 stroke-[1.5px]" />
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

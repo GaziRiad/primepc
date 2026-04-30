@@ -44,6 +44,7 @@ export default function Filters({ categories }: FiltersProps) {
 
     const params = new URLSearchParams(searchParams.toString());
     params.delete("categories");
+    params.delete("page");
     next.forEach((c) => params.append("categories", c));
 
     startTransition(() => {
@@ -58,6 +59,7 @@ export default function Filters({ categories }: FiltersProps) {
     setRange(values);
     params.set("minPrice", min.toString());
     params.set("maxPrice", max.toString());
+    params.delete("page");
 
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });

@@ -4,6 +4,7 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/utils";
 import {
   addToCartAction,
+  decrementFromCartAction,
   mergeGuestCartAction,
   removeFromCartAction,
 } from "@/lib/actions";
@@ -17,6 +18,7 @@ type TCartProduct = {
   name?: string;
   coverImage?: string;
   finalPrice?: number;
+  stock?: number;
 };
 
 type TCartItem = {
@@ -34,6 +36,7 @@ type TCartProductSnapshot = {
   name?: string;
   coverImage?: string;
   finalPrice?: number;
+  stock?: number;
 };
 
 const GUEST_CART_STORAGE_KEY = "guest-cart-v1";
@@ -48,6 +51,9 @@ const swrOptions = {
 
 const getProductId = (item: TCartItem) =>
   String(item.product?._id ?? item.product?.id ?? "");
+
+const getItemQuantity = (cart: TCart | undefined, productId: string) =>
+  cart?.items.find((item) => getProductId(item) === productId)?.quantity ?? 0;
 
 const computeCount = (items: TCartItem[] = []) =>
   items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
@@ -70,6 +76,7 @@ const normalizeCart = (value: unknown): TCart => {
           name?: unknown;
           coverImage?: unknown;
           finalPrice?: unknown;
+          stock?: unknown;
         };
         quantity?: unknown;
       };
@@ -93,6 +100,10 @@ const normalizeCart = (value: unknown): TCart => {
           finalPrice:
             typeof item.product?.finalPrice === "number"
               ? item.product.finalPrice
+              : undefined,
+          stock:
+            typeof item.product?.stock === "number"
+              ? item.product.stock
               : undefined,
         },
         quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
@@ -208,12 +219,31 @@ export function useCart() {
       (item) => getProductId(item) === productId,
     );
 
+    const existingItem = idx === -1 ? undefined : base.items[idx];
+    const currentQty = existingItem?.quantity ?? 0;
+    const stock =
+      typeof product?.stock === "number"
+        ? product.stock
+        : existingItem?.product.stock;
+
+    if (typeof stock === "number") {
+      if (!Number.isFinite(stock) || stock <= 0 || currentQty >= stock) {
+        return base;
+      }
+    }
+
     const nextProduct: TCartProduct = {
       _id: productId,
-      name: product?.name,
-      coverImage: product?.coverImage,
-      finalPrice: product?.finalPrice,
     };
+
+    if (typeof product?.name === "string") nextProduct.name = product.name;
+    if (typeof product?.coverImage === "string") {
+      nextProduct.coverImage = product.coverImage;
+    }
+    if (typeof product?.finalPrice === "number") {
+      nextProduct.finalPrice = product.finalPrice;
+    }
+    if (typeof product?.stock === "number") nextProduct.stock = product.stock;
 
     const items =
       idx === -1
@@ -241,10 +271,46 @@ export function useCart() {
     return { items, itemsCount: computeCount(items) };
   };
 
+  const optimisticDecrement = (
+    current: TCart | undefined,
+    productId: string,
+  ): TCart => {
+    const base: TCart = current ?? EMPTY_CART;
+
+    const items = base.items
+      .map((item) => {
+        if (getProductId(item) !== productId) return item;
+
+        const nextQty = (item.quantity ?? 1) - 1;
+        if (nextQty <= 0) return null;
+
+        return { ...item, quantity: nextQty };
+      })
+      .filter((item): item is TCartItem => Boolean(item));
+
+    return { items, itemsCount: computeCount(items) };
+  };
+
   const addToCart = async (
     productId: string,
     product?: TCartProductSnapshot,
   ) => {
+    const stockLimit =
+      typeof product?.stock === "number" ? product.stock : undefined;
+    const currentQty = getItemQuantity(data, productId);
+
+    if (typeof stockLimit === "number") {
+      if (!Number.isFinite(stockLimit) || stockLimit <= 0) {
+        toast.error("Out of stock");
+        return false;
+      }
+
+      if (currentQty >= stockLimit) {
+        toast.error("Only limited stock available");
+        return false;
+      }
+    }
+
     if (!isAuthenticated) {
       await mutate(
         (current) => {
@@ -265,7 +331,9 @@ export function useCart() {
       await mutate(
         async (current) => {
           const result = await addToCartAction(productId);
-          if (!result?.ok) throw new Error("Failed to add item to cart");
+          if (!result?.ok) {
+            throw new Error(result?.reason ?? "failed");
+          }
           return optimisticAdd(current, productId, product);
         },
         {
@@ -277,8 +345,13 @@ export function useCart() {
       );
 
       return true;
-    } catch {
-      toast.error("Unable to add item to cart");
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "";
+      if (reason === "out_of_stock") {
+        toast.error("Out of stock");
+      } else {
+        toast.error("Unable to add item to cart");
+      }
       return false;
     }
   };
@@ -321,11 +394,50 @@ export function useCart() {
     }
   };
 
+  const decrementFromCart = async (productId: string) => {
+    if (!isAuthenticated) {
+      await mutate(
+        (current) => {
+          const next = optimisticDecrement(current, productId);
+          writeGuestCart(next);
+          return next;
+        },
+        {
+          revalidate: false,
+          populateCache: true,
+        },
+      );
+
+      return true;
+    }
+
+    try {
+      await mutate(
+        async (current) => {
+          const result = await decrementFromCartAction(productId);
+          if (!result?.ok) throw new Error("Failed to decrement item");
+          return optimisticDecrement(current, productId);
+        },
+        {
+          optimisticData: (current) => optimisticDecrement(current, productId),
+          rollbackOnError: true,
+          revalidate: true,
+        },
+      );
+
+      return true;
+    } catch {
+      toast.error("Unable to update item quantity");
+      return false;
+    }
+  };
+
   return {
     cartItems: data?.items ?? [],
     itemsCount: data?.itemsCount ?? 0,
     isLoading,
     addToCart,
     removeFromCart,
+    decrementFromCart,
   };
 }

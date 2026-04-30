@@ -4,6 +4,7 @@ import Favorite from "@/models/Favorite";
 import { auth } from "./auth";
 import startDbConnection from "./db";
 import Cart from "@/models/Cart";
+import Product from "@/models/Product";
 
 // used for POST / PUT / DELETE
 // FAVORITES SERVICES
@@ -36,6 +37,25 @@ export const addToCartAction = async (productId: string) => {
   if (!session?.user) return { ok: false as const };
   const userId = session.user.id;
 
+  const product = await Product.findById(productId).select("stock").lean();
+
+  const stock = Number(product?.stock ?? 0);
+  if (!product || !Number.isFinite(stock) || stock <= 0) {
+    return { ok: false as const, reason: "out_of_stock" as const };
+  }
+
+  const existing = await Cart.findOne({
+    user: userId,
+    "items.product": productId,
+  })
+    .select("items.$")
+    .lean();
+
+  const currentQty = existing?.items?.[0]?.quantity ?? 0;
+  if (currentQty >= stock) {
+    return { ok: false as const, reason: "out_of_stock" as const };
+  }
+
   // 1) If item already exists, increment quantity
   const updated = await Cart.findOneAndUpdate(
     { user: userId, "items.product": productId },
@@ -53,6 +73,34 @@ export const addToCartAction = async (productId: string) => {
       $push: { items: { product: productId, quantity: 1 } },
     },
     { upsert: true, returnDocument: "after", runValidators: true },
+  );
+
+  return { ok: true as const };
+};
+
+export const decrementFromCartAction = async (productId: string) => {
+  await startDbConnection();
+
+  const session = await auth();
+
+  if (!session?.user) return { ok: false as const };
+  const userId = session.user.id;
+
+  const decremented = await Cart.findOneAndUpdate(
+    {
+      user: userId,
+      items: { $elemMatch: { product: productId, quantity: { $gt: 1 } } },
+    },
+    { $inc: { "items.$.quantity": -1 } },
+    { returnDocument: "after", runValidators: true },
+  );
+
+  if (decremented) return { ok: true as const };
+
+  await Cart.findOneAndUpdate(
+    { user: userId },
+    { $pull: { items: { product: productId } } },
+    { returnDocument: "after", runValidators: true },
   );
 
   return { ok: true as const };
@@ -111,19 +159,39 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
 
     if (!productId || !Number.isFinite(quantity) || quantity <= 0) continue;
 
-    const updated = await Cart.findOneAndUpdate(
-      { user: userId, "items.product": productId },
-      { $inc: { "items.$.quantity": quantity } },
-      { returnDocument: "after", runValidators: true },
-    );
+    const product = await Product.findById(productId).select("stock").lean();
 
-    if (updated) continue;
+    const stock = Number(product?.stock ?? 0);
+    if (!product || !Number.isFinite(stock) || stock <= 0) continue;
+
+    const existing = await Cart.findOne({
+      user: userId,
+      "items.product": productId,
+    })
+      .select("items.$")
+      .lean();
+
+    const currentQty = existing?.items?.[0]?.quantity ?? 0;
+    const available = stock - currentQty;
+
+    if (available <= 0) continue;
+
+    const quantityToAdd = Math.min(quantity, available);
+
+    if (currentQty > 0) {
+      await Cart.findOneAndUpdate(
+        { user: userId, "items.product": productId },
+        { $inc: { "items.$.quantity": quantityToAdd } },
+        { returnDocument: "after", runValidators: true },
+      );
+      continue;
+    }
 
     await Cart.findOneAndUpdate(
       { user: userId },
       {
         $setOnInsert: { user: userId },
-        $push: { items: { product: productId, quantity } },
+        $push: { items: { product: productId, quantity: quantityToAdd } },
       },
       { upsert: true, returnDocument: "after", runValidators: true },
     );

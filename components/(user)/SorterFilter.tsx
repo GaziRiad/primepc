@@ -27,6 +27,7 @@ export default function SorterFilter() {
     const params = new URLSearchParams(searchParams.toString());
 
     params.set("sort", value);
+    params.delete("page");
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }

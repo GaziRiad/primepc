@@ -64,6 +64,7 @@ async function seedProducts({ reset = false }: { reset?: boolean }) {
         brand: item.brand,
         description: item.description,
         price: item.price,
+        stock: typeof item.stock === "number" ? item.stock : 0,
         discount: item.discount,
         coverImage: item.coverImage,
         images: item.images ?? [],

@@ -33,6 +33,11 @@ const ProductSchema = new Schema(
       required: [true, "Product price is required"],
       min: [100, "A Product price must be equal to 100DA or more."],
     },
+    stock: {
+      type: Number,
+      default: 0,
+      min: [0, "Stock must be 0 or greater."],
+    },
     discount: {
       type: Number,
       default: 0,

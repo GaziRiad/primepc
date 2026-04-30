@@ -18,6 +18,7 @@ export default function ProductCard({
   large = false,
 }: ProductCardProps) {
   const productId = String(product._id);
+  const inStock = Number(product.stock ?? 0) > 0;
 
   return (
     <Card
@@ -52,7 +53,7 @@ export default function ProductCard({
         )}
 
         <div
-          className={`mb-6 flex gap-0 ${large ? "flex-row gap-2" : "flex-col gap-0"}`}
+          className={`mb-4 flex gap-0 ${large ? "flex-row gap-2" : "flex-col gap-0"}`}
         >
           <p className="text-base font-semibold">
             {formatDZD(product.finalPrice)}
@@ -67,6 +68,14 @@ export default function ProductCard({
           )}
         </div>
 
+        <p
+          className={`mb-4 text-xs font-semibold ${
+            inStock ? "text-emerald-600" : "text-rose-600"
+          }`}
+        >
+          {inStock ? "In Stock" : "Out of Stock"}
+        </p>
+
         <div className="mt-auto flex items-center gap-2">
           <AddToCartButton
             productId={productId}
@@ -74,6 +83,7 @@ export default function ProductCard({
               name: product.name,
               coverImage: product.coverImage,
               finalPrice: product.finalPrice,
+              stock: product.stock,
             }}
             large={large}
           />

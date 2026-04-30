@@ -10,6 +10,7 @@ type AddToCartButtonProps = {
     name: string;
     coverImage: string;
     finalPrice: number;
+    stock?: number;
   };
   large?: boolean;
 };
@@ -19,15 +20,29 @@ export default function AddToCartButton({
   product,
   large = false,
 }: AddToCartButtonProps) {
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const [isPending, startTransition] = useTransition();
+  const stock = typeof product.stock === "number" ? product.stock : undefined;
+  const currentQty =
+    cartItems.find(
+      (item) =>
+        String(item.product?._id ?? item.product?.id ?? "") === productId,
+    )?.quantity ?? 0;
+  const isOutOfStock = typeof stock === "number" && stock <= 0;
+  const isMaxed = typeof stock === "number" && currentQty >= stock;
+  const isDisabled = isPending || isOutOfStock || isMaxed;
+  const label = isOutOfStock
+    ? "Out of stock"
+    : isMaxed
+      ? "Max in cart"
+      : "Add to cart";
 
   return (
     <Button
       type="button"
       size={large ? "default" : "sm"}
       className="cursor-pointer"
-      disabled={isPending}
+      disabled={isDisabled}
       onClick={() => {
         startTransition(async () => {
           await addToCart(productId, {
@@ -35,11 +50,12 @@ export default function AddToCartButton({
             name: product.name,
             coverImage: product.coverImage,
             finalPrice: product.finalPrice,
+            stock: product.stock,
           });
         });
       }}
     >
-      Add to cart
+      {label}
     </Button>
   );
 }

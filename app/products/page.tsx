@@ -3,8 +3,7 @@ import SorterFilter from "@/components/(user)/SorterFilter";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 
-import { getAllCategories, getAllProducts } from "@/lib/services";
-import { TProduct } from "@/types/types";
+import { getAllCategories, getProductsPage } from "@/lib/services";
 
 export default async function page({
   searchParams,
@@ -13,7 +12,15 @@ export default async function page({
 }) {
   const query = await searchParams;
   const categories = await getAllCategories();
-  const products: TProduct[] = await getAllProducts(query);
+  const {
+    items: products,
+    total,
+    page,
+    limit,
+    totalPages,
+  } = await getProductsPage(query);
+  const start = total === 0 ? 0 : (page - 1) * limit + 1;
+  const end = Math.min(page * limit, total);
 
   return (
     <div className="">
@@ -30,7 +37,9 @@ export default async function page({
           <div className="flex flex-col">
             <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
               <SorterFilter />
-              <p className="text-sm">Showing 6 of 10 Products</p>
+              <p className="text-sm">
+                Showing {start}-{end} of {total} Products
+              </p>
             </div>
 
             {/* <div className="flex min-h-194 flex-col rounded-xl border-[0.5px] px-5 py-6 shadow-xs"> */}
@@ -49,7 +58,13 @@ export default async function page({
                 </ul>
               )}
 
-              {products.length > 0 && <PaginationTable />}
+              {totalPages > 1 && (
+                <PaginationTable
+                  page={page}
+                  totalPages={totalPages}
+                  query={query}
+                />
+              )}
             </div>
           </div>
         </div>
