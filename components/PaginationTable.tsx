@@ -27,17 +27,20 @@ const getPageItems = (page: number, totalPages: number) => {
   }
 
   if (page >= totalPages - 3) {
-    return [1, "ellipsis", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    return [
+      1,
+      "ellipsis",
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
   }
 
   return [1, "ellipsis", page - 1, page, page + 1, "ellipsis", totalPages];
 };
 
-const buildHref = (
-  basePath: string,
-  query: PaginationQuery,
-  page: number,
-) => {
+const buildHref = (basePath: string, query: PaginationQuery, page: number) => {
   const params = new URLSearchParams();
 
   Object.entries(query).forEach(([key, value]) => {
@@ -74,12 +77,12 @@ export default function PaginationTable({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={
-              hasPrevious ? buildHref(basePath, query, page - 1) : "#"
-            }
+            href={hasPrevious ? buildHref(basePath, query, page - 1) : "#"}
             aria-disabled={!hasPrevious}
             tabIndex={hasPrevious ? undefined : -1}
-            className={!hasPrevious ? "pointer-events-none opacity-50" : undefined}
+            className={
+              !hasPrevious ? "pointer-events-none opacity-50" : undefined
+            }
           />
         </PaginationItem>
 

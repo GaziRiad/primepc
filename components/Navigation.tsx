@@ -11,7 +11,6 @@ type NavItem = {
 };
 
 const Pages: NavItem[] = [
-  { label: "Popular", href: "/popular" },
   { label: "Products", href: "/products" },
   { label: "About Us", href: "/about" },
   { label: "Blogs", href: "/blogs" },

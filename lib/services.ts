@@ -26,6 +26,9 @@ export const getAllProducts = async (query?: QueryParams) => {
       ...query,
     };
 
+    const searchTerm = toSingle(queryObj.q);
+    delete queryObj.q;
+
     const excludedFields = ["page", "sort", "limit", "fields"];
 
     excludedFields.forEach((field) => delete queryObj[field]);
@@ -75,6 +78,16 @@ export const getAllProducts = async (query?: QueryParams) => {
     delete mongoQuery["minPrice"];
     delete mongoQuery["maxPrice"];
 
+    if (typeof searchTerm === "string" && searchTerm.trim()) {
+      const escaped = searchTerm.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      mongoQuery.$or = [
+        { name: regex },
+        { brand: regex },
+        { description: regex },
+      ];
+    }
+
     let dbQuery = Product.find(mongoQuery);
 
     // SORTING
@@ -119,6 +132,9 @@ export const getProductsPage = async (query?: QueryParams) => {
     const queryObj = {
       ...query,
     };
+
+    const searchTerm = toSingle(queryObj.q);
+    delete queryObj.q;
 
     const excludedFields = ["page", "sort", "limit", "fields"];
 
@@ -171,6 +187,16 @@ export const getProductsPage = async (query?: QueryParams) => {
     delete mongoQuery["minPrice"];
     delete mongoQuery["maxPrice"];
 
+    if (typeof searchTerm === "string" && searchTerm.trim()) {
+      const escaped = searchTerm.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      mongoQuery.$or = [
+        { name: regex },
+        { brand: regex },
+        { description: regex },
+      ];
+    }
+
     let dbQuery = Product.find(mongoQuery);
 
     if (typeof query?.sort === "string" && query?.sort.trim()) {
@@ -190,8 +216,7 @@ export const getProductsPage = async (query?: QueryParams) => {
         ? Math.min(Math.floor(limitRaw), 48)
         : 8;
     const pageRaw = Math.floor(Number(query?.page));
-    const requestedPage =
-      Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+    const requestedPage = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
     const total = await Product.countDocuments(mongoQuery);
     const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
@@ -209,10 +234,12 @@ export const getProductsPage = async (query?: QueryParams) => {
   }
 };
 
-export const getProduct = cache(async (id: string) => {
+export const getProduct = cache(async (slug: string) => {
   try {
     await startDbConnection();
-    const product = await Product.findById(id).populate("categories").lean();
+    const product = await Product.findOne({ slug })
+      .populate("categories", "name slug")
+      .lean();
 
     return product;
   } catch (error) {
