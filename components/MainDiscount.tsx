@@ -10,7 +10,7 @@ const EventProduct = {
 
 export default function MainDiscount() {
   return (
-    <section className="bg-accent-700 relative mb-20 overflow-hidden rounded-lg px-6 py-16 md:px-10 md:py-24">
+    <section className="bg-accent-700 relative mb-20 overflow-hidden rounded-lg px-6 py-12 sm:px-8 sm:py-16 md:px-10 md:py-24">
       {/* Diagonal Grid with Light */}
       <div
         className="pointer-events-none absolute inset-0 z-10 w-full opacity-75"
@@ -35,9 +35,9 @@ export default function MainDiscount() {
         }}
       />
 
-      <div className="relative z-20 max-w-full md:max-w-4/6">
+      <div className="relative z-20 max-w-full md:max-w-2xl">
         <p className="text-accent-100">Don&apos;t Miss!!</p>
-        <p className="text-primary mb-6 max-w-sm text-4xl font-semibold">
+        <p className="text-primary mb-6 max-w-sm text-3xl font-semibold sm:text-4xl">
           Enhance Your Work Experience
         </p>
         <p className="text-background mb-6">MacBook Air (M5, 2026)</p>

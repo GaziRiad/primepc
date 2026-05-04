@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default async function NewArrivals() {
   return (
-    <section className="py-20">
-      <div className="mb-8 flex items-center justify-between">
+    <section className="py-16 sm:py-20">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-foreground text-2xl font-semibold">New Arrivals</h2>
 
         <Link

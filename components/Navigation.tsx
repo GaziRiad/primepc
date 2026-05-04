@@ -33,8 +33,8 @@ export default function Navigation() {
 
   return (
     <nav className={`border-b ${compact && "shadow-sm"}`}>
-      <div className="mx-auto max-w-7xl">
-        <ul className="flex items-center gap-4 text-sm">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <ul className="flex items-center gap-4 overflow-x-auto text-sm whitespace-nowrap">
           {Pages.map((link) => (
             <li
               key={link.href}

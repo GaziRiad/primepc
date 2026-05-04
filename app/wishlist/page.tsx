@@ -21,18 +21,18 @@ export default function WishlistPage() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <h2 className="text-accent text-2xl font-semibold">My Wishlist</h2>
       </div>
 
-      <section className="bg-accent-50 py-14">
+      <section className="bg-accent-50 px-4 py-14 sm:px-6 lg:px-8">
         {favProducts.length === 0 && (
           <p className="mx-auto min-h-80 max-w-7xl text-center text-xl">
             Your Wishlist is empty!
           </p>
         )}
         {favProducts.length > 0 && (
-          <Table className="mx-auto max-w-7xl border">
+          <Table className="mx-auto w-full max-w-7xl min-w-180 border">
             <TableCaption>Your wishlist</TableCaption>
             <TableHeader className="">
               <TableRow className="">

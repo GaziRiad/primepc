@@ -5,8 +5,14 @@ import Link from "next/link";
 export default function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2">
-      <Image src={logoImg} alt="yourpc logo" className="h-11 w-11" />
-      <span className="font-fjalla text-primary text-3xl">PRIMEPC</span>
+      <Image
+        src={logoImg}
+        alt="yourpc logo"
+        className="h-9 w-9 sm:h-11 sm:w-11"
+      />
+      <span className="font-fjalla text-primary text-2xl sm:text-3xl">
+        PRIMEPC
+      </span>
     </Link>
   );
 }

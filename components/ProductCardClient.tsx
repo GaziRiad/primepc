@@ -66,7 +66,7 @@ export default function ProductCardClient({
       } `}
     >
       <CardContent className="flex flex-col items-center">
-        <div className="relative flex aspect-square w-4/5">
+        <div className="relative flex aspect-square w-11/12 sm:w-4/5">
           <Image
             fill
             src={activeImage}
@@ -77,8 +77,10 @@ export default function ProductCardClient({
 
         {thumbs.length > 1 && (
           <ul
-            className={`mt-4 grid w-4/5 gap-3 ${
-              large ? "grid-cols-5" : "grid-cols-4"
+            className={`mt-4 grid w-11/12 gap-3 sm:w-4/5 ${
+              large
+                ? "grid-cols-4 sm:grid-cols-5"
+                : "grid-cols-3 sm:grid-cols-4"
             }`}
             onMouseLeave={() => setActiveIndex(0)}
           >

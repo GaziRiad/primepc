@@ -20,7 +20,7 @@ export default async function Sidebar() {
   return (
     <div className="rounded-xl border-[0.5px] bg-white shadow-xs">
       <div className="gap-4 border-b py-6">
-        <div className="flex items-center gap-4 px-8">
+        <div className="flex items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Avatar className="h-14 w-14">
             <AvatarImage src={session.user.image!} />
             <AvatarFallback>{initials}</AvatarFallback>

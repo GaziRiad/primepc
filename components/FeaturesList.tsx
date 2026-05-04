@@ -36,9 +36,9 @@ const Features: Feature[] = [
 
 export default function FeaturesList() {
   return (
-    <ul className="flex items-center justify-center gap-10">
+    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {Features.map((feature, index) => (
-        <li key={index} className="flex items-center gap-4">
+        <li key={index} className="flex items-start gap-4">
           <span>{feature.icon}</span>
           <div className="flex flex-col">
             <span className="text-foreground">{feature.title}</span>

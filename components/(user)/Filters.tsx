@@ -121,7 +121,7 @@ export default function Filters({ categories }: FiltersProps) {
           onValueChange={setRange}
           max={200000}
           step={1000}
-          className="mx-auto mb-6 w-full max-w-xs"
+          className="mx-auto mb-6 w-full max-w-full sm:max-w-xs"
         />
 
         <FilterRanges range={range} />

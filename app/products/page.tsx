@@ -1,4 +1,5 @@
 import Filters from "@/components/(user)/Filters";
+import FiltersDrawer from "@/components/(user)/FiltersDrawer";
 import SorterFilter from "@/components/(user)/SorterFilter";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
@@ -24,20 +25,27 @@ export default async function page({
 
   return (
     <div className="">
-      <div className="mx-auto max-w-7xl py-8">
-        <h2 className="text-accent text-2xl font-semibold">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <h2 className="text-accent text-xl font-semibold sm:text-2xl">
           Explore All products
         </h2>
       </div>
 
       <section className="bg-accent-50 py-14">
-        <div className="mx-auto grid max-w-7xl grid-cols-[27fr_73fr] gap-8">
-          <Filters categories={categories} />
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-[27fr_73fr] lg:px-8">
+          <div className="hidden lg:block">
+            <Filters categories={categories} />
+          </div>
 
           <div className="flex flex-col">
-            <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
-              <SorterFilter />
-              <p className="text-sm">
+            <div className="flex flex-col gap-3 rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="lg:hidden">
+                  <FiltersDrawer categories={categories} />
+                </div>
+                <SorterFilter />
+              </div>
+              <p className="text-xs sm:text-sm">
                 Showing {start}-{end} of {total} Products
               </p>
             </div>
@@ -49,7 +57,7 @@ export default async function page({
                   <p className="text-muted-foreground">No products found.</p>
                 </div>
               ) : (
-                <ul className="grid flex-1 grid-cols-4 content-start gap-6">
+                <ul className="grid flex-1 grid-cols-2 content-start gap-4 sm:gap-6 md:grid-cols-3 xl:grid-cols-4">
                   {products.map((product, index) => (
                     <li key={index}>
                       <ProductCard product={product} />

@@ -6,7 +6,7 @@ import NewArrivals from "@/components/NewArrivals";
 
 export default async function page() {
   return (
-    <div className="mx-auto max-w-7xl py-12">
+    <div className="mx-auto max-w-350 px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
       <FeaturedBanners />
 
       <FeaturesList />

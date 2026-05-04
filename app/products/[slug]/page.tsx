@@ -91,7 +91,7 @@ export default async function page({
               </Badge>
             </div>
 
-            <h1 className="text-foreground mt-3 text-3xl font-semibold">
+            <h1 className="text-foreground mt-3 text-2xl font-semibold sm:text-3xl">
               {product.name}
             </h1>
 
@@ -229,21 +229,21 @@ export default async function page({
                 Additional Information
               </h2>
               <dl className="mt-4 grid gap-3 text-sm">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <dt className="text-accent-400">Brand</dt>
                   <dd className="text-foreground font-medium">
                     {displayBrand}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <dt className="text-accent-400">Stock</dt>
                   <dd className="text-foreground font-medium">
                     {inStock ? `${product.stock} available` : "Out of stock"}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <dt className="text-accent-400">Categories</dt>
-                  <dd className="text-foreground text-right font-medium">
+                  <dd className="text-foreground font-medium sm:text-right">
                     {categoryNames.length > 0
                       ? categoryNames.join(", ")
                       : "Uncategorized"}
@@ -260,7 +260,7 @@ export default async function page({
                     {specs.map(([label, value]) => (
                       <div
                         key={label}
-                        className="flex items-center justify-between"
+                        className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <dt className="text-accent-400 capitalize">
                           {label.replace(/_/g, " ")}

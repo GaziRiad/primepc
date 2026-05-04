@@ -50,8 +50,8 @@ export default function CartDrawer() {
           {itemsCount || 0}
         </span>
       </DrawerTrigger>
-      <DrawerContent className="flex h-dvh flex-col px-8 py-8">
-        <DrawerHeader className="mb-10 grid grid-cols-2 items-center justify-between border-b">
+      <DrawerContent className="flex h-dvh flex-col px-5 py-6 sm:px-8 sm:py-8">
+        <DrawerHeader className="mb-6 grid grid-cols-2 items-center justify-between border-b sm:mb-10">
           <DrawerTitle className="text-accent text-2xl font-semibold">
             Cart View
           </DrawerTitle>
@@ -60,7 +60,7 @@ export default function CartDrawer() {
           </DrawerClose>
         </DrawerHeader>
 
-        <div className="mx-6 flex-1 overflow-y-auto">
+        <div className="mx-2 flex-1 overflow-y-auto sm:mx-6">
           {cartItems.length === 0 ? (
             <div className="text-accent-300 flex h-full flex-col items-center justify-center gap-6 text-sm">
               <div className="relative flex aspect-square h-32 max-w-32 items-center justify-center overflow-hidden rounded-full bg-zinc-100">
@@ -81,8 +81,8 @@ export default function CartDrawer() {
 
                 return (
                   <li key={productId}>
-                    <div className="grid grid-cols-[20fr_60fr_20fr] items-center gap-6 font-medium">
-                      <div className="relative flex aspect-square size-22 overflow-hidden rounded-lg">
+                    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 font-medium md:grid-cols-[20fr_60fr_20fr] md:gap-6">
+                      <div className="relative flex aspect-square size-16 overflow-hidden rounded-lg sm:size-20 md:size-22">
                         <Image
                           fill
                           src={

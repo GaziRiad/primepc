@@ -35,7 +35,7 @@ export default function ProductGallery({
 
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-xs">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-zinc-100 p-6">
+      <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-zinc-100 p-6">
         <Image
           fill
           src={activeImage}
@@ -45,7 +45,7 @@ export default function ProductGallery({
       </div>
 
       {thumbnails.length > 1 && (
-        <ul className="mt-4 grid grid-cols-5 gap-3">
+        <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {thumbnails.map((thumb, index) => {
             const isActive = index === activeIndex;
 
