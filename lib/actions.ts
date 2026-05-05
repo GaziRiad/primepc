@@ -199,3 +199,18 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
 
   return { ok: true as const, merged: true as const };
 };
+
+export const clearCartAction = async () => {
+  await startDbConnection();
+
+  const session = await auth();
+
+  if (!session?.user) return { ok: false as const };
+
+  await Cart.findOneAndUpdate(
+    { user: session.user.id },
+    { $set: { items: [] } },
+  );
+
+  return { ok: true as const };
+};

@@ -4,6 +4,7 @@ import useSWR from "swr";
 import { fetcher } from "@/lib/utils";
 import {
   addToCartAction,
+  clearCartAction,
   decrementFromCartAction,
   mergeGuestCartAction,
   removeFromCartAction,
@@ -432,6 +433,24 @@ export function useCart() {
     }
   };
 
+  const clearCart = async () => {
+    if (!isAuthenticated) {
+      writeGuestCart(EMPTY_CART);
+      await mutate(EMPTY_CART, { revalidate: false, populateCache: true });
+      return true;
+    }
+
+    try {
+      const result = await clearCartAction();
+      if (!result?.ok) throw new Error("failed");
+      await mutate();
+      return true;
+    } catch {
+      toast.error("Unable to clear cart");
+      return false;
+    }
+  };
+
   return {
     cartItems: data?.items ?? [],
     itemsCount: data?.itemsCount ?? 0,
@@ -439,5 +458,6 @@ export function useCart() {
     addToCart,
     removeFromCart,
     decrementFromCart,
+    clearCart,
   };
 }

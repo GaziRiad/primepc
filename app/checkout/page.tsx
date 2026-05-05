@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { Banknote } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,7 +125,7 @@ const validateForm = (form: CheckoutFormState): CheckoutErrors => {
 };
 
 export default function CheckoutPage() {
-  const { cartItems, isLoading } = useCart();
+  const { cartItems, isLoading, clearCart } = useCart();
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + (item.product.finalPrice ?? 0) * item.quantity,
@@ -151,6 +152,8 @@ export default function CheckoutPage() {
   });
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   const errors = useMemo(() => validateForm(form), [form]);
 
@@ -178,10 +181,53 @@ export default function CheckoutPage() {
   const cityError = showError("city");
   const communeError = showError("commune");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitted(true);
     if (Object.keys(errors).length > 0) return;
+
+    if (!hasItems) {
+      toast.error("Your cart is empty.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setOrderId(null);
+
+    try {
+      const { notes, ...customer } = form;
+      const items = cartItems.map((item) => ({
+        productId: String(item.product?._id ?? item.product?.id ?? ""),
+        quantity: Number(item.quantity ?? 0),
+      }));
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer, notes, items }),
+      });
+
+      const result = (await response.json()) as {
+        ok?: boolean;
+        orderId?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !result?.ok || !result.orderId) {
+        toast.error("Unable to place order. Please try again.");
+        return;
+      }
+
+      setOrderId(result.orderId);
+      toast.success("Order placed successfully.");
+      await clearCart();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to place order";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -205,6 +251,19 @@ export default function CheckoutPage() {
       </div>
 
       <section className="bg-accent-50 py-14">
+        {orderId && (
+          <div className="mx-auto mb-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-xl border-[0.5px] bg-white px-6 py-4 text-sm shadow-xs">
+              <p className="text-accent font-semibold">
+                Order placed successfully.
+              </p>
+              <p className="text-muted-foreground mt-1">
+                Your order id:{" "}
+                <span className="text-foreground">{orderId}</span>
+              </p>
+            </div>
+          </div>
+        )}
         <form
           onSubmit={handleSubmit}
           className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[2fr_1fr] lg:px-8"
@@ -562,9 +621,9 @@ export default function CheckoutPage() {
               <Button
                 className="bg-primary-800 hover:bg-primary-700 mt-6 h-12 w-full rounded-full text-white"
                 type="submit"
-                disabled={!hasItems || isLoading}
+                disabled={!hasItems || isLoading || isSubmitting}
               >
-                Place Order
+                {isSubmitting ? "Placing order..." : "Place Order"}
               </Button>
             </div>
           </div>
