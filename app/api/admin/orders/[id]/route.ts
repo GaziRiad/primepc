@@ -31,7 +31,7 @@ const getIdFromRequest = (request: Request, paramsId?: unknown) => {
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth();
@@ -58,7 +58,8 @@ export async function PATCH(
       );
     }
 
-    const rawId = getIdFromRequest(request, params?.id);
+    const { id } = await params;
+    const rawId = getIdFromRequest(request, id);
     const normalizedId = normalizeId(rawId);
 
     if (!normalizedId) {
