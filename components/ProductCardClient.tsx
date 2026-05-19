@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +47,8 @@ export default function ProductCardClient({
   }, [coverImage, images]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastIndexRef = useRef(0);
 
   useEffect(() => {
     if (activeIndex >= gallery.length) {
@@ -56,7 +58,38 @@ export default function ProductCardClient({
 
   const activeImage = gallery[activeIndex] ?? gallery[0];
   const inStock = Number(stock ?? 0) > 0;
-  const thumbs = gallery.slice(0, large ? 5 : 4);
+
+  const updateActiveIndex = (nextIndex: number) => {
+    if (nextIndex !== lastIndexRef.current) {
+      lastIndexRef.current = nextIndex;
+      setActiveIndex(nextIndex);
+    }
+  };
+
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    if (gallery.length <= 1 || !imageContainerRef.current) {
+      return;
+    }
+
+    const { left, width } = imageContainerRef.current.getBoundingClientRect();
+    if (width <= 0) {
+      return;
+    }
+
+    const x = Math.min(Math.max(event.clientX - left, 0), width - 1);
+    const segment = width / gallery.length;
+    const nextIndex = Math.min(gallery.length - 1, Math.floor(x / segment));
+    updateActiveIndex(nextIndex);
+  };
+
+  const handleMouseEnter = (event: MouseEvent<HTMLDivElement>) => {
+    handleMouseMove(event);
+  };
+
+  const handleMouseLeave = () => {
+    lastIndexRef.current = 0;
+    setActiveIndex(0);
+  };
 
   return (
     <Card
@@ -66,53 +99,33 @@ export default function ProductCardClient({
       } `}
     >
       <CardContent className="flex flex-col items-center">
-        <div className="relative flex aspect-square w-11/12 sm:w-4/5">
+        <div
+          ref={imageContainerRef}
+          className="group/image relative flex aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 sm:w-11/12"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <Image
             fill
             src={activeImage}
             alt={`Image of ${name} from PRIMEPC algeria.`}
-            className="object-cover"
+            className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
           />
+
+          {gallery.length > 1 && (
+            <div className="pointer-events-none absolute inset-x-4 bottom-4 flex gap-1 opacity-0 transition-opacity group-hover/image:opacity-100">
+              {gallery.map((_, index) => (
+                <span
+                  key={`progress-${index}`}
+                  className={`h-1 flex-1 rounded-full transition-colors ${
+                    index === activeIndex ? "bg-zinc-900/80" : "bg-zinc-900/20"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
-        {thumbs.length > 1 && (
-          <ul
-            className={`mt-4 grid w-11/12 gap-3 sm:w-4/5 ${
-              large
-                ? "grid-cols-4 sm:grid-cols-5"
-                : "grid-cols-3 sm:grid-cols-4"
-            }`}
-            onMouseLeave={() => setActiveIndex(0)}
-          >
-            {thumbs.map((thumb, index) => {
-              const isActive = index === activeIndex;
-
-              return (
-                <li key={`thumb-${index}`}>
-                  <button
-                    type="button"
-                    aria-label={`View image ${index + 1} for ${name}`}
-                    aria-pressed={isActive}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onFocus={() => setActiveIndex(index)}
-                    className={`relative aspect-square w-full overflow-hidden rounded-sm border bg-white transition ${
-                      isActive
-                        ? "border-primary/40 ring-primary/40 ring-2"
-                        : "hover:border-primary/30"
-                    }`}
-                  >
-                    <Image
-                      fill
-                      src={thumb}
-                      alt={`Thumbnail ${index + 1} of ${name}`}
-                      className="object-cover"
-                    />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
       </CardContent>
 
       <CardFooter className="flex h-full flex-col items-start">
