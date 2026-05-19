@@ -50,11 +50,26 @@ export default async function page({
     .map((category) => category?.name)
     .filter((name): name is string => Boolean(name));
 
-  const specs = (() => {
-    if (!product.specs) return [] as Array<[string, string]>;
-    if (product.specs instanceof Map)
-      return Array.from(product.specs.entries());
-    return Object.entries(product.specs as Record<string, string>);
+  const specs: Array<[string, string]> = (() => {
+    if (!product.specs) return [];
+    if (product.specs instanceof Map) {
+      const entries = Array.from(
+        product.specs.entries() as Iterable<[unknown, unknown]>,
+      );
+
+      return entries.map((entry) => {
+        const [key, value] = entry;
+        return [String(key), String(value)];
+      });
+    }
+
+    if (typeof product.specs === "object") {
+      return Object.entries(product.specs as Record<string, string>).map(
+        ([key, value]) => [key, String(value)],
+      );
+    }
+
+    return [];
   })();
 
   return (

@@ -16,7 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   trustHost: true, // Add this line
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account }) {
       if (account?.provider === "google") {
         await startDbConnection();
 
@@ -60,7 +60,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        session.user.createdAt = token.createdAt;
+        const createdAt =
+          token.createdAt instanceof Date
+            ? token.createdAt
+            : typeof token.createdAt === "string" ||
+                typeof token.createdAt === "number"
+              ? new Date(token.createdAt)
+              : undefined;
+
+        session.user.createdAt = createdAt;
       }
       return session;
     },

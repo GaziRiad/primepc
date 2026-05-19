@@ -17,7 +17,10 @@ type PaginationTableProps = {
   basePath?: string;
 };
 
-const getPageItems = (page: number, totalPages: number) => {
+const getPageItems = (
+  page: number,
+  totalPages: number,
+): Array<number | "ellipsis"> => {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, idx) => idx + 1);
   }

@@ -7,6 +7,7 @@ import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
 import { useSession } from "next-auth/react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useFavorites } from "@/hooks/useFavorites";
 import CartDrawer from "./CartDrawer";
@@ -34,6 +35,10 @@ export default function Header() {
   const accountLink = session?.user
     ? { label: "My Account", href: "/my-account" }
     : { label: "Sign in / Register", href: "/signin" };
+
+  const searchFallback = (
+    <div className="h-12 w-full rounded-2xl bg-accent-100" aria-hidden />
+  );
 
   return (
     <header className="bg-background sticky top-0 z-50">
@@ -106,14 +111,18 @@ export default function Header() {
           </div>
 
           <div className="pb-4 lg:hidden">
-            <SearchBar />
+            <Suspense fallback={searchFallback}>
+              <SearchBar />
+            </Suspense>
           </div>
 
           <div className="hidden lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-6 lg:py-6">
             <Logo />
 
             <div className="w-full">
-              <SearchBar />
+              <Suspense fallback={searchFallback}>
+                <SearchBar />
+              </Suspense>
             </div>
 
             <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:flex-nowrap lg:justify-end">

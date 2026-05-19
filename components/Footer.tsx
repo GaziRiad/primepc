@@ -113,7 +113,7 @@ export default function Footer() {
 
           <div className="grid gap-10 py-10 lg:grid-cols-[1.2fr_repeat(3,minmax(0,1fr))] lg:gap-8">
             <div className="max-w-sm">
-              <div className="[&_a_span]:!text-white [&_img]:brightness-0 [&_img]:invert">
+              <div className="[&_a_span]:text-white! [&_img]:brightness-0 [&_img]:invert">
                 <Logo />
               </div>
 

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { Types } from "mongoose";
 
 import { auth } from "@/lib/auth";
 import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";

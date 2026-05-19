@@ -4,6 +4,8 @@ import SorterFilter from "@/components/(user)/SorterFilter";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 
+import { Suspense } from "react";
+
 import { getAllCategories, getProductsPage } from "@/lib/services";
 
 export default async function page({
@@ -34,7 +36,13 @@ export default async function page({
       <section className="bg-accent-50 py-14">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-[27fr_73fr] lg:px-8">
           <div className="hidden lg:block">
-            <Filters categories={categories} />
+            <Suspense
+              fallback={
+                <div className="rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs" />
+              }
+            >
+              <Filters categories={categories} />
+            </Suspense>
           </div>
 
           <div className="flex flex-col">
@@ -43,7 +51,13 @@ export default async function page({
                 <div className="lg:hidden">
                   <FiltersDrawer categories={categories} />
                 </div>
-                <SorterFilter />
+                <Suspense
+                  fallback={
+                    <div className="h-9 w-full rounded-lg bg-white sm:max-w-48" aria-hidden />
+                  }
+                >
+                  <SorterFilter />
+                </Suspense>
               </div>
               <p className="text-xs sm:text-sm">
                 Showing {start}-{end} of {total} Products

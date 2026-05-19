@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const FALLBACK_IMAGE = "/images/accessories.png";
 
@@ -25,13 +25,8 @@ export default function ProductGallery({
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    if (activeIndex >= gallery.length) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, gallery.length]);
-
-  const activeImage = gallery[activeIndex] ?? gallery[0];
+  const safeIndex = activeIndex >= gallery.length ? 0 : activeIndex;
+  const activeImage = gallery[safeIndex] ?? gallery[0];
 
   return (
     <div className="rounded-2xl border bg-white p-6 shadow-xs">
@@ -47,7 +42,7 @@ export default function ProductGallery({
       {thumbnails.length > 1 && (
         <ul className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {thumbnails.map((thumb, index) => {
-            const isActive = index === activeIndex;
+            const isActive = index === safeIndex;
 
             return (
               <li key={`thumb-${index}`}>

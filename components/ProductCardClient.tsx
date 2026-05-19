@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type MouseEvent, useMemo, useRef, useState } from "react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,13 +50,8 @@ export default function ProductCardClient({
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
   const lastIndexRef = useRef(0);
 
-  useEffect(() => {
-    if (activeIndex >= gallery.length) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, gallery.length]);
-
-  const activeImage = gallery[activeIndex] ?? gallery[0];
+  const safeIndex = activeIndex >= gallery.length ? 0 : activeIndex;
+  const activeImage = gallery[safeIndex] ?? gallery[0];
   const inStock = Number(stock ?? 0) > 0;
 
   const updateActiveIndex = (nextIndex: number) => {
@@ -119,7 +114,7 @@ export default function ProductCardClient({
                 <span
                   key={`progress-${index}`}
                   className={`h-1 flex-1 rounded-full transition-colors ${
-                    index === activeIndex ? "bg-zinc-900/80" : "bg-zinc-900/20"
+                    index === safeIndex ? "bg-zinc-900/80" : "bg-zinc-900/20"
                   }`}
                 />
               ))}

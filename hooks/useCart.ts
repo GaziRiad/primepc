@@ -66,8 +66,11 @@ const normalizeCart = (value: unknown): TCart => {
     ? (value as { items: unknown[] }).items
     : [];
 
+  const isCartItem = (item: TCartItem | null): item is TCartItem =>
+    item !== null;
+
   const items: TCartItem[] = rawItems
-    .map((rawItem) => {
+    .map<TCartItem | null>((rawItem) => {
       if (!rawItem || typeof rawItem !== "object") return null;
 
       const item = rawItem as {
@@ -110,7 +113,7 @@ const normalizeCart = (value: unknown): TCart => {
         quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
       };
     })
-    .filter((item): item is TCartItem => Boolean(item));
+    .filter(isCartItem);
 
   return {
     items,

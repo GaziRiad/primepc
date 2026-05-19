@@ -8,7 +8,7 @@ import mongoose, { Types } from "mongoose";
 import startDbConnection from "../lib/db";
 import Product from "../models/Product";
 import Category from "../models/Category";
-import { type Product as Tproducts } from "@/types/types";
+import type { TProduct } from "@/types/types";
 
 // type SeedProduct = {
 //   name: string;
@@ -35,7 +35,7 @@ function toObjectIdArray(values: string[]) {
 async function readSeedFile() {
   const filePath = path.join(process.cwd(), "lib", "products.json");
   const content = await fs.readFile(filePath, "utf-8");
-  const parsed = JSON.parse(content) as Tproducts[];
+  const parsed = JSON.parse(content) as TProduct[];
 
   if (!Array.isArray(parsed)) {
     throw new Error("products.json must be an array");

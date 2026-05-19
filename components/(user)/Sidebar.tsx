@@ -17,6 +17,10 @@ export default async function Sidebar() {
     .toUpperCase()
     .slice(0, 2);
 
+  const createdAt = session.user.createdAt
+    ? new Date(session.user.createdAt)
+    : null;
+
   return (
     <div className="rounded-xl border-[0.5px] bg-white shadow-xs">
       <div className="gap-4 border-b py-6">
@@ -30,7 +34,7 @@ export default async function Sidebar() {
             <p className="text-primary-500 mb-1 text-sm">{session.user.name}</p>
             <p className="text-xs">
               Member Since{" "}
-              {format(new Date(session.user.createdAt), "MMMM dd yyyy")}
+              {createdAt ? format(createdAt, "MMMM dd yyyy") : "-"}
             </p>
           </div>
         </div>
