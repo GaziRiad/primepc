@@ -33,8 +33,7 @@ export default async function Sidebar() {
           <div className="flex flex-col">
             <p className="text-primary-500 mb-1 text-sm">{session.user.name}</p>
             <p className="text-xs">
-              Member Since{" "}
-              {createdAt ? format(createdAt, "MMMM dd yyyy") : "-"}
+              Member Since {createdAt ? format(createdAt, "MMMM dd yyyy") : "-"}
             </p>
           </div>
         </div>

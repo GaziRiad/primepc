@@ -1,0 +1,147 @@
+import { NextResponse } from "next/server";
+import { Types } from "mongoose";
+
+import { auth } from "@/lib/auth";
+import startDbConnection from "@/lib/db";
+import Product from "@/models/Product";
+import { getDiscountedPrice } from "@/lib/utils";
+
+const parseProductPayload = async (request: Request, requireAll: boolean) => {
+  let body: Record<string, unknown> = {};
+  try {
+    body = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return { ok: false as const, error: "invalid_payload" };
+  }
+
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const brand = typeof body.brand === "string" ? body.brand.trim() : "";
+  const description =
+    typeof body.description === "string" ? body.description.trim() : "";
+  const coverImage =
+    typeof body.coverImage === "string" ? body.coverImage.trim() : "";
+
+  const price = Number(body.price);
+  const discount = Number(body.discount ?? 0);
+  const stock = Number(body.stock ?? 0);
+
+  const images = Array.isArray(body.images)
+    ? body.images.map((value) => String(value ?? "").trim()).filter(Boolean)
+    : [];
+
+  const categories = Array.isArray(body.categories)
+    ? body.categories
+        .map((value) => String(value ?? "").trim())
+        .filter((value) => Types.ObjectId.isValid(value))
+    : [];
+
+  const specs: Record<string, string> = {};
+
+  if (body.specs && typeof body.specs === "object") {
+    if (Array.isArray(body.specs)) {
+      for (const item of body.specs) {
+        if (!item || typeof item !== "object") continue;
+        const key = String((item as { key?: unknown }).key ?? "").trim();
+        const value = String((item as { value?: unknown }).value ?? "").trim();
+        if (key && value) specs[key] = value;
+      }
+    } else {
+      for (const [key, value] of Object.entries(
+        body.specs as Record<string, unknown>,
+      )) {
+        const cleanKey = String(key ?? "").trim();
+        const cleanValue = String(value ?? "").trim();
+        if (cleanKey && cleanValue) specs[cleanKey] = cleanValue;
+      }
+    }
+  }
+
+  if (requireAll) {
+    if (!name) return { ok: false as const, error: "name_required" };
+    if (!coverImage) {
+      return { ok: false as const, error: "cover_image_required" };
+    }
+    if (!Number.isFinite(price) || price <= 0) {
+      return { ok: false as const, error: "price_required" };
+    }
+  }
+
+  return {
+    ok: true as const,
+    payload: {
+      name,
+      brand,
+      description,
+      price: Number.isFinite(price) ? price : 0,
+      discount: Number.isFinite(discount) ? discount : 0,
+      stock: Number.isFinite(stock) ? stock : 0,
+      coverImage,
+      images,
+      categories,
+      specs,
+      finalPrice: getDiscountedPrice(
+        Number.isFinite(price) ? price : 0,
+        Number.isFinite(discount) ? discount : 0,
+      ),
+    },
+  };
+};
+
+export async function POST(request: Request) {
+  const session = await auth();
+  if (session?.user?.role !== "admin") {
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+
+  const parsed = await parseProductPayload(request, true);
+  if (!parsed.ok) {
+    return NextResponse.json(
+      { ok: false, error: parsed.error },
+      { status: 400 },
+    );
+  }
+
+  await startDbConnection();
+
+  try {
+    const product = await Product.create(parsed.payload);
+    return NextResponse.json({ ok: true, product });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "server_error";
+    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+  }
+}
+
+export async function GET(request: Request) {
+  const session = await auth();
+  if (session?.user?.role !== "admin") {
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const search = (searchParams.get("q") ?? "").trim();
+  const limitRaw = Number(searchParams.get("limit"));
+  const limit =
+    Number.isFinite(limitRaw) && limitRaw > 0
+      ? Math.min(Math.floor(limitRaw), 50)
+      : 20;
+
+  await startDbConnection();
+
+  const filter: Record<string, unknown> = {};
+  if (search) {
+    const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
+    filter.$or = [{ name: regex }, { brand: regex }, { slug: regex }];
+  }
+
+  const products = await Product.find(filter)
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .select(
+      "name brand price finalPrice discount stock coverImage slug updatedAt",
+    )
+    .lean();
+
+  return NextResponse.json({ ok: true, products });
+}

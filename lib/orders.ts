@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, type SortOrder } from "mongoose";
 
 import startDbConnection from "@/lib/db";
 import { getDiscountedPrice } from "@/lib/utils";
@@ -30,6 +30,8 @@ export type OrderBuildIssue = {
   available?: number;
 };
 
+type OrdersQuery = { [key: string]: string | string[] | undefined };
+
 type OrderItemSnapshot = {
   product: Types.ObjectId;
   name: string;
@@ -58,6 +60,48 @@ const normalizeItems = (items: OrderItemInput[]) =>
       quantity: Math.floor(Number(item.quantity ?? 0)),
     }))
     .filter((item) => item.productId && Number.isFinite(item.quantity));
+
+const toSingle = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] : value;
+
+const buildAdminOrdersFilter = (query?: OrdersQuery) => {
+  const statusRaw = toSingle(query?.status);
+  const sortRaw = toSingle(query?.sort);
+  const fromRaw = toSingle(query?.from);
+  const toRaw = toSingle(query?.to);
+
+  const filter: Record<string, unknown> = {};
+
+  if (statusRaw && ORDER_STATUSES.includes(statusRaw as OrderStatus)) {
+    filter.status = statusRaw;
+  }
+
+  const createdAt: { $gte?: Date; $lte?: Date } = {};
+  if (fromRaw) {
+    const fromDate = new Date(fromRaw);
+    if (!Number.isNaN(fromDate.getTime())) {
+      fromDate.setHours(0, 0, 0, 0);
+      createdAt.$gte = fromDate;
+    }
+  }
+
+  if (toRaw) {
+    const toDate = new Date(toRaw);
+    if (!Number.isNaN(toDate.getTime())) {
+      toDate.setHours(23, 59, 59, 999);
+      createdAt.$lte = toDate;
+    }
+  }
+
+  if (createdAt.$gte || createdAt.$lte) {
+    filter.createdAt = createdAt;
+  }
+
+  const sort =
+    sortRaw === "oldest" || sortRaw === "status" ? sortRaw : "newest";
+
+  return { filter, sort };
+};
 
 export const buildOrderItems = async (items: OrderItemInput[]) => {
   await startDbConnection();
@@ -136,6 +180,81 @@ export const getOrdersForAdmin = async () => {
     .sort({ createdAt: -1 })
     .populate("user", "name email")
     .lean();
+};
+
+export const getOrdersForAdminPage = async (query?: OrdersQuery) => {
+  await startDbConnection();
+
+  const { filter, sort } = buildAdminOrdersFilter(query);
+
+  const limit = 20;
+  const total = await Order.countDocuments(filter);
+  const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+  const requestedPage = Number(toSingle(query?.page)) || 1;
+  const page = Math.max(1, Math.min(requestedPage, totalPages || 1));
+  const skip = (page - 1) * limit;
+
+  if (sort === "status") {
+    const statusRank = ORDER_STATUSES.map((status, index) => ({
+      case: { $eq: ["$status", status] },
+      then: index,
+    }));
+
+    const items = await Order.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          statusRank: { $switch: { branches: statusRank, default: 99 } },
+        },
+      },
+      { $sort: { statusRank: 1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { statusRank: 0 } },
+    ]);
+
+    return { items, total, page, limit, totalPages };
+  }
+
+  const sortSpec: Record<string, SortOrder> =
+    sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
+  const items = await Order.find(filter)
+    .sort(sortSpec)
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  return { items, total, page, limit, totalPages };
+};
+
+export const getOrdersForAdminExport = async (query?: OrdersQuery) => {
+  await startDbConnection();
+
+  const { filter, sort } = buildAdminOrdersFilter(query);
+
+  if (sort === "status") {
+    const statusRank = ORDER_STATUSES.map((status, index) => ({
+      case: { $eq: ["$status", status] },
+      then: index,
+    }));
+
+    return Order.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          statusRank: { $switch: { branches: statusRank, default: 99 } },
+        },
+      },
+      { $sort: { statusRank: 1, createdAt: -1 } },
+      { $project: { statusRank: 0 } },
+    ]);
+  }
+
+  const sortSpec: Record<string, SortOrder> =
+    sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
+  return Order.find(filter).sort(sortSpec).lean();
 };
 
 export const getOrdersForUser = async (userId: string) => {

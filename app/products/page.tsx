@@ -53,7 +53,10 @@ export default async function page({
                 </div>
                 <Suspense
                   fallback={
-                    <div className="h-9 w-full rounded-lg bg-white sm:max-w-48" aria-hidden />
+                    <div
+                      className="h-9 w-full rounded-lg bg-white sm:max-w-48"
+                      aria-hidden
+                    />
                   }
                 >
                   <SorterFilter />

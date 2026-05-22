@@ -276,17 +276,42 @@ export const getMyFavoriteProducts = async (userId: string) => {
 
     if (!userId) return [];
 
-    const userFavorites = await Favorite.find({
-      user: userId,
-    })
+    const userFavorites = await Favorite.find({ user: userId })
       .select("product")
-      .populate(
-        "product",
-        "name price discount finalPrice coverImage slug _id stock",
-      )
       .lean();
 
-    return userFavorites;
+    const productIds = userFavorites
+      .map((favorite) => String(favorite.product ?? ""))
+      .filter(Boolean);
+
+    if (productIds.length === 0) return [];
+
+    const products = await Product.find({ _id: { $in: productIds } })
+      .select("name price discount finalPrice coverImage slug _id stock")
+      .lean();
+
+    const productMap = new Map(
+      products.map((product) => [String(product._id), product]),
+    );
+
+    const missingIds = productIds.filter((id) => !productMap.has(id));
+    if (missingIds.length > 0) {
+      await Favorite.deleteMany({ user: userId, product: { $in: missingIds } });
+    }
+
+    return userFavorites
+      .map((favorite) => {
+        const productId = String(favorite.product ?? "");
+        const product = productMap.get(productId);
+        if (!product) return null;
+        return { _id: favorite._id, product };
+      })
+      .filter(
+        (
+          favorite,
+        ): favorite is { _id: unknown; product: (typeof products)[0] } =>
+          Boolean(favorite),
+      );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";
@@ -307,22 +332,63 @@ export const getCartItems = async () => {
     }
 
     const cartDoc = await Cart.findOne({ user: session.user.id })
-      .populate(
-        "items.product",
-        "name price discount finalPrice coverImage slug stock",
-      )
-      .select("items");
+      .select("items")
+      .lean();
 
     if (!cartDoc) {
       return { items: [], itemsCount: 0 };
     }
 
-    const cart = cartDoc.toObject({ virtuals: true });
+    const rawItems = Array.isArray(cartDoc.items)
+      ? (cartDoc.items as Array<{ product?: unknown; quantity?: unknown }>)
+      : [];
+    const productIds = rawItems
+      .map((item) => String(item.product ?? ""))
+      .filter(Boolean);
 
-    return {
-      items: cart.items ?? [],
-      itemsCount: Number(cart.itemsCount ?? 0),
-    };
+    if (productIds.length === 0) {
+      return { items: [], itemsCount: 0 };
+    }
+
+    const uniqueIds = Array.from(new Set(productIds));
+    const products = await Product.find({ _id: { $in: uniqueIds } })
+      .select("name price discount finalPrice coverImage slug stock")
+      .lean();
+
+    const productMap = new Map(
+      products.map((product) => [String(product._id), product]),
+    );
+
+    const items = rawItems
+      .map((item) => {
+        const productId = String(item.product ?? "");
+        const product = productMap.get(productId);
+        if (!product) return null;
+
+        const quantity = Math.floor(Number(item.quantity ?? 1));
+        if (!Number.isFinite(quantity) || quantity <= 0) return null;
+
+        return { product, quantity };
+      })
+      .filter(
+        (item): item is { product: (typeof products)[0]; quantity: number } =>
+          Boolean(item),
+      );
+
+    const missingIds = uniqueIds.filter((id) => !productMap.has(id));
+    if (missingIds.length > 0) {
+      await Cart.updateOne(
+        { user: session.user.id },
+        { $pull: { items: { product: { $in: missingIds } } } },
+      );
+    }
+
+    const itemsCount = items.reduce(
+      (sum, item) => sum + (item.quantity ?? 0),
+      0,
+    );
+
+    return { items, itemsCount };
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal server error";

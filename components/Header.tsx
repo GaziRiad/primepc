@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, Menu, ShieldCheck, X } from "lucide-react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 import LoggedOutProfile from "./LoggedOutProfile";
@@ -36,8 +36,10 @@ export default function Header() {
     ? { label: "My Account", href: "/my-account" }
     : { label: "Sign in / Register", href: "/signin" };
 
+  const isAdmin = session?.user?.role === "admin";
+
   const searchFallback = (
-    <div className="h-12 w-full rounded-2xl bg-accent-100" aria-hidden />
+    <div className="bg-accent-100 h-12 w-full rounded-2xl" aria-hidden />
   );
 
   return (
@@ -126,11 +128,27 @@ export default function Header() {
             </div>
 
             <div className="flex w-full flex-wrap items-center justify-between gap-4 lg:w-auto lg:flex-nowrap lg:justify-end">
-              {session?.user ? (
-                <LoggedInProfile user={session.user} />
-              ) : (
-                <LoggedOutProfile />
-              )}
+              <div className="flex items-center gap-3">
+                {isAdmin && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                  >
+                    <Link href="/admin" aria-label="Open admin dashboard">
+                      <ShieldCheck className="size-4" />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
+
+                {session?.user ? (
+                  <LoggedInProfile user={session.user} />
+                ) : (
+                  <LoggedOutProfile />
+                )}
+              </div>
 
               <div className="flex items-center gap-2.5">
                 <Link href="/wishlist" className="relative cursor-pointer">
