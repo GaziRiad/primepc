@@ -33,57 +33,60 @@ export default async function page() {
           You have no orders yet.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border bg-white">
-          <table className="w-full min-w-180 text-sm">
-            <thead className="bg-muted/30 text-muted-foreground">
-              <tr className="text-left">
-                <th className="px-6 py-3 font-medium">Order</th>
-                <th className="px-6 py-3 font-medium">Items</th>
-                <th className="px-6 py-3 font-medium">Total</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium">Placed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const itemsCount = (order.items ?? []).reduce(
-                  (sum: number, item: { quantity?: number }) =>
-                    sum + (item.quantity ?? 0),
-                  0,
-                );
+        <>
+          <div className="flex flex-col gap-4">
+            {orders.map((order) => {
+              const itemsCount = (order.items ?? []).reduce(
+                (sum: number, item: { quantity?: number }) =>
+                  sum + (item.quantity ?? 0),
+                0,
+              );
+              const orderId = String(order._id);
+              const statusLabel = String(order.status).replace(/_/g, " ");
 
-                return (
-                  <tr key={String(order._id)} className="border-t">
-                    <td className="px-6 py-4">
-                      <div className="text-foreground font-medium">
-                        #{String(order._id).slice(-6)}
-                      </div>
-                    </td>
-                    <td className="text-muted-foreground px-6 py-4">
-                      {itemsCount} item{itemsCount === 1 ? "" : "s"}
-                    </td>
-                    <td className="px-6 py-4 font-semibold">
-                      {formatDZD(order.total ?? 0)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge
-                        className={
-                          STATUS_STYLES[order.status] ??
-                          "bg-muted text-foreground"
-                        }
-                      >
-                        {String(order.status).replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="text-muted-foreground px-6 py-4 text-xs">
-                      {new Date(order.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              return (
+                <div
+                  key={orderId}
+                  className="rounded-xl border bg-white p-4 shadow-xs"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-foreground text-sm font-semibold">
+                        Order #{orderId.slice(-6)}
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <Badge
+                      className={
+                        STATUS_STYLES[order.status] ??
+                        "bg-muted text-foreground"
+                      }
+                    >
+                      {statusLabel}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground text-xs">Items</p>
+                      <p className="text-foreground font-medium">
+                        {itemsCount} item{itemsCount === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">Total</p>
+                      <p className="text-foreground font-semibold">
+                        {formatDZD(order.total ?? 0)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

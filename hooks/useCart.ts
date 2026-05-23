@@ -45,7 +45,7 @@ const GUEST_CART_MERGE_LOCK_KEY = "guest-cart-merge-lock-v1";
 const EMPTY_CART: TCart = { items: [], itemsCount: 0 };
 
 const swrOptions = {
-  refreshInterval: 2000,
+  refreshInterval: 0,
   revalidateOnFocus: true,
   revalidateOnReconnect: true,
 };

@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { getOrdersForAdminExport, getOrdersForAdminPage } from "@/lib/orders";
+import {
+  getOrdersForAdminExportCursor,
+  getOrdersForAdminPage,
+} from "@/lib/orders";
+
+type ExportOrder = {
+  _id?: unknown;
+  status?: string;
+  createdAt?: string | Date;
+  subtotal?: number;
+  shippingFee?: number;
+  total?: number;
+  paymentMethod?: string;
+  notes?: string;
+  customer?: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    email?: string;
+    city?: string;
+    commune?: string;
+  };
+  items?: Array<{ name?: string; quantity?: number }>;
+};
 
 const toCsvValue = (value: string | number | null | undefined) => {
   const raw = value === null || value === undefined ? "" : String(value);
@@ -20,7 +43,6 @@ export async function GET(request: Request) {
   const query = Object.fromEntries(searchParams.entries());
 
   if (format === "csv") {
-    const items = await getOrdersForAdminExport(query);
     const header = [
       "order_id",
       "status",
@@ -39,51 +61,70 @@ export async function GET(request: Request) {
       "notes",
     ];
 
-    const rows = items.map((order) => {
-      const orderId = String(order._id ?? "");
-      const createdAt = order.createdAt
-        ? new Date(order.createdAt).toISOString()
-        : "";
-      const customerName = `${order.customer?.firstName ?? ""} ${
-        order.customer?.lastName ?? ""
-      }`.trim();
-      const itemsCount = (order.items ?? []).reduce(
-        (sum: number, item: { quantity?: number }) =>
-          sum + Number(item.quantity ?? 0),
-        0,
-      );
-      const itemsSummary = (order.items ?? [])
-        .map(
-          (item: { name?: string; quantity?: number }) =>
-            `${item.name ?? "Item"} x${Number(item.quantity ?? 0)}`,
-        )
-        .join(" | ");
-
-      return [
-        orderId,
-        order.status ?? "",
-        createdAt,
-        Number(order.subtotal ?? 0),
-        Number(order.shippingFee ?? 0),
-        Number(order.total ?? 0),
-        order.paymentMethod ?? "",
-        customerName || "Guest",
-        order.customer?.phone ?? "",
-        order.customer?.email ?? "",
-        order.customer?.city ?? "",
-        order.customer?.commune ?? "",
-        itemsCount,
-        itemsSummary,
-        order.notes ?? "",
-      ]
-        .map(toCsvValue)
-        .join(",");
-    });
-
-    const csv = [header.map(toCsvValue).join(","), ...rows].join("\n");
+    const cursor = await getOrdersForAdminExportCursor(query);
+    const encoder = new TextEncoder();
+    const cursorWithClose = cursor as AsyncIterable<ExportOrder> & {
+      close?: () => Promise<void> | void;
+    };
+    const headerLine = `${header.map(toCsvValue).join(",")}\n`;
     const filename = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
 
-    return new NextResponse(csv, {
+    const stream = new ReadableStream({
+      async start(controller) {
+        controller.enqueue(encoder.encode(headerLine));
+
+        try {
+          for await (const order of cursorWithClose) {
+            const orderId = String(order._id ?? "");
+            const createdAt = order.createdAt
+              ? new Date(order.createdAt).toISOString()
+              : "";
+            const customerName = `${order.customer?.firstName ?? ""} ${
+              order.customer?.lastName ?? ""
+            }`.trim();
+            const itemsCount = (order.items ?? []).reduce(
+              (sum: number, item) => sum + Number(item.quantity ?? 0),
+              0,
+            );
+            const itemsSummary = (order.items ?? [])
+              .map(
+                (item) =>
+                  `${item.name ?? "Item"} x${Number(item.quantity ?? 0)}`,
+              )
+              .join(" | ");
+
+            const row = [
+              orderId,
+              order.status ?? "",
+              createdAt,
+              Number(order.subtotal ?? 0),
+              Number(order.shippingFee ?? 0),
+              Number(order.total ?? 0),
+              order.paymentMethod ?? "",
+              customerName || "Guest",
+              order.customer?.phone ?? "",
+              order.customer?.email ?? "",
+              order.customer?.city ?? "",
+              order.customer?.commune ?? "",
+              itemsCount,
+              itemsSummary,
+              order.notes ?? "",
+            ]
+              .map(toCsvValue)
+              .join(",");
+
+            controller.enqueue(encoder.encode(`${row}\n`));
+          }
+        } finally {
+          if (typeof cursorWithClose.close === "function") {
+            await cursorWithClose.close();
+          }
+          controller.close();
+        }
+      },
+    });
+
+    return new NextResponse(stream, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": `attachment; filename=\"${filename}\"`,

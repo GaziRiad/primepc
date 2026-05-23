@@ -6,14 +6,6 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
 import { formatDZD } from "@/lib/utils";
@@ -89,117 +81,100 @@ export default function CartPage() {
 
           {!isLoading && hasItems && (
             <div className="rounded-xl border-[0.5px] bg-white shadow-xs">
-              <Table className="w-full min-w-180">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[45%]">Product</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Subtotal</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cartItems.map((item, index) => {
-                    const rawId = item.product?._id ?? item.product?.id;
-                    const productId = rawId ? String(rawId) : "";
-                    const canInteract = Boolean(productId);
-                    const price = item.product.finalPrice ?? 0;
-                    const stock =
-                      typeof item.product.stock === "number"
-                        ? item.product.stock
-                        : undefined;
-                    const canIncrease =
-                      canInteract &&
-                      (typeof stock === "number"
-                        ? item.quantity < stock
-                        : true);
+              <ul className="divide-y">
+                {cartItems.map((item, index) => {
+                  const rawId = item.product?._id ?? item.product?.id;
+                  const productId = rawId ? String(rawId) : "";
+                  const canInteract = Boolean(productId);
+                  const price = item.product.finalPrice ?? 0;
+                  const stock =
+                    typeof item.product.stock === "number"
+                      ? item.product.stock
+                      : undefined;
+                  const canIncrease =
+                    canInteract &&
+                    (typeof stock === "number" ? item.quantity < stock : true);
 
-                    return (
-                      <TableRow
-                        key={`${productId || "item"}-${index}`}
-                        className="bg-white"
-                      >
-                        <TableCell className="whitespace-normal">
-                          <div className="flex items-center gap-4">
-                            <div className="relative flex aspect-square h-16 w-16 overflow-hidden rounded-lg bg-zinc-100">
-                              <Image
-                                fill
-                                src={
-                                  item.product.coverImage ??
-                                  "/images/accessories.png"
-                                }
-                                alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-primary-700 text-sm font-medium">
-                                {item.product.name ?? "Unknown product"}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatDZD(price)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              aria-label="Decrease quantity"
-                              onClick={() =>
-                                canInteract && decrementFromCart(productId)
-                              }
-                              variant="secondary"
-                              disabled={!canInteract}
-                              className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
-                            >
-                              <Minus className="size-4" />
-                            </Button>
-                            <span className="w-6 text-center text-sm">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              type="button"
-                              aria-label="Increase quantity"
-                              onClick={() =>
-                                canInteract &&
-                                addToCart(productId, {
-                                  name: item.product.name,
-                                  coverImage: item.product.coverImage,
-                                  finalPrice: item.product.finalPrice,
-                                  stock: item.product.stock,
-                                })
-                              }
-                              variant="secondary"
-                              disabled={!canIncrease}
-                              className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
-                            >
-                              <Plus className="size-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          {formatDZD(price * item.quantity)}
-                        </TableCell>
-                        <TableCell className="text-right">
+                  return (
+                    <li key={`${productId || "item"}-${index}`} className="p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="relative flex aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
+                          <Image
+                            fill
+                            src={
+                              item.product.coverImage ??
+                              "/images/accessories.png"
+                            }
+                            alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-primary-700 line-clamp-2 text-sm font-medium">
+                            {item.product.name ?? "Unknown product"}
+                          </p>
+                          <p className="text-muted-foreground mt-1 text-xs">
+                            {formatDZD(price)}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          aria-label="Remove item from cart"
+                          onClick={() =>
+                            canInteract && removeFromCart(productId)
+                          }
+                          variant="secondary"
+                          disabled={!canInteract}
+                          className="hover:bg-destructive/5 hover:text-destructive/60 h-8 w-8 rounded-full"
+                        >
+                          <Trash2 className="size-4 stroke-[1.5px]" />
+                        </Button>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
                           <Button
                             type="button"
-                            aria-label="Remove item from cart"
+                            aria-label="Decrease quantity"
                             onClick={() =>
-                              canInteract && removeFromCart(productId)
+                              canInteract && decrementFromCart(productId)
                             }
                             variant="secondary"
                             disabled={!canInteract}
-                            className="hover:bg-destructive/5 hover:text-destructive/60 h-9 w-9 rounded-full"
+                            className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
                           >
-                            <Trash2 className="size-4 stroke-[1.5px]" />
+                            <Minus className="size-4" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <span className="w-6 text-center text-sm">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            type="button"
+                            aria-label="Increase quantity"
+                            onClick={() =>
+                              canInteract &&
+                              addToCart(productId, {
+                                name: item.product.name,
+                                coverImage: item.product.coverImage,
+                                finalPrice: item.product.finalPrice,
+                                stock: item.product.stock,
+                              })
+                            }
+                            variant="secondary"
+                            disabled={!canIncrease}
+                            className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
+                          >
+                            <Plus className="size-4" />
+                          </Button>
+                        </div>
+                        <span className="text-sm font-semibold">
+                          {formatDZD(price * item.quantity)}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           )}
 

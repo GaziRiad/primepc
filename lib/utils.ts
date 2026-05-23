@@ -23,3 +23,6 @@ export function getDiscountedPrice(price: number, discountPercent: number) {
 }
 
 export const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+export const WHATSAPP_NUMBER = "213555453982";
+export const WHATSAPP_MESSAGE = "Hi! I have a question about PRIMEPC.";

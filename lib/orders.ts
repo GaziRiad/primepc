@@ -228,7 +228,7 @@ export const getOrdersForAdminPage = async (query?: OrdersQuery) => {
   return { items, total, page, limit, totalPages };
 };
 
-export const getOrdersForAdminExport = async (query?: OrdersQuery) => {
+export const getOrdersForAdminExportCursor = async (query?: OrdersQuery) => {
   await startDbConnection();
 
   const { filter, sort } = buildAdminOrdersFilter(query);
@@ -248,13 +248,13 @@ export const getOrdersForAdminExport = async (query?: OrdersQuery) => {
       },
       { $sort: { statusRank: 1, createdAt: -1 } },
       { $project: { statusRank: 0 } },
-    ]);
+    ]).cursor({ batchSize: 200 });
   }
 
   const sortSpec: Record<string, SortOrder> =
     sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
-  return Order.find(filter).sort(sortSpec).lean();
+  return Order.find(filter).sort(sortSpec).lean().cursor({ batchSize: 200 });
 };
 
 export const getOrdersForUser = async (userId: string) => {

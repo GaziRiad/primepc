@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import ImageUploadButton from "@/components/admin/ImageUploadButton";
 import { formatDZD, getDiscountedPrice } from "@/lib/utils";
 
 const FALLBACK_IMAGE = "/images/accessories.png";
@@ -268,16 +269,23 @@ export default function ProductForm({
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <h2 className="text-foreground text-lg font-semibold">Images</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Use image URLs. Cover image is required.
+          Upload images or paste URLs. Cover image is required.
         </p>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           <div className="space-y-3">
-            <label className="text-sm font-medium">Cover image URL</label>
-            <Input
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-            />
+            <label className="text-sm font-medium">Cover image</label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                value={coverImage}
+                onChange={(e) => setCoverImage(e.target.value)}
+                placeholder="Paste image URL"
+              />
+              <ImageUploadButton
+                label="Upload cover"
+                onUpload={(url) => setCoverImage(url)}
+              />
+            </div>
             <div className="overflow-hidden rounded-2xl border bg-zinc-100">
               <img
                 src={coverImage || FALLBACK_IMAGE}
@@ -289,7 +297,13 @@ export default function ProductForm({
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-medium">Gallery images</label>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="text-sm font-medium">Gallery images</label>
+              <ImageUploadButton
+                label="Upload image"
+                onUpload={(url) => setImages((current) => [...current, url])}
+              />
+            </div>
             {images.length === 0 && (
               <p className="text-muted-foreground text-sm">
                 No gallery images yet.
@@ -317,7 +331,7 @@ export default function ProductForm({
               variant="outline"
               onClick={() => setImages((current) => [...current, ""])}
             >
-              Add image
+              Add image URL
             </Button>
           </div>
         </div>

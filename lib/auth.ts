@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import startDbConnection from "./db";
 import User from "@/models/User";
+import { sendWelcomeEmail } from "@/lib/notifications";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -30,6 +31,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           user.id = newUser._id.toString();
+
+          void sendWelcomeEmail({
+            email: newUser.email,
+            name: newUser.name,
+          });
         } else {
           user.id = userExists._id.toString();
         }

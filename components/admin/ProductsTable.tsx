@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -62,13 +62,21 @@ export default function ProductsTable({ products }: ProductsTableProps) {
     return match ? match[0] : stringified;
   };
 
-  const [rows, setRows] = useState<ProductRow[]>(() =>
-    products.map((product) => ({
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const rows = useMemo(() => {
+    const mapped = products.map((product) => ({
       ...product,
       _id: normalizeId(product._id),
-    })),
-  );
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+    }));
+
+    if (deletedIds.length === 0) {
+      return mapped;
+    }
+
+    return mapped.filter((row) => !deletedIds.includes(row._id));
+  }, [products, deletedIds]);
 
   const handleDelete = async (productId: string) => {
     if (!productId) return;
@@ -89,7 +97,9 @@ export default function ProductsTable({ products }: ProductsTableProps) {
         return;
       }
 
-      setRows((current) => current.filter((row) => row._id !== productId));
+      setDeletedIds((current) =>
+        current.includes(productId) ? current : [...current, productId],
+      );
       toast.success("Product deleted.");
     } finally {
       setDeletingId(null);

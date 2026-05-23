@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 import { toggleFavoritesAction } from "@/lib/actions";
 import { fetcher } from "@/lib/utils";
 import type { TFavoriteApiItem } from "@/types/types";
@@ -9,7 +10,7 @@ import type { TFavoriteApiItem } from "@/types/types";
 const FAVORITES_KEY = "/api/favorites";
 
 const swrOptions = {
-  refreshInterval: 2000,
+  refreshInterval: 0,
   revalidateOnFocus: true,
   revalidateOnReconnect: true,
 };
@@ -17,6 +18,8 @@ const swrOptions = {
 const getId = (item: TFavoriteApiItem) => String(item?.product?._id ?? "");
 
 export function useFavorites() {
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
   const {
     data = [],
     mutate,
@@ -35,10 +38,23 @@ export function useFavorites() {
         ];
 
   const toggleFavorite = async (productId: string) => {
+    if (!isAuthenticated) {
+      toast.error("Sign in to save favorites.");
+      return;
+    }
+
     await mutate(
       async (current = []) => {
         const currentlyFav = current.some((i) => getId(i) === productId);
-        await toggleFavoritesAction(productId);
+        const result = await toggleFavoritesAction(productId);
+        if (!result?.ok) {
+          if (result?.reason === "unauthenticated") {
+            toast.error("Sign in to save favorites.");
+          } else {
+            toast.error("Unable to update favorites.");
+          }
+          throw new Error(result?.reason ?? "failed");
+        }
         toast.success(
           currentlyFav
             ? "Product removed from favorites"

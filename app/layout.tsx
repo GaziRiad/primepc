@@ -2,12 +2,10 @@ import { Fjalla_One, Public_Sans } from "next/font/google";
 import type { Metadata } from "next";
 
 import "./globals.css";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ClientShell from "@/components/ClientShell";
 
 import { cn } from "@/lib/utils";
-import { Toaster } from "sonner";
-import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "PRIMEPC",
@@ -34,11 +32,7 @@ export default async function RootLayout({
       className={`${cn("font-sans", publicSans.variable)} ${cn("font-fjalla", fjalla.variable)}`}
     >
       <body className={`relative antialiased`}>
-        <SessionProvider>
-          <Header />
-          <main>{children}</main>
-          <Toaster position="top-center" />
-        </SessionProvider>
+        <ClientShell>{children}</ClientShell>
         <Footer />
       </body>
     </html>

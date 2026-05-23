@@ -14,6 +14,8 @@ import Image from "next/image";
 import { formatDZD } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type TCartDrawerItem = {
   product: {
@@ -28,6 +30,8 @@ type TCartDrawerItem = {
 };
 
 export default function CartDrawer() {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const {
     cartItems,
     itemsCount,
@@ -36,6 +40,10 @@ export default function CartDrawer() {
     decrementFromCart,
   } = useCart();
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   const subtotal = cartItems.reduce(
     (sum: number, item: TCartDrawerItem) =>
       sum + (item.product.finalPrice ?? 0) * (item.quantity ?? 0),
@@ -43,7 +51,7 @@ export default function CartDrawer() {
   );
 
   return (
-    <Drawer direction="right">
+    <Drawer direction="right" open={open} onOpenChange={setOpen}>
       <DrawerTrigger className="relative cursor-pointer">
         <ShoppingCart className="stroke-1" />
         <span className="absolute -top-1.5 -right-1.5 rounded-full bg-red-600 px-1 py-0 text-[10px] text-white">
@@ -92,8 +100,8 @@ export default function CartDrawer() {
                           className="object-cover"
                         />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-primary-700 text-base capitalize">
+                      <div className="flex min-w-0 flex-col gap-1">
+                        <p className="text-primary-700 truncate text-base capitalize">
                           {item.product.name ?? "Unknown product"}
                         </p>
                         <p className="text-primary-700 text-sm">
@@ -158,19 +166,23 @@ export default function CartDrawer() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button
-              asChild
-              className="bg-primary-400 hover:bg-primary-500 h-12 rounded-full text-white"
-            >
-              <Link href="/cart">View Cart</Link>
-            </Button>
+            <DrawerClose asChild>
+              <Button
+                asChild
+                className="bg-primary-400 hover:bg-primary-500 h-12 rounded-full text-white"
+              >
+                <Link href="/cart">View Cart</Link>
+              </Button>
+            </DrawerClose>
 
-            <Button
-              asChild
-              className="bg-primary-800 hover:bg-primary-700 h-12 rounded-full text-white"
-            >
-              <Link href="/checkout">Checkout</Link>
-            </Button>
+            <DrawerClose asChild>
+              <Button
+                asChild
+                className="bg-primary-800 hover:bg-primary-700 h-12 rounded-full text-white"
+              >
+                <Link href="/checkout">Checkout</Link>
+              </Button>
+            </DrawerClose>
           </div>
         </div>
       </DrawerContent>

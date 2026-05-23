@@ -82,6 +82,17 @@ export default function Header() {
                         </Link>
                       </DrawerClose>
                     ))}
+                    {isAdmin && (
+                      <DrawerClose asChild>
+                        <Link
+                          href="/admin"
+                          className="text-primary hover:bg-accent-100 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition"
+                        >
+                          <ShieldCheck className="size-4" />
+                          Admin dashboard
+                        </Link>
+                      </DrawerClose>
+                    )}
                     <div className="bg-border my-2 h-px" />
                     <DrawerClose asChild>
                       <Link

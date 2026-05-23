@@ -14,7 +14,9 @@ export const toggleFavoritesAction = async (productId: string) => {
 
   const session = await auth();
 
-  if (!session?.user) return;
+  if (!session?.user) {
+    return { ok: false as const, reason: "unauthenticated" as const };
+  }
 
   const deletedFavorite = await Favorite.findOneAndDelete({
     user: session.user.id,
@@ -27,6 +29,8 @@ export const toggleFavoritesAction = async (productId: string) => {
       product: productId,
     });
   }
+
+  return { ok: true as const };
 };
 
 export const addToCartAction = async (productId: string) => {

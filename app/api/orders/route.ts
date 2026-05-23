@@ -9,7 +9,10 @@ import {
   type CustomerDetails,
   type OrderItemInput,
 } from "@/lib/orders";
-import { sendAdminOrderNotification } from "@/lib/notifications";
+import {
+  sendAdminOrderNotification,
+  sendCustomerOrderConfirmation,
+} from "@/lib/notifications";
 import Cart from "@/models/Cart";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
@@ -146,19 +149,35 @@ export async function POST(request: Request) {
       );
     }
 
-    await sendAdminOrderNotification({
+    const emailPayload = {
       orderId: String(order._id),
+      items: build.items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        finalPrice: item.finalPrice,
+      })),
+      subtotal: build.subtotal,
+      shippingFee,
       total,
-      itemsCount: build.items.reduce(
-        (sum, item) => sum + (item.quantity ?? 0),
-        0,
-      ),
-      customerName: `${body.customer?.firstName} ${body.customer?.lastName}`,
-      phone: body.customer?.phone ?? "",
-      city: body.customer?.city ?? "",
-      commune: body.customer?.commune ?? "",
+      customer: {
+        name: `${body.customer?.firstName} ${body.customer?.lastName}`.trim(),
+        email: body.customer?.email ?? "",
+        phone: body.customer?.phone ?? "",
+        street: body.customer?.street ?? "",
+        apartment: body.customer?.apartment ?? "",
+        city: body.customer?.city ?? "",
+        commune: body.customer?.commune ?? "",
+        country: body.customer?.country ?? "Algeria",
+      },
+      notes: body.notes ?? "",
       createdAt: order.createdAt,
-    });
+    };
+
+    await Promise.allSettled([
+      sendAdminOrderNotification(emailPayload),
+      sendCustomerOrderConfirmation(emailPayload),
+    ]);
 
     return NextResponse.json({ ok: true, orderId: String(order._id) });
   } catch (error) {

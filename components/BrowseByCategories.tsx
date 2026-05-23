@@ -30,7 +30,7 @@ export default async function BrowseByCategories() {
         >
           <CarouselContent
             className="cursor-grab active:cursor-grabbing"
-            contentClassName="items-stretch gap-8 px-1 sm:px-2"
+            contentClassName="items-stretch gap-8 px-1 sm:px-2 min-w-full justify-center"
           >
             {categories.map((category) => (
               <CarouselItem key={category.slug} className="basis-auto px-2">

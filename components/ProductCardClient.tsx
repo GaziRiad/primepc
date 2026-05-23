@@ -93,10 +93,10 @@ export default function ProductCardClient({
         large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"
       } `}
     >
-      <CardContent className="flex flex-col items-center">
+      <CardContent className="flex w-full flex-col items-center">
         <div
           ref={imageContainerRef}
-          className="group/image relative flex aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 sm:w-11/12"
+          className="group/image relative flex aspect-square w-full overflow-hidden rounded-lg bg-zinc-100"
           onMouseMove={handleMouseMove}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -127,7 +127,7 @@ export default function ProductCardClient({
         <p className="text-accent-400 -mb-1 text-xs uppercase">{brand}</p>
         <Link
           href={`/products/${slug}`}
-          className="mb-2 underline-offset-2 transition-all hover:underline"
+          className="mb-2 line-clamp-2 min-h-[2.5rem] text-sm font-medium underline-offset-2 transition-all hover:underline"
         >
           {name}
         </Link>
