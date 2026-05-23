@@ -63,19 +63,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        const createdAt =
-          token.createdAt instanceof Date
-            ? token.createdAt
-            : typeof token.createdAt === "string" ||
-                typeof token.createdAt === "number"
-              ? new Date(token.createdAt)
-              : undefined;
+      if (!session.user) return session;
 
-        session.user.createdAt = createdAt;
-      }
+      const userId = typeof token.id === "string" ? token.id : "";
+      if (!userId) return session;
+
+      await startDbConnection();
+      const userExists = await User.exists({ _id: userId });
+      if (!userExists) return null;
+
+      session.user.id = userId;
+      session.user.role = token.role as string;
+      const createdAt =
+        token.createdAt instanceof Date
+          ? token.createdAt
+          : typeof token.createdAt === "string" ||
+              typeof token.createdAt === "number"
+            ? new Date(token.createdAt)
+            : undefined;
+
+      session.user.createdAt = createdAt;
       return session;
     },
   },
