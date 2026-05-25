@@ -189,7 +189,7 @@ export default function ProductCardClient({
         <p className="text-accent-400 -mb-1 text-xs uppercase">{brand}</p>
         <Link
           href={`/products/${slug}`}
-          className="mb-2 line-clamp-2 min-h-[2.5rem] text-sm font-medium underline-offset-2 transition-all hover:underline"
+          className="mb-2 line-clamp-2 min-h-10 text-sm font-medium underline-offset-2 transition-all hover:underline"
         >
           {name}
         </Link>

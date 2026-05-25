@@ -159,10 +159,11 @@ export default function CheckoutPage() {
           ok?: boolean;
           address?: Partial<CheckoutFormState> | null;
         };
+        const address = data?.address ?? null;
 
         addressPrefilledRef.current = true;
 
-        if (response.ok && data?.ok && data.address) {
+        if (response.ok && data?.ok && address) {
           setForm((prev) => {
             const hasExisting =
               prev.firstName ||
@@ -176,9 +177,9 @@ export default function CheckoutPage() {
 
             return {
               ...prev,
-              ...data.address,
+              ...address,
               email: prev.email || sessionEmail,
-              country: data.address.country || prev.country,
+              country: address.country || prev.country,
             };
           });
         } else if (sessionEmail) {
