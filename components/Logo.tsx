@@ -8,7 +8,7 @@ export default function Logo() {
       <Image
         src={logoImg}
         alt="yourpc logo"
-        className="h-9 w-9 sm:h-11 sm:w-11"
+        className="h-9 w-9 sm:h-12 sm:w-12"
       />
       <span className="font-fjalla text-primary text-2xl sm:text-3xl">
         PRIMEPC

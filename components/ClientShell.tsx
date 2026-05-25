@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider, signOut, useSession } from "next-auth/react";
 import { toast, type ToasterProps } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -14,19 +14,31 @@ type ClientShellProps = {
 };
 
 function SessionInvalidationToast() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const previousStatus = useRef<string | null>(null);
+  const invalidatedRef = useRef(false);
 
   useEffect(() => {
     if (
-      previousStatus.current === "authenticated" &&
-      status === "unauthenticated"
+      status === "authenticated" &&
+      !session?.user?.id &&
+      !invalidatedRef.current
     ) {
-      toast.error("Your session expired. Please sign in again.");
+      invalidatedRef.current = true;
+      toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+      void signOut({ redirect: false });
+    }
+
+    if (
+      previousStatus.current === "authenticated" &&
+      status === "unauthenticated" &&
+      !invalidatedRef.current
+    ) {
+      toast.error("Votre session a expiré. Veuillez vous reconnecter.");
     }
 
     previousStatus.current = status;
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   return null;
 }

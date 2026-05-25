@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -26,3 +27,11 @@ export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export const WHATSAPP_NUMBER = "213555453982";
 export const WHATSAPP_MESSAGE = "Hi! I have a question about PRIMEPC.";
+
+export const SOCIAL_LINKS = [
+  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
+  { label: "Facebook", href: "https://instagram.com", icon: Facebook },
+  { label: "TikTok", href: "https://instagram.com", icon: Instagram },
+  { label: "X", href: "https://instagram.com", icon: Twitter },
+  { label: "LinkedIn", href: "https://instagram.com", icon: Linkedin },
+];

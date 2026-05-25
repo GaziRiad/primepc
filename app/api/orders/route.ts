@@ -156,6 +156,7 @@ export async function POST(request: Request) {
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         finalPrice: item.finalPrice,
+        coverImage: item.coverImage,
       })),
       subtotal: build.subtotal,
       shippingFee,

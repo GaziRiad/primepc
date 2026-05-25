@@ -1,17 +1,8 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Facebook,
-  Github,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-  Twitter,
-} from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 
 import Logo from "@/components/Logo";
+import { SOCIAL_LINKS } from "@/lib/utils";
 
 const shopLinks = [
   { label: "All Products", href: "/products" },
@@ -32,14 +23,6 @@ const supportLinks = [
   { label: "Address Book", href: "/my-account/adress" },
   { label: "Account Details", href: "/my-account/account-details" },
   { label: "Favorites", href: "/wishlist" },
-];
-
-const socialLinks = [
-  { label: "Twitter", href: "https://twitter.com", icon: Twitter },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-  { label: "Facebook", href: "https://facebook.com", icon: Facebook },
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "GitHub", href: "https://github.com", icon: Github },
 ];
 
 type FooterLinkGroupProps = {
@@ -159,7 +142,7 @@ export default function Footer() {
             </p>
 
             <div className="flex items-center gap-2">
-              {socialLinks.map(({ label, href, icon: Icon }) => (
+              {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
                 <a
                   key={label}
                   href={href}

@@ -45,7 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     authorized: async ({ auth }) => {
       // Logged in users are authenticated, otherwise redirect to login page
-      return !!auth;
+      return Boolean(auth?.user?.id);
     },
 
     async jwt({ token, user }) {
@@ -70,7 +70,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       await startDbConnection();
       const userExists = await User.exists({ _id: userId });
-      if (!userExists) return null;
+      if (!userExists) {
+        session.user.id = "";
+        session.user.role = undefined;
+        session.user.createdAt = undefined;
+        return session;
+      }
 
       session.user.id = userId;
       session.user.role = token.role as string;
