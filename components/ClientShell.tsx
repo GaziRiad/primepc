@@ -25,7 +25,7 @@ function SessionInvalidationToast() {
       !invalidatedRef.current
     ) {
       invalidatedRef.current = true;
-      toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+      toast.error("Votre session a expire. Veuillez vous reconnecter.");
       void signOut({ redirect: false });
     }
 
@@ -34,7 +34,7 @@ function SessionInvalidationToast() {
       status === "unauthenticated" &&
       !invalidatedRef.current
     ) {
-      toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+      toast.error("Votre session a expire. Veuillez vous reconnecter.");
     }
 
     previousStatus.current = status;

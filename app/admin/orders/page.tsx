@@ -13,7 +13,7 @@ export default async function page({
 }) {
   const session = await auth();
 
-  if (!session?.user || session.user.role !== "admin") {
+  if (!session?.user?.id || session.user.role !== "admin") {
     redirect("/");
   }
 

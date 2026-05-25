@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { Banknote } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,41 +20,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
 import { formatDZD } from "@/lib/utils";
-
-const ALGERIA_LOCATIONS = [
-  {
-    city: "Algiers",
-    communes: ["Bab El Oued", "El Biar", "Hussein Dey", "Kouba"],
-  },
-  {
-    city: "Oran",
-    communes: ["El Hamri", "Es Senia", "Bir El Djir"],
-  },
-  {
-    city: "Constantine",
-    communes: ["El Khroub", "Didouche Mourad", "Hamma Bouziane"],
-  },
-  {
-    city: "Annaba",
-    communes: ["El Bouni", "Seraidi", "Oued El Aneb"],
-  },
-  {
-    city: "Blida",
-    communes: ["Boufarik", "Beni Mered", "Ouled Yaich"],
-  },
-  {
-    city: "Setif",
-    communes: ["Ain Arnat", "Ain Oulmene", "El Eulma"],
-  },
-  {
-    city: "Tizi Ouzou",
-    communes: ["Azazga", "Draa Ben Khedda", "Tigzirt"],
-  },
-  {
-    city: "Batna",
-    communes: ["Barika", "Ain Touta", "Tazoult"],
-  },
-];
+import { ALGERIA_LOCATIONS } from "@/lib/locations";
 
 const SHIPPING_THRESHOLD = 40000;
 const SHIPPING_FEE = 500;
@@ -125,6 +92,7 @@ const validateForm = (form: CheckoutFormState): CheckoutErrors => {
 };
 
 export default function CheckoutPage() {
+  const { data: session } = useSession();
   const { cartItems, isLoading, clearCart } = useCart();
 
   const subtotal = cartItems.reduce(
@@ -154,6 +122,7 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const addressPrefilledRef = useRef(false);
 
   const errors = useMemo(() => validateForm(form), [form]);
 
@@ -172,6 +141,62 @@ export default function CheckoutPage() {
     );
     return location?.communes ?? [];
   }, [form.city]);
+
+  useEffect(() => {
+    if (!session?.user?.id || addressPrefilledRef.current) return;
+
+    const controller = new AbortController();
+    const sessionEmail =
+      typeof session.user.email === "string" ? session.user.email : "";
+
+    const prefill = async () => {
+      try {
+        const response = await fetch("/api/account/address", {
+          signal: controller.signal,
+        });
+
+        const data = (await response.json()) as {
+          ok?: boolean;
+          address?: Partial<CheckoutFormState> | null;
+        };
+
+        addressPrefilledRef.current = true;
+
+        if (response.ok && data?.ok && data.address) {
+          setForm((prev) => {
+            const hasExisting =
+              prev.firstName ||
+              prev.lastName ||
+              prev.phone ||
+              prev.street ||
+              prev.city ||
+              prev.commune;
+
+            if (hasExisting) return prev;
+
+            return {
+              ...prev,
+              ...data.address,
+              email: prev.email || sessionEmail,
+              country: data.address.country || prev.country,
+            };
+          });
+        } else if (sessionEmail) {
+          setForm((prev) =>
+            prev.email ? prev : { ...prev, email: sessionEmail },
+          );
+        }
+      } catch {
+        addressPrefilledRef.current = true;
+      }
+    };
+
+    void prefill();
+
+    return () => {
+      controller.abort();
+    };
+  }, [session?.user?.id, session?.user?.email]);
 
   const firstNameError = showError("firstName");
   const lastNameError = showError("lastName");

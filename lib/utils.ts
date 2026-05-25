@@ -29,9 +29,29 @@ export const WHATSAPP_NUMBER = "213555453982";
 export const WHATSAPP_MESSAGE = "Hi! I have a question about PRIMEPC.";
 
 export const SOCIAL_LINKS = [
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "Facebook", href: "https://instagram.com", icon: Facebook },
-  { label: "TikTok", href: "https://instagram.com", icon: Instagram },
-  { label: "X", href: "https://instagram.com", icon: Twitter },
-  { label: "LinkedIn", href: "https://instagram.com", icon: Linkedin },
-];
+  {
+    label: "Instagram",
+    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || "",
+    icon: Instagram,
+  },
+  {
+    label: "Facebook",
+    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK || "",
+    icon: Facebook,
+  },
+  {
+    label: "TikTok",
+    href: process.env.NEXT_PUBLIC_SOCIAL_TIKTOK || "",
+    icon: Instagram,
+  },
+  {
+    label: "X",
+    href: process.env.NEXT_PUBLIC_SOCIAL_X || "",
+    icon: Twitter,
+  },
+  {
+    label: "LinkedIn",
+    href: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN || "",
+    icon: Linkedin,
+  },
+].filter((link) => link.href);

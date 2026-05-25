@@ -8,7 +8,7 @@ export default async function layout({
 }>) {
   const session = await auth();
 
-  if (!session?.user) return null;
+  if (!session?.user?.id) return null;
 
   return (
     <div>

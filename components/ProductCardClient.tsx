@@ -2,13 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type MouseEvent, useMemo, useRef, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AddToCartButton from "@/components/AddToCartButton";
 import FavoriteButton from "@/components/(user)/FavoriteButton";
 import { formatDZD } from "@/lib/utils";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 const FALLBACK_IMAGE = "/images/accessories.png";
 
@@ -49,6 +55,7 @@ export default function ProductCardClient({
   const [activeIndex, setActiveIndex] = useState(0);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
   const lastIndexRef = useRef(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
   const safeIndex = activeIndex >= gallery.length ? 0 : activeIndex;
   const activeImage = gallery[safeIndex] ?? gallery[0];
@@ -60,6 +67,23 @@ export default function ProductCardClient({
       setActiveIndex(nextIndex);
     }
   };
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const handleSelect = () => {
+      updateActiveIndex(carouselApi.selectedScrollSnap());
+    };
+
+    handleSelect();
+    carouselApi.on("select", handleSelect);
+    carouselApi.on("reInit", handleSelect);
+
+    return () => {
+      carouselApi.off("select", handleSelect);
+      carouselApi.off("reInit", handleSelect);
+    };
+  }, [carouselApi]);
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (gallery.length <= 1 || !imageContainerRef.current) {
@@ -94,32 +118,70 @@ export default function ProductCardClient({
       } `}
     >
       <CardContent className="flex w-full flex-col items-center">
-        <div
-          ref={imageContainerRef}
-          className="group/image relative flex aspect-square w-full overflow-hidden rounded-lg bg-zinc-100"
-          onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <Image
-            fill
-            src={activeImage}
-            alt={`Image of ${name} from PRIMEPC algeria.`}
-            className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
-          />
+        <div className="w-full">
+          <div className="sm:hidden">
+            <Carousel
+              opts={{ loop: gallery.length > 1, align: "start" }}
+              setApi={setCarouselApi}
+              className="touch-pan-y"
+            >
+              <CarouselContent>
+                {gallery.map((image, index) => (
+                  <CarouselItem key={`mobile-image-${index}`}>
+                    <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-zinc-100">
+                      <Image
+                        fill
+                        src={image}
+                        alt={`Image of ${name} from PRIMEPC algeria.`}
+                        className="object-cover"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
 
-          {gallery.length > 1 && (
-            <div className="pointer-events-none absolute inset-x-4 bottom-4 flex gap-1 opacity-0 transition-opacity group-hover/image:opacity-100">
-              {gallery.map((_, index) => (
-                <span
-                  key={`progress-${index}`}
-                  className={`h-1 flex-1 rounded-full transition-colors ${
-                    index === safeIndex ? "bg-zinc-900/80" : "bg-zinc-900/20"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+            {gallery.length > 1 && (
+              <div className="mt-3 flex justify-center gap-1.5">
+                {gallery.map((_, index) => (
+                  <span
+                    key={`mobile-dot-${index}`}
+                    className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                      index === safeIndex ? "bg-zinc-900" : "bg-zinc-900/20"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div
+            ref={imageContainerRef}
+            className="group/image relative hidden aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 sm:flex"
+            onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <Image
+              fill
+              src={activeImage}
+              alt={`Image of ${name} from PRIMEPC algeria.`}
+              className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
+            />
+
+            {gallery.length > 1 && (
+              <div className="pointer-events-none absolute inset-x-4 bottom-4 flex gap-1 opacity-0 transition-opacity group-hover/image:opacity-100">
+                {gallery.map((_, index) => (
+                  <span
+                    key={`progress-${index}`}
+                    className={`h-1 flex-1 rounded-full transition-colors ${
+                      index === safeIndex ? "bg-zinc-900/80" : "bg-zinc-900/20"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
 

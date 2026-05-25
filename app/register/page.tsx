@@ -1,5 +1,5 @@
 import Logo from "@/components/Logo";
-import { LoginForm } from "@/components/ui/login-form";
+import { RegisterForm } from "@/components/ui/register-form";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -14,7 +14,7 @@ export default async function page() {
         <div className="flex scale-75 items-center justify-center">
           <Logo />
         </div>
-        <LoginForm />
+        <RegisterForm />
       </div>
     </div>
   );

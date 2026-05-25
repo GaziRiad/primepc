@@ -1,13 +1,10 @@
 import { auth } from "@/lib/auth";
+import AccountDetailsForm from "@/components/(user)/AccountDetailsForm";
 
 export default async function page() {
   const session = await auth();
 
-  return (
-    <div className="">
-      <h3>ACCOUNT DETAILS</h3>
+  if (!session?.user?.id) return null;
 
-      <p>Email: {session?.user.email}</p>
-    </div>
-  );
+  return <AccountDetailsForm />;
 }
