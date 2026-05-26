@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { ORDER_STATUSES, updateOrderStatus } from "@/lib/orders";
+import {
+  ORDER_STATUSES,
+  updateOrderArchive,
+  updateOrderStatus,
+} from "@/lib/orders";
 
 type PatchBody = {
   status?: string;
   note?: string;
+  archived?: boolean;
 };
 
 const normalizeId = (value: unknown) => {
@@ -50,7 +55,17 @@ export async function PATCH(
     }
 
     const status = body.status;
-    if (!status || !ORDER_STATUSES.includes(status as never)) {
+    const hasStatus = typeof status === "string";
+    const hasArchive = typeof body.archived === "boolean";
+
+    if (!hasStatus && !hasArchive) {
+      return NextResponse.json(
+        { ok: false, error: "invalid_payload" },
+        { status: 400 },
+      );
+    }
+
+    if (hasStatus && !ORDER_STATUSES.includes(status as never)) {
       return NextResponse.json(
         { ok: false, error: "invalid_status" },
         { status: 400 },
@@ -70,12 +85,22 @@ export async function PATCH(
 
     let order = null;
     try {
-      order = await updateOrderStatus(
-        normalizedId,
-        status as never,
-        body.note ?? "",
-        session.user.id,
-      );
+      if (hasStatus) {
+        order = await updateOrderStatus(
+          normalizedId,
+          status as never,
+          body.note ?? "",
+          session.user.id,
+        );
+      }
+
+      if (hasArchive) {
+        order = await updateOrderArchive(
+          normalizedId,
+          Boolean(body.archived),
+          session.user.id,
+        );
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "server_error";
       if (message.toLowerCase().includes("cast to objectid")) {

@@ -44,6 +44,7 @@ export const getAllProducts = async (query?: QueryParams) => {
 
       const categoryDocs = await Category.find({
         slug: { $in: categories },
+        isActive: true,
       }).lean();
 
       const categoryIds = categoryDocs.map((c) => c._id);
@@ -151,12 +152,13 @@ export const getProductsPage = async (query?: QueryParams) => {
 
       const categoryDocs = await Category.find({
         slug: { $in: categories },
+        isActive: true,
       }).lean();
 
       const categoryIds = categoryDocs.map((c) => c._id);
 
       if (!categoryIds.length) {
-        return { items: [], total: 0, page: 1, limit: 8, totalPages: 0 };
+        return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
       }
       mongoQuery.categories = { $in: categoryIds };
     }
@@ -168,7 +170,7 @@ export const getProductsPage = async (query?: QueryParams) => {
       (minRaw && Number.isNaN(Number(minRaw))) ||
       (maxRaw && Number.isNaN(Number(maxRaw)))
     ) {
-      return { items: [], total: 0, page: 1, limit: 8, totalPages: 0 };
+      return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
     }
 
     if (minRaw || maxRaw) {
@@ -176,7 +178,7 @@ export const getProductsPage = async (query?: QueryParams) => {
       const max = maxRaw ? Number(maxRaw) : undefined;
 
       if (min !== undefined && max !== undefined && min > max) {
-        return { items: [], total: 0, page: 1, limit: 8, totalPages: 0 };
+        return { items: [], total: 0, page: 1, limit: 10, totalPages: 0 };
       }
 
       mongoQuery.price = {};
@@ -214,7 +216,7 @@ export const getProductsPage = async (query?: QueryParams) => {
     const limit =
       Number.isFinite(limitRaw) && limitRaw > 0
         ? Math.min(Math.floor(limitRaw), 48)
-        : 8;
+        : 10;
     const pageRaw = Math.floor(Number(query?.page));
     const requestedPage = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
@@ -238,7 +240,11 @@ export const getProduct = cache(async (slug: string) => {
   try {
     await startDbConnection();
     const product = await Product.findOne({ slug })
-      .populate("categories", "name slug")
+      .populate({
+        path: "categories",
+        select: "name slug",
+        match: { isActive: true },
+      })
       .lean();
 
     return product;
@@ -255,8 +261,9 @@ export const getProduct = cache(async (slug: string) => {
 export const getAllCategories = cache(async () => {
   try {
     await startDbConnection();
-    const categories = await Category.find()
+    const categories = await Category.find({ isActive: true })
       .select("name slug image -_id")
+      .sort({ name: 1 })
       .lean();
 
     return categories;

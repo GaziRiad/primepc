@@ -9,6 +9,7 @@ import {
 type ExportOrder = {
   _id?: unknown;
   status?: string;
+  archived?: boolean;
   createdAt?: string | Date;
   subtotal?: number;
   shippingFee?: number;
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
     const header = [
       "order_id",
       "status",
+      "archived",
       "created_at",
       "subtotal",
       "shipping_fee",
@@ -96,6 +98,7 @@ export async function GET(request: Request) {
             const row = [
               orderId,
               order.status ?? "",
+              order.archived ? "yes" : "no",
               createdAt,
               Number(order.subtotal ?? 0),
               Number(order.shippingFee ?? 0),

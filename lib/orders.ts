@@ -67,6 +67,7 @@ const toSingle = (value: string | string[] | undefined) =>
 const buildAdminOrdersFilter = (query?: OrdersQuery) => {
   const statusRaw = toSingle(query?.status);
   const sortRaw = toSingle(query?.sort);
+  const archivedRaw = toSingle(query?.archived);
   const fromRaw = toSingle(query?.from);
   const toRaw = toSingle(query?.to);
 
@@ -74,6 +75,14 @@ const buildAdminOrdersFilter = (query?: OrdersQuery) => {
 
   if (statusRaw && ORDER_STATUSES.includes(statusRaw as OrderStatus)) {
     filter.status = statusRaw;
+  }
+
+  if (archivedRaw === "archived") {
+    filter.archived = true;
+  } else if (archivedRaw === "all") {
+    // no filter
+  } else {
+    filter.archived = { $ne: true };
   }
 
   const createdAt: { $gte?: Date; $lte?: Date } = {};
@@ -187,7 +196,7 @@ export const getOrdersForAdminPage = async (query?: OrdersQuery) => {
 
   const { filter, sort } = buildAdminOrdersFilter(query);
 
-  const limit = 20;
+  const limit = 10;
   const total = await Order.countDocuments(filter);
   const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
   const requestedPage = Number(toSingle(query?.page)) || 1;
@@ -296,6 +305,30 @@ export const updateOrderStatus = async (
         statusHistory: historyEntry,
       },
     },
+    { new: true },
+  ).lean();
+};
+
+export const updateOrderArchive = async (
+  orderId: string,
+  archived: boolean,
+  changedBy?: string,
+) => {
+  await startDbConnection();
+
+  const update: Record<string, unknown> = {
+    archived,
+    archivedAt: archived ? new Date() : null,
+    archivedBy: null,
+  };
+
+  if (archived && changedBy && Types.ObjectId.isValid(changedBy)) {
+    update.archivedBy = new Types.ObjectId(changedBy);
+  }
+
+  return Order.findByIdAndUpdate(
+    orderId,
+    { $set: update },
     { new: true },
   ).lean();
 };

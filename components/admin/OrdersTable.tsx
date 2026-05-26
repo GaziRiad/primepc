@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { MoreHorizontal, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ type OrderRow = {
   shippingFee?: number;
   total: number;
   status: OrderStatus;
+  archived?: boolean;
   createdAt: string;
   customer?: {
     firstName?: string;
@@ -57,6 +58,7 @@ type OrderRow = {
 
 type OrdersTableProps = {
   orders: OrderRow[];
+  archivedFilter?: string;
 };
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
@@ -68,7 +70,10 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   failed: "bg-slate-200 text-slate-700",
 };
 
-export default function OrdersTable({ orders }: OrdersTableProps) {
+export default function OrdersTable({
+  orders,
+  archivedFilter = "active",
+}: OrdersTableProps) {
   const normalizeOrderId = (value: unknown) => {
     if (!value) return "";
     if (typeof value === "string") return value;
@@ -101,7 +106,21 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
     })),
   );
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
   const [activeOrder, setActiveOrder] = useState<OrderRow | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("[data-menu-root]")) return;
+      setMenuOpenId(null);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
 
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     if (!orderId) {
@@ -157,6 +176,65 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
   };
 
   const closeModal = () => setActiveOrder(null);
+
+  const updateArchive = async (orderId: string, archived: boolean) => {
+    if (!orderId) {
+      toast.error("Invalid order id.");
+      return;
+    }
+    setArchivingId(orderId);
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ archived }),
+      });
+
+      const data = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        order?: OrderRow;
+        error?: string;
+      };
+
+      if (!response.ok || !data?.ok || !data.order) {
+        toast.error(data?.error || "Unable to update archive state.");
+        return;
+      }
+
+      const nextArchived = data.order?.archived ?? archived;
+
+      setRows((current) => {
+        const updated = current.map((order) =>
+          order._id === orderId
+            ? {
+                ...order,
+                archived: nextArchived,
+              }
+            : order,
+        );
+
+        if (archivedFilter === "active" && nextArchived) {
+          return updated.filter((order) => order._id !== orderId);
+        }
+
+        if (archivedFilter === "archived" && !nextArchived) {
+          return updated.filter((order) => order._id !== orderId);
+        }
+
+        return updated;
+      });
+
+      if (activeOrder?._id === orderId) {
+        setActiveOrder({
+          ...activeOrder,
+          archived: nextArchived,
+        });
+      }
+    } finally {
+      setArchivingId(null);
+    }
+  };
 
   return (
     <div className="rounded-2xl border bg-white shadow-xs">
@@ -234,6 +312,11 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
                       >
                         {order.status.replace(/_/g, " ")}
                       </Badge>
+                      {order.archived && (
+                        <Badge variant="outline" className="ml-2">
+                          Archived
+                        </Badge>
+                      )}
                     </td>
                     <td className="text-muted-foreground px-6 py-4 text-xs">
                       {new Date(order.createdAt).toLocaleString()}
@@ -258,16 +341,58 @@ export default function OrdersTable({ orders }: OrdersTableProps) {
                       </select>
                     </td>
                     <td className="px-6 py-4">
-                      <Button
-                        type="button"
-                        size="xs"
-                        variant="outline"
-                        onClick={() =>
-                          setActiveOrder({ ...order, _id: orderId })
-                        }
+                      <div
+                        className="relative flex items-center justify-end"
+                        data-menu-root
                       >
-                        View
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon-xs"
+                          variant="ghost"
+                          aria-haspopup="menu"
+                          aria-label="Order actions"
+                          aria-expanded={menuOpenId === orderId}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setMenuOpenId(
+                              menuOpenId === orderId ? null : orderId,
+                            );
+                          }}
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+
+                        {menuOpenId === orderId && (
+                          <div
+                            className="absolute top-full right-0 z-20 mt-2 w-44 rounded-xl border bg-white p-1 shadow-lg"
+                            role="menu"
+                          >
+                            <button
+                              type="button"
+                              className="hover:bg-accent-100 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs"
+                              onClick={() => {
+                                setMenuOpenId(null);
+                                setActiveOrder({ ...order, _id: orderId });
+                              }}
+                              role="menuitem"
+                            >
+                              View details
+                            </button>
+                            <button
+                              type="button"
+                              className="hover:bg-accent-100 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs disabled:pointer-events-none disabled:opacity-50"
+                              onClick={() => {
+                                setMenuOpenId(null);
+                                updateArchive(orderId, !order.archived);
+                              }}
+                              disabled={archivingId === orderId}
+                              role="menuitem"
+                            >
+                              {order.archived ? "Unarchive" : "Archive"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

@@ -19,6 +19,8 @@ export default async function page({
 
   const query = await searchParams;
   const statusFilter = typeof query.status === "string" ? query.status : "all";
+  const archivedFilter =
+    typeof query.archived === "string" ? query.archived : "active";
   const fromDate = typeof query.from === "string" ? query.from : "";
   const toDate = typeof query.to === "string" ? query.to : "";
   const sort = typeof query.sort === "string" ? query.sort : "newest";
@@ -46,16 +48,18 @@ export default async function page({
       </div>
 
       <OrdersToolbar
-        key={`${statusFilter}-${fromDate}-${toDate}-${sort}`}
+        key={`${statusFilter}-${archivedFilter}-${fromDate}-${toDate}-${sort}`}
         initialStatus={statusFilter}
+        initialArchived={archivedFilter}
         initialFrom={fromDate}
         initialTo={toDate}
         initialSort={sort}
       />
 
       <OrdersTable
-        key={`${page}-${statusFilter}-${fromDate}-${toDate}-${sort}`}
+        key={`${page}-${statusFilter}-${archivedFilter}-${fromDate}-${toDate}-${sort}`}
         orders={safeOrders}
+        archivedFilter={archivedFilter}
       />
 
       {totalPages > 1 && (

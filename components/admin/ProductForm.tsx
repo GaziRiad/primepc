@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ type CategoryOption = {
   _id: string;
   name: string;
   slug?: string;
+  isActive?: boolean;
 };
 
 type ProductFormProduct = {
@@ -346,11 +348,16 @@ export default function ProductForm({
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categories.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No categories available.
+              No categories available. Create one in{" "}
+              <Link href="/admin/categories" className="text-primary">
+                Categories
+              </Link>
+              .
             </p>
           ) : (
             categories.map((category) => {
               const checked = selectedCategories.includes(category._id);
+              const inactive = category.isActive === false;
 
               return (
                 <label
@@ -364,6 +371,11 @@ export default function ProductForm({
                     }
                   />
                   <span>{category.name}</span>
+                  {inactive && (
+                    <Badge variant="outline" className="ml-auto text-xs">
+                      Inactive
+                    </Badge>
+                  )}
                 </label>
               );
             })

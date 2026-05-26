@@ -30,6 +30,12 @@ const SORT_OPTIONS = [
   { value: "status", label: "Delivery status" },
 ];
 
+const ARCHIVE_OPTIONS = [
+  { value: "active", label: "Active orders" },
+  { value: "archived", label: "Archived" },
+  { value: "all", label: "All orders" },
+];
+
 const DATE_PRESETS = [
   { label: "Today", days: 1 },
   { label: "Last 7 days", days: 7 },
@@ -39,6 +45,7 @@ const DATE_PRESETS = [
 
 type OrdersToolbarProps = {
   initialStatus?: string;
+  initialArchived?: string;
   initialFrom?: string;
   initialTo?: string;
   initialSort?: string;
@@ -46,6 +53,7 @@ type OrdersToolbarProps = {
 
 export default function OrdersToolbar({
   initialStatus = "all",
+  initialArchived = "active",
   initialFrom = "",
   initialTo = "",
   initialSort = "newest",
@@ -54,6 +62,7 @@ export default function OrdersToolbar({
   const router = useRouter();
 
   const [status, setStatus] = useState(initialStatus || "all");
+  const [archived, setArchived] = useState(initialArchived || "active");
   const [fromDate, setFromDate] = useState(initialFrom || "");
   const [toDate, setToDate] = useState(initialTo || "");
   const [sort, setSort] = useState(initialSort || "newest");
@@ -67,17 +76,22 @@ export default function OrdersToolbar({
 
   const applyFilters = (next?: {
     status?: string;
+    archived?: string;
     from?: string;
     to?: string;
     sort?: string;
   }) => {
     const params = new URLSearchParams();
     const nextStatus = next?.status ?? status;
+    const nextArchived = next?.archived ?? archived;
     const nextFrom = next?.from ?? fromDate;
     const nextTo = next?.to ?? toDate;
     const nextSort = next?.sort ?? sort;
 
     if (nextStatus && nextStatus !== "all") params.set("status", nextStatus);
+    if (nextArchived && nextArchived !== "active") {
+      params.set("archived", nextArchived);
+    }
     if (nextFrom) params.set("from", nextFrom);
     if (nextTo) params.set("to", nextTo);
     if (nextSort && nextSort !== "newest") params.set("sort", nextSort);
@@ -93,6 +107,7 @@ export default function OrdersToolbar({
 
   const handleClear = () => {
     setStatus("all");
+    setArchived("active");
     setFromDate("");
     setToDate("");
     setSort("newest");
@@ -113,6 +128,9 @@ export default function OrdersToolbar({
 
   const exportParams = new URLSearchParams();
   if (status && status !== "all") exportParams.set("status", status);
+  if (archived && archived !== "active") {
+    exportParams.set("archived", archived);
+  }
   if (fromDate) exportParams.set("from", fromDate);
   if (toDate) exportParams.set("to", toDate);
   if (sort && sort !== "newest") exportParams.set("sort", sort);
@@ -122,10 +140,10 @@ export default function OrdersToolbar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-xs lg:flex-row lg:items-end lg:justify-between"
+      className="flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-xs lg:flex-row lg:flex-wrap lg:items-end lg:justify-between"
     >
-      <div className="flex w-full flex-col gap-4">
-        <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-[200px_220px_220px_200px]">
+      <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-1">
+        <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-[200px_200px_220px_220px_200px]">
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
               Status
@@ -142,6 +160,30 @@ export default function OrdersToolbar({
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-muted-foreground text-xs font-semibold uppercase">
+              Visibility
+            </label>
+            <Select
+              value={archived}
+              onValueChange={(value) => {
+                setArchived(value);
+                applyFilters({ archived: value });
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                {ARCHIVE_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -215,7 +257,7 @@ export default function OrdersToolbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
         <Button type="submit" variant="outline">
           Apply filters
         </Button>

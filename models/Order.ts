@@ -66,6 +66,9 @@ const OrderSchema = new mongoose.Schema(
     paymentMethod: { type: String, default: "cod" },
     source: { type: String, enum: ["user", "guest"], default: "user" },
     notes: { type: String, default: "" },
+    archived: { type: Boolean, default: false, index: true },
+    archivedAt: { type: Date },
+    archivedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true,
@@ -76,6 +79,16 @@ const OrderSchema = new mongoose.Schema(
 
 OrderSchema.index({ user: 1, createdAt: -1 });
 OrderSchema.index({ status: 1, createdAt: -1 });
+OrderSchema.index({ archived: 1, createdAt: -1 });
+
+const existingModel = mongoose.models.Order;
+
+if (existingModel) {
+  const hasArchived = existingModel.schema.path("archived");
+  if (!hasArchived) {
+    delete mongoose.models.Order;
+  }
+}
 
 const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
 

@@ -34,7 +34,7 @@ export default async function page({
   }
 
   const total = await Product.countDocuments(filter);
-  const limit = 12;
+  const limit = 10;
   const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
   const page = Math.max(1, Math.min(Number(query.page) || 1, totalPages || 1));
   const skip = (page - 1) * limit;

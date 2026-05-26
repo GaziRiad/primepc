@@ -217,11 +217,11 @@ export default function ProductCardClient({
         </div>
 
         <p
-          className={`mb-4 text-xs font-semibold ${
+          className={`mb-4 text-xs font-semibold uppercase ${
             inStock ? "text-emerald-600" : "text-rose-600"
           }`}
         >
-          {inStock ? "In Stock" : "Out of Stock"}
+          {inStock ? "IN STOCK" : "OUT OF STOCK"}
         </p>
 
         <div className="mt-auto flex items-center gap-2">

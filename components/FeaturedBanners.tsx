@@ -74,7 +74,7 @@ export default function FeaturedBanners() {
       <Carousel
         opts={{ loop: true }}
         setApi={setApi}
-        className="relative h-48 w-full touch-pan-y overflow-hidden rounded-lg sm:h-56 lg:h-72 xl:h-120"
+        className="relative h-80 w-full touch-pan-y overflow-hidden rounded-lg lg:h-96 xl:h-120"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onFocus={() => setIsPaused(true)}
@@ -112,7 +112,7 @@ export default function FeaturedBanners() {
         </div>
       </Carousel>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:h-72 lg:grid-cols-1 lg:grid-rows-[1fr_1fr] xl:h-120">
+      <div className="hidden gap-4 sm:grid-cols-2 sm:gap-5 lg:grid lg:h-72 lg:grid-cols-1 lg:grid-rows-[1fr_1fr] xl:h-120">
         <div className="relative h-32 w-full overflow-hidden rounded-lg sm:h-40 lg:h-full">
           <Image
             fill

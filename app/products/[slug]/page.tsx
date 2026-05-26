@@ -140,13 +140,17 @@ export default async function page({
               )}
             </div>
 
-            <p
+            {/* <p
               className={`mt-2 text-xs font-semibold ${
                 inStock ? "text-emerald-600" : "text-rose-600"
               }`}
             >
-              {inStock ? `Only ${product.stock} left in stock` : "Out of stock"}
-            </p>
+              {inStock && product.stock <= 3
+                ? `Only ${product.stock} left in stock`
+                : product.stock > 3
+                  ? "IN STOCK"
+                  : "OUT OF STOCK"}
+            </p> */}
 
             <Separator className="my-6" />
 

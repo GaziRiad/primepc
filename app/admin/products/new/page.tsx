@@ -6,7 +6,7 @@ export default async function page() {
   await startDbConnection();
 
   const categories = await Category.find()
-    .select("name slug")
+    .select("name slug isActive")
     .sort({ name: 1 })
     .lean();
 
@@ -14,6 +14,7 @@ export default async function page() {
     _id: String(category._id),
     name: category.name,
     slug: category.slug,
+    isActive: Boolean(category.isActive),
   }));
 
   return (
