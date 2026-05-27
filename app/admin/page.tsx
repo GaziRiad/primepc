@@ -71,7 +71,7 @@ export default async function page() {
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="rounded-2xl border bg-white shadow-xs">
-          <div className="flex items-center justify-between border-b px-6 py-4">
+          <div className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <h2 className="text-foreground text-lg font-semibold">
                 Recent orders
@@ -92,10 +92,10 @@ export default async function page() {
             <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>Order</TableHead>
-                <TableHead>Customer</TableHead>
+                <TableHead className="hidden md:table-cell">Customer</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Placed</TableHead>
+                <TableHead className="hidden md:table-cell">Placed</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -112,13 +112,23 @@ export default async function page() {
                   const name = `${order.customer?.firstName ?? ""} ${
                     order.customer?.lastName ?? ""
                   }`.trim();
+                  const placedDate = new Date(
+                    order.createdAt,
+                  ).toLocaleDateString();
 
                   return (
                     <TableRow key={orderId}>
-                      <TableCell className="text-foreground font-medium">
-                        {label}
+                      <TableCell className="text-foreground font-medium whitespace-normal">
+                        <div className="flex flex-col gap-1">
+                          <span>{label}</span>
+                          <span className="text-muted-foreground text-xs md:hidden">
+                            {`${name || "Guest"} - ${placedDate}`}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell>{name || "Guest"}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {name || "Guest"}
+                      </TableCell>
                       <TableCell className="font-semibold">
                         {formatDZD(order.total ?? 0)}
                       </TableCell>
@@ -132,8 +142,8 @@ export default async function page() {
                           {order.status?.replace(/_/g, " ") ?? "unknown"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-muted-foreground text-xs">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                      <TableCell className="text-muted-foreground hidden text-xs md:table-cell">
+                        {placedDate}
                       </TableCell>
                     </TableRow>
                   );
@@ -143,7 +153,7 @@ export default async function page() {
           </Table>
         </div>
 
-        <div className="rounded-2xl border bg-white p-6 shadow-xs">
+        <div className="rounded-2xl border bg-white p-4 shadow-xs sm:p-6">
           <h2 className="text-foreground text-lg font-semibold">
             Revenue snapshot
           </h2>
@@ -170,7 +180,7 @@ export default async function page() {
             </div>
             <Link
               href="/admin/products"
-              className="text-foreground hover:bg-accent-100 rounded-full border px-4 py-2 text-center text-sm font-semibold transition"
+              className="text-foreground hover:bg-accent-100 w-full rounded-full border px-4 py-2 text-center text-sm font-semibold transition sm:w-auto"
             >
               Manage products
             </Link>
