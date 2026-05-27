@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
-  User,
   X,
 } from "lucide-react";
 import Logo from "./Logo";
@@ -90,17 +89,14 @@ export default function Header() {
                   <Menu className="size-5" />
                 </button>
               </DrawerTrigger>
-              <DrawerContent className="border-0 bg-gradient-to-b from-primary-900 via-primary-800 to-primary-700 p-0 text-white before:border-transparent before:bg-transparent data-[vaul-drawer-direction=left]:w-[82vw] data-[vaul-drawer-direction=left]:sm:max-w-sm">
+              <DrawerContent className="border-0 bg-white p-0 text-slate-900 before:border-transparent before:bg-transparent data-[vaul-drawer-direction=left]:w-[82vw] data-[vaul-drawer-direction=left]:sm:max-w-sm">
                 <div className="relative flex min-h-screen flex-col overflow-hidden">
-                  <div className="pointer-events-none absolute -right-24 top-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-                  <div className="pointer-events-none absolute -left-20 bottom-10 h-52 w-52 rounded-full bg-primary-400/40 blur-3xl" />
-
-                  <DrawerHeader className="relative flex items-center justify-between border-0 px-5 pt-6 pb-4">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.32em] text-white/60">
-                        Primepc
-                      </p>
-                      <DrawerTitle className="text-lg font-semibold text-white">
+                  <DrawerHeader className="relative flex items-start justify-between border-0 px-5 pt-5 pb-3">
+                    <div className="flex flex-col gap-2">
+                      <DrawerClose asChild>
+                        <Logo />
+                      </DrawerClose>
+                      <DrawerTitle className="text-xs font-semibold tracking-[0.28em] text-slate-500 uppercase">
                         Navigation
                       </DrawerTitle>
                     </div>
@@ -109,7 +105,7 @@ export default function Header() {
                         variant="ghost"
                         size="icon-sm"
                         aria-label="Close navigation"
-                        className="bg-white/10 text-white hover:bg-white/20"
+                        className="absolute top-4 right-4 bg-slate-100 text-slate-700 hover:bg-slate-200"
                       >
                         <X className="size-4" />
                       </Button>
@@ -117,20 +113,27 @@ export default function Header() {
                   </DrawerHeader>
 
                   <div className="relative px-5">
-                    <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-sm">
-                      <Avatar className="h-11 w-11">
-                        <AvatarImage src={session?.user?.image ?? undefined} />
-                        <AvatarFallback>{initials || "GU"}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex min-w-0 flex-col">
-                        <span className="truncate text-sm font-semibold text-white">
-                          {userName}
-                        </span>
-                        <span className="truncate text-xs text-white/70">
-                          {userEmail}
-                        </span>
-                      </div>
-                    </div>
+                    <DrawerClose asChild>
+                      <Link
+                        href={accountLink.href}
+                        className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition hover:bg-slate-100"
+                      >
+                        <Avatar className="h-11 w-11">
+                          <AvatarImage
+                            src={session?.user?.image ?? undefined}
+                          />
+                          <AvatarFallback>{initials || "GU"}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate text-sm font-semibold text-slate-900">
+                            {userName}
+                          </span>
+                          <span className="truncate text-xs text-slate-500">
+                            {userEmail}
+                          </span>
+                        </div>
+                      </Link>
+                    </DrawerClose>
                   </div>
 
                   <nav className="relative mt-6 flex-1 overflow-y-auto px-4 pb-6">
@@ -143,16 +146,16 @@ export default function Header() {
                           <DrawerClose asChild key={link.href}>
                             <Link
                               href={link.href}
-                              className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em] transition ${
+                              className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                                 isActive
-                                  ? "bg-white/20 text-white shadow-sm ring-1 ring-white/20"
-                                  : "text-white/75 hover:bg-white/10 hover:text-white"
+                                  ? "bg-slate-100 text-slate-900"
+                                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                               }`}
                             >
-                              <Icon className="size-4 text-white/70 transition group-hover:text-white" />
+                              <Icon className="size-4 text-slate-400 transition group-hover:text-slate-700" />
                               <span className="flex-1">{link.label}</span>
                               {link.badge && (
-                                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white">
+                                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
                                   {link.badge}
                                 </span>
                               )}
@@ -165,28 +168,13 @@ export default function Header() {
                         <DrawerClose asChild>
                           <Link
                             href="/admin"
-                            className="group flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-white/20"
+                            className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-100"
                           >
-                            <ShieldCheck className="size-4 text-white" />
+                            <ShieldCheck className="size-4 text-slate-700" />
                             Admin dashboard
                           </Link>
                         </DrawerClose>
                       )}
-                    </div>
-
-                    <div className="mt-6 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-white/60">
-                        Account
-                      </p>
-                      <DrawerClose asChild>
-                        <Link
-                          href={accountLink.href}
-                          className="mt-3 inline-flex w-full items-center justify-between rounded-full bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-white/25"
-                        >
-                          {accountLink.label}
-                          <User className="size-4" />
-                        </Link>
-                      </DrawerClose>
                     </div>
                   </nav>
                 </div>
