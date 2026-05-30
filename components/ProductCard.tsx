@@ -4,11 +4,13 @@ import ProductCardClient from "./ProductCardClient";
 type ProductCardProps = {
   product: TProduct;
   large?: boolean;
+  badge?: boolean;
 };
 
 export default function ProductCard({
   product,
   large = false,
+  badge = false,
 }: ProductCardProps) {
   return (
     <ProductCardClient
@@ -23,6 +25,7 @@ export default function ProductCard({
       discount={product.discount}
       stock={product.stock}
       large={large}
+      badge={badge}
     />
   );
 }

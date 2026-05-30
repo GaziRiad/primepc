@@ -74,7 +74,7 @@ export default async function page({
                   <p className="text-muted-foreground">No products found.</p>
                 </div>
               ) : (
-                <ul className="grid flex-1 grid-cols-1 content-start gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">
+                <ul className="grid flex-1 grid-cols-2 content-start gap-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">
                   {products.map((product, index) => (
                     <li key={index}>
                       <ProductCard product={product} />

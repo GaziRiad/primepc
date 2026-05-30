@@ -30,6 +30,7 @@ type ProductCardClientProps = {
   discount?: number;
   stock?: number;
   large?: boolean;
+  badge?: boolean;
 };
 
 export default function ProductCardClient({
@@ -44,6 +45,7 @@ export default function ProductCardClient({
   discount = 0,
   stock,
   large = false,
+  badge,
 }: ProductCardClientProps) {
   const gallery = useMemo(() => {
     const cleaned = [coverImage, ...(images ?? [])]
@@ -117,7 +119,7 @@ export default function ProductCardClient({
         large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"
       } `}
     >
-      <CardContent className="flex w-full flex-col items-center">
+      <CardContent className="flex w-full flex-col items-center px-2.5!">
         <div className="w-full">
           <div className="sm:hidden">
             <Carousel
@@ -185,17 +187,17 @@ export default function ProductCardClient({
         </div>
       </CardContent>
 
-      <CardFooter className="flex h-full flex-col items-start">
+      <CardFooter className="flex h-full flex-col items-start px-2.5!">
         <p className="text-accent-400 -mb-1 text-xs uppercase">{brand}</p>
         <Link
           href={`/products/${slug}`}
-          className="mb-2 line-clamp-2 min-h-10 text-sm font-medium underline-offset-2 transition-all hover:underline"
+          className="mb-2 line-clamp-2 text-sm font-medium underline-offset-2 transition-all hover:underline"
         >
           {name}
         </Link>
 
-        {large && (
-          <Badge className="mb-2 bg-amber-400" variant="default">
+        {badge && (
+          <Badge className="mb-2 bg-slate-600" variant="default">
             Latest & Greatest
           </Badge>
         )}
