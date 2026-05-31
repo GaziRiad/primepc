@@ -175,7 +175,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                       variant={isOut ? "destructive" : "secondary"}
                       className={isOut ? "" : "bg-emerald-100 text-emerald-700"}
                     >
-                      {isOut ? "Out" : `${stock} in stock`}
+                      {isOut ? "Out of stock" : `${stock} in stock`}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">

@@ -55,8 +55,8 @@ function FooterLinkGroup({ title, links }: FooterLinkGroupProps) {
 
 export default function Footer() {
   return (
-    <footer className="bg-white px-4 pt-10 pb-6 sm:px-6 lg:px-8">
-      <div className="mx-auto overflow-hidden rounded-[2rem] bg-[#1847B7] text-white shadow-[0_20px_80px_rgba(24,71,183,0.24)]">
+    <footer>
+      <div className="mx-auto overflow-hidden rounded-t-[2rem] bg-[#1847B7] text-white shadow-[0_20px_80px_rgba(24,71,183,0.24)]">
         <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-14 lg:py-12">
           <div className="flex flex-col gap-8 border-b border-white/15 pb-10 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
             <div className="max-w-xl">
@@ -133,7 +133,9 @@ export default function Footer() {
 
             <FooterLinkGroup title="Shop" links={shopLinks} />
             <FooterLinkGroup title="Company" links={companyLinks} />
-            <FooterLinkGroup title="Support" links={supportLinks} />
+            <div className="hidden md:block">
+              <FooterLinkGroup title="Support" links={supportLinks} />
+            </div>
           </div>
 
           <div className="flex flex-col gap-5 border-t border-white/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
