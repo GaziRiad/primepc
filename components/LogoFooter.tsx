@@ -5,19 +5,19 @@ import Link from "next/link";
 
 export default function LogoFooter() {
   return (
-    <Link href="/" className="flex items-center gap-4">
+    <Link href="/" className="flex items-center gap-2 lg:gap-4">
       <Image
         src={logoImg}
         alt="yourpc logo"
         // className="h-9 w-9 sm:h-24 sm:w-24"
-        className="sm:w-20"
+        className="w-10 lg:w-20"
       />
 
       <Image
         src={logoText}
         alt="yourpc logo"
         // className="h-9 w-9 sm:h-24 sm:w-24"
-        className="sm:w-62"
+        className="w-36 lg:w-62"
       />
     </Link>
   );
