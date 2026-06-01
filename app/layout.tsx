@@ -1,6 +1,8 @@
 import { Fjalla_One, Public_Sans } from "next/font/google";
 import type { Metadata } from "next";
 
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import ClientShell from "@/components/ClientShell";
