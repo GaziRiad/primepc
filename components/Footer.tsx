@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 
-import Logo from "@/components/Logo";
 import { SOCIAL_LINKS } from "@/lib/utils";
+import LogoFooter from "./LogoFooter";
 
 const shopLinks = [
   { label: "All Products", href: "/products" },
@@ -97,7 +97,7 @@ export default function Footer() {
           <div className="grid gap-10 py-10 lg:grid-cols-[1.2fr_repeat(3,minmax(0,1fr))] lg:gap-8">
             <div className="max-w-sm">
               <div className="[&_a_span]:text-white! [&_img]:brightness-0 [&_img]:invert">
-                <Logo />
+                <LogoFooter />
               </div>
 
               <p className="mt-5 text-sm leading-7 text-white/78 sm:text-base">
