@@ -11,9 +11,10 @@ type NavItem = {
 };
 
 const Pages: NavItem[] = [
-  { label: "Products", href: "/products" },
-  { label: "About Us", href: "/about" },
-  { label: "Blogs", href: "/blogs" },
+  { label: "Produits", href: "/products" },
+  { label: "A propos", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Blog", href: "/blogs" },
 ] as const;
 
 export default function Navigation() {

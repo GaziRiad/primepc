@@ -5,6 +5,7 @@ import {
   Heart,
   Home,
   Info,
+  Mail,
   Menu,
   ShieldCheck,
   ShoppingBag,
@@ -42,17 +43,18 @@ export default function Header() {
   const favoritesCount = favProducts?.length || 0;
 
   const mobileLinks = [
-    { label: "Home", href: "/", icon: Home },
-    { label: "Products", href: "/products", icon: ShoppingBag },
+    { label: "Accueil", href: "/", icon: Home },
+    { label: "Produits", href: "/products", icon: ShoppingBag },
     {
-      label: "Wishlist",
+      label: "Favoris",
       href: "/wishlist",
       icon: Heart,
       badge: favoritesCount > 0 ? String(favoritesCount) : undefined,
     },
-    { label: "Cart", href: "/cart", icon: ShoppingCart },
-    { label: "About Us", href: "/about", icon: Info },
-    { label: "Blogs", href: "/blogs", icon: BookOpen },
+    { label: "Panier", href: "/cart", icon: ShoppingCart },
+    { label: "A propos", href: "/about", icon: Info },
+    { label: "Contact", href: "/contact", icon: Mail },
+    { label: "Blog", href: "/blogs", icon: BookOpen },
   ];
 
   const accountLink = session?.user

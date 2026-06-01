@@ -39,6 +39,15 @@ type EmailPayload = {
   html?: string;
 };
 
+type ContactMessagePayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+};
+
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 const RESEND_FROM = process.env.RESEND_FROM || "";
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS || "";
@@ -46,6 +55,7 @@ const APP_NAME = process.env.APP_NAME || "PRIMEPC";
 const APP_URL = process.env.APP_URL || "";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "";
 const SUPPORT_PHONE = process.env.SUPPORT_PHONE || "";
+const CONTACT_EMAIL_FALLBACK = "riadhallouch447@gmail.com";
 
 const BRAND_PRIMARY = "#1847B7";
 const BRAND_DARK = "#1F2937";
@@ -111,6 +121,18 @@ const formatItemLines = (items: OrderEmailItem[]) =>
 const parseRecipients = (value: string | string[]) => {
   const list = Array.isArray(value) ? value : value.split(",");
   return list.map((entry) => entry.trim()).filter(Boolean);
+};
+
+const getContactRecipients = () => {
+  const recipients = new Set<string>();
+
+  parseRecipients(SUPPORT_EMAIL).forEach((email) => recipients.add(email));
+  parseRecipients(ADMIN_EMAILS).forEach((email) => recipients.add(email));
+  if (CONTACT_EMAIL_FALLBACK) {
+    recipients.add(CONTACT_EMAIL_FALLBACK);
+  }
+
+  return Array.from(recipients).filter(Boolean);
 };
 
 const isResendConfigured = () =>
@@ -449,6 +471,47 @@ const buildCustomerHtml = (payload: OrderEmailPayload) => {
   );
 };
 
+const buildContactText = (payload: ContactMessagePayload) => {
+  const name = `${payload.firstName} ${payload.lastName}`.trim();
+  return [
+    "Nouveau message via le formulaire de contact.",
+    `Nom : ${name || "-"}`,
+    `Email : ${payload.email}`,
+    `Telephone : ${payload.phone}`,
+    `Sujet : ${payload.subject}`,
+    "",
+    "Message :",
+    payload.message,
+  ].join("\n");
+};
+
+const buildContactHtml = (payload: ContactMessagePayload) => {
+  const name = `${payload.firstName} ${payload.lastName}`.trim();
+
+  const content = `
+    <h1 style="margin:0 0 12px;font-size:28px;color:${BRAND_DARK};">Nouveau message de contact</h1>
+    <p style="margin:0 0 12px;color:${BRAND_DARK};">Un message a ete envoye via le formulaire du site.</p>
+    <div style="margin-top:12px;padding:14px;border:1px solid ${BORDER_COLOR};border-radius:12px;background:#fff;">
+      <strong>Nom</strong><br />
+      ${escapeHtml(name || "-")}<br />
+      <strong>Email</strong><br />
+      ${escapeHtml(payload.email)}<br />
+      <strong>Telephone</strong><br />
+      ${escapeHtml(payload.phone)}<br />
+      <strong>Sujet</strong><br />
+      ${escapeHtml(payload.subject)}
+    </div>
+    <div style="margin-top:16px;padding:14px;border:1px solid ${BORDER_COLOR};border-radius:12px;background:${BG_SOFT};">
+      <div style="font-size:14px;font-weight:700;color:${BRAND_DARK};">Message</div>
+      <p style="margin-top:8px;color:${BRAND_DARK};white-space:pre-line;">${escapeHtml(
+        payload.message,
+      )}</p>
+    </div>
+  `;
+
+  return buildEmailShell(content, `Nouveau message de ${name || "client"}`);
+};
+
 export const sendAdminOrderNotification = async (
   payload: OrderEmailPayload,
 ) => {
@@ -524,4 +587,19 @@ export const sendWelcomeEmail = async (payload: {
   const html = buildEmailShell(content, `Bienvenue chez ${APP_NAME}`);
 
   await sendEmail({ to: email, subject, text, html });
+};
+
+export const sendContactMessage = async (payload: ContactMessagePayload) => {
+  const recipients = getContactRecipients();
+
+  if (!recipients.length) {
+    return { ok: false as const, skipped: true as const };
+  }
+
+  const subjectBase = payload.subject?.trim() || "Nouveau message";
+  const subject = `Contact - ${subjectBase}`;
+  const text = buildContactText(payload);
+  const html = buildContactHtml(payload);
+
+  return sendEmail({ to: recipients, subject, text, html });
 };

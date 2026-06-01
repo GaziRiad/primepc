@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -42,35 +42,35 @@ const validate = (values: ContactFormState) => {
   const phoneDigits = values.phone.replace(/\D/g, "");
 
   if (!values.firstName.trim()) {
-    errors.firstName = "First name is required.";
+    errors.firstName = "Le prenom est obligatoire.";
   }
 
   if (!values.lastName.trim()) {
-    errors.lastName = "Last name is required.";
+    errors.lastName = "Le nom est obligatoire.";
   }
 
   if (!values.email.trim()) {
-    errors.email = "Email is required.";
+    errors.email = "L'email est obligatoire.";
   } else if (!EMAIL_REGEX.test(values.email.trim())) {
-    errors.email = "Enter a valid email address.";
+    errors.email = "Entrez une adresse email valide.";
   }
 
   if (!values.phone.trim()) {
-    errors.phone = "Phone number is required.";
+    errors.phone = "Le numero de telephone est obligatoire.";
   } else if (phoneDigits.length < 7) {
-    errors.phone = "Enter a valid phone number.";
+    errors.phone = "Entrez un numero de telephone valide.";
   }
 
   if (!values.subject.trim()) {
-    errors.subject = "Subject is required.";
+    errors.subject = "Le sujet est obligatoire.";
   } else if (values.subject.trim().length < 3) {
-    errors.subject = "Subject must be at least 3 characters.";
+    errors.subject = "Le sujet doit contenir au moins 3 caracteres.";
   }
 
   if (!values.message.trim()) {
-    errors.message = "Message is required.";
+    errors.message = "Le message est obligatoire.";
   } else if (values.message.trim().length < 10) {
-    errors.message = "Message must be at least 10 characters.";
+    errors.message = "Le message doit contenir au moins 10 caracteres.";
   }
 
   return errors;
@@ -88,13 +88,13 @@ export default function ContactPage() {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextErrors = validate(form);
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
-      toast.error("Please fix the highlighted fields.");
+      toast.error("Merci de corriger les champs en rouge.");
       return;
     }
 
@@ -113,15 +113,15 @@ export default function ContactPage() {
         if (payload?.errors) {
           setErrors(payload.errors as ContactErrors);
         }
-        toast.error(payload?.message || "Something went wrong.");
+        toast.error(payload?.message || "Une erreur est survenue.");
         return;
       }
 
-      toast.success("Message sent. We will get back to you soon.");
+      toast.success("Message envoye. Nous revenons vers vous rapidement.");
       setForm(INITIAL_STATE);
       setErrors({});
     } catch {
-      toast.error("Unable to send your message. Please try again.");
+      toast.error("Impossible d'envoyer votre message. Veuillez reessayer.");
     } finally {
       setIsSubmitting(false);
     }
@@ -136,12 +136,12 @@ export default function ContactPage() {
               Contact
             </p>
             <h1 className="text-foreground mt-2 text-2xl font-semibold">
-              Get in touch
+              Ecrivez-nous
             </h1>
           </div>
           <div className="text-muted-foreground text-sm">
             <Link href="/" className="hover:text-foreground">
-              Home
+              Accueil
             </Link>
             <span className="mx-2">/</span>
             <span className="text-foreground">Contact</span>
@@ -151,10 +151,10 @@ export default function ContactPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
           <div className="rounded-2xl border bg-white p-6 shadow-xs">
             <h2 className="text-foreground text-lg font-semibold">
-              Contact Information
+              Informations de contact
             </h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Reach out anytime. We respond within 24 hours on business days.
+              Contactez-nous, nous repondons sous 24h les jours ouvrables.
             </p>
 
             <div className="mt-6 space-y-4 text-sm">
@@ -167,10 +167,10 @@ export default function ContactPage() {
                     Email
                   </p>
                   <a
-                    href="mailto:support@primepc.dz"
+                    href="mailto:riadhallouch447@gmail.com"
                     className="text-foreground font-medium"
                   >
-                    support@primepc.dz
+                    riadhallouch447@gmail.com
                   </a>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default function ContactPage() {
                 </span>
                 <div>
                   <p className="text-muted-foreground text-xs uppercase">
-                    Phone
+                    Telephone
                   </p>
                   <a
                     href="tel:+213555000000"
@@ -198,29 +198,27 @@ export default function ContactPage() {
                 </span>
                 <div>
                   <p className="text-muted-foreground text-xs uppercase">
-                    Address
+                    Adresse
                   </p>
-                  <p className="text-foreground font-medium">
-                    Algiers, Algeria
-                  </p>
+                  <p className="text-foreground font-medium">Alger, Algerie</p>
                 </div>
               </div>
             </div>
 
             <div className="mt-8 rounded-xl border bg-slate-50 px-4 py-3 text-sm">
-              <p className="text-foreground font-medium">Support hours</p>
+              <p className="text-foreground font-medium">Horaires de support</p>
               <p className="text-muted-foreground mt-1">
-                Sunday - Thursday, 9:00 AM to 6:00 PM.
+                Dimanche - Jeudi, 9h00 a 18h00.
               </p>
             </div>
           </div>
 
           <div className="rounded-2xl border bg-white p-6 shadow-xs">
             <h2 className="text-foreground text-lg font-semibold">
-              Send us a message
+              Envoyez-nous un message
             </h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Tell us what you need and we will respond quickly.
+              Decrivez votre besoin, nous vous repondrons rapidement.
             </p>
 
             <form
@@ -244,12 +242,12 @@ export default function ContactPage() {
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="first-name">
-                    First name <span className="text-primary">*</span>
+                    Prenom <span className="text-primary">*</span>
                   </FieldLabel>
                   <Input
                     id="first-name"
                     type="text"
-                    placeholder="John"
+                    placeholder="Riad"
                     value={form.firstName}
                     onChange={(event) =>
                       updateField("firstName", event.target.value)
@@ -269,12 +267,12 @@ export default function ContactPage() {
 
                 <Field>
                   <FieldLabel htmlFor="last-name">
-                    Last name <span className="text-primary">*</span>
+                    Nom <span className="text-primary">*</span>
                   </FieldLabel>
                   <Input
                     id="last-name"
                     type="text"
-                    placeholder="Doe"
+                    placeholder="Hallouch"
                     value={form.lastName}
                     onChange={(event) =>
                       updateField("lastName", event.target.value)
@@ -301,7 +299,7 @@ export default function ContactPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="vous@exemple.com"
                     value={form.email}
                     onChange={(event) =>
                       updateField("email", event.target.value)
@@ -317,7 +315,7 @@ export default function ContactPage() {
 
                 <Field>
                   <FieldLabel htmlFor="phone">
-                    Phone <span className="text-primary">*</span>
+                    Telephone <span className="text-primary">*</span>
                   </FieldLabel>
                   <Input
                     id="phone"
@@ -339,12 +337,12 @@ export default function ContactPage() {
 
               <Field>
                 <FieldLabel htmlFor="subject">
-                  Subject <span className="text-primary">*</span>
+                  Sujet <span className="text-primary">*</span>
                 </FieldLabel>
                 <Input
                   id="subject"
                   type="text"
-                  placeholder="Type your subject"
+                  placeholder="Votre sujet"
                   value={form.subject}
                   onChange={(event) =>
                     updateField("subject", event.target.value)
@@ -365,7 +363,7 @@ export default function ContactPage() {
                 </FieldLabel>
                 <Textarea
                   id="message"
-                  placeholder="Type your message"
+                  placeholder="Votre message"
                   rows={6}
                   value={form.message}
                   onChange={(event) =>
@@ -386,14 +384,14 @@ export default function ContactPage() {
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
                       <Spinner className="size-4" />
-                      Sending
+                      Envoi en cours
                     </span>
                   ) : (
-                    "Send message"
+                    "Envoyer le message"
                   )}
                 </Button>
                 <span className="text-muted-foreground text-xs">
-                  We will never share your contact details.
+                  Nous ne partageons jamais vos coordonnees.
                 </span>
               </div>
             </form>
