@@ -1,7 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
-
 import startDbConnection from "@/lib/db";
 import MarketingSettings from "@/models/MarketingSettings";
 import type {
@@ -11,13 +9,27 @@ import type {
 } from "@/types/marketing";
 
 export const DEFAULT_MARKETING_SETTINGS: MarketingSettingsData = {
-  banners: [
+  heroSlides: [
     {
       image: "/images/marketing1.jpg",
       alt: "Featured PRIMEPC setup deal",
       href: "/products",
       isActive: true,
     },
+    {
+      image: "/images/marketing2.jpg",
+      alt: "PRIMEPC laptop and accessories promotion",
+      href: "/products",
+      isActive: true,
+    },
+    {
+      image: "/images/marketing3.jpg",
+      alt: "PRIMEPC gaming and workspace promotion",
+      href: "/products",
+      isActive: true,
+    },
+  ],
+  sideBanners: [
     {
       image: "/images/marketing2.jpg",
       alt: "PRIMEPC laptop and accessories promotion",
@@ -73,24 +85,43 @@ const normalizeDeal = (
 };
 
 export const normalizeMarketingSettings = (
-  settings?: Partial<MarketingSettingsData> | null,
+  settings?: (Partial<MarketingSettingsData> & {
+    banners?: Partial<MarketingBanner>[];
+  }) | null,
 ): MarketingSettingsData => {
-  const banners = Array.isArray(settings?.banners)
+  const legacyBanners = Array.isArray(settings?.banners)
     ? settings.banners.map(normalizeBanner).filter((banner) => banner.image)
+    : [];
+  const heroSlides = Array.isArray(settings?.heroSlides)
+    ? settings.heroSlides.map(normalizeBanner).filter((banner) => banner.image)
+    : [];
+  const sideBanners = Array.isArray(settings?.sideBanners)
+    ? settings.sideBanners.map(normalizeBanner).filter((banner) => banner.image)
     : [];
 
   return {
-    banners: banners.length > 0 ? banners : DEFAULT_MARKETING_SETTINGS.banners,
+    heroSlides:
+      heroSlides.length > 0
+        ? heroSlides
+        : legacyBanners.length > 0
+          ? legacyBanners
+          : DEFAULT_MARKETING_SETTINGS.heroSlides,
+    sideBanners:
+      sideBanners.length > 0
+        ? sideBanners.slice(0, 2)
+        : legacyBanners.length > 1
+          ? legacyBanners.slice(1, 3)
+          : DEFAULT_MARKETING_SETTINGS.sideBanners,
     specialDeal: normalizeDeal(settings?.specialDeal),
   };
 };
 
-export const getMarketingSettings = cache(async (): Promise<MarketingSettingsData> => {
+export const getMarketingSettings = async (): Promise<MarketingSettingsData> => {
   await startDbConnection();
 
   const settings = await MarketingSettings.findOne({ key: "homepage" }).lean();
   return normalizeMarketingSettings(settings as Partial<MarketingSettingsData>);
-});
+};
 
 export const getOrCreateMarketingSettings =
   async (): Promise<MarketingSettingsData> => {
@@ -101,7 +132,8 @@ export const getOrCreateMarketingSettings =
       {
         $setOnInsert: {
           key: "homepage",
-          banners: DEFAULT_MARKETING_SETTINGS.banners,
+          heroSlides: DEFAULT_MARKETING_SETTINGS.heroSlides,
+          sideBanners: DEFAULT_MARKETING_SETTINGS.sideBanners,
           specialDeal: {
             ...DEFAULT_MARKETING_SETTINGS.specialDeal,
             endsAt: new Date(DEFAULT_MARKETING_SETTINGS.specialDeal.endsAt),

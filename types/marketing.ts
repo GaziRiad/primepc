@@ -17,6 +17,7 @@ export type SpecialDealSettings = {
 };
 
 export type MarketingSettingsData = {
-  banners: MarketingBanner[];
+  heroSlides: MarketingBanner[];
+  sideBanners: MarketingBanner[];
   specialDeal: SpecialDealSettings;
 };

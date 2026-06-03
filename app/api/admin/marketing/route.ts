@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/auth";
 import startDbConnection from "@/lib/db";
@@ -9,7 +10,8 @@ import {
 import MarketingSettings from "@/models/MarketingSettings";
 import type { MarketingSettingsData } from "@/types/marketing";
 
-const MAX_BANNERS = 6;
+const MAX_HERO_SLIDES = 8;
+const MAX_SIDE_BANNERS = 2;
 
 const normalizeText = (value: unknown, maxLength: number) =>
   String(value ?? "")
@@ -25,12 +27,24 @@ const parseMarketingPayload = async (request: Request) => {
     return { ok: false as const, error: "invalid_payload" };
   }
 
-  const rawBanners = Array.isArray(body.banners) ? body.banners : [];
-  const banners = rawBanners
-    .slice(0, MAX_BANNERS)
+  const rawHeroSlides = Array.isArray(body.heroSlides) ? body.heroSlides : [];
+  const heroSlides = rawHeroSlides
+    .slice(0, MAX_HERO_SLIDES)
     .map((banner) => ({
       image: normalizeText(banner?.image, 500),
-      alt: normalizeText(banner?.alt, 160) || "PRIMEPC marketing banner",
+      alt: normalizeText(banner?.alt, 160) || "PRIMEPC carousel slide",
+      href: normalizeText(banner?.href, 300),
+      isActive: banner?.isActive !== false,
+    }))
+    .filter((banner) => banner.image);
+  const rawSideBanners = Array.isArray(body.sideBanners)
+    ? body.sideBanners
+    : [];
+  const sideBanners = rawSideBanners
+    .slice(0, MAX_SIDE_BANNERS)
+    .map((banner) => ({
+      image: normalizeText(banner?.image, 500),
+      alt: normalizeText(banner?.alt, 160) || "PRIMEPC side banner",
       href: normalizeText(banner?.href, 300),
       isActive: banner?.isActive !== false,
     }))
@@ -39,8 +53,8 @@ const parseMarketingPayload = async (request: Request) => {
   const deal = body.specialDeal ?? DEFAULT_MARKETING_SETTINGS.specialDeal;
   const endsAt = new Date(deal.endsAt);
 
-  if (banners.length === 0) {
-    return { ok: false as const, error: "banner_required" };
+  if (heroSlides.length === 0) {
+    return { ok: false as const, error: "hero_slide_required" };
   }
 
   if (Number.isNaN(endsAt.getTime())) {
@@ -48,7 +62,8 @@ const parseMarketingPayload = async (request: Request) => {
   }
 
   const settings = normalizeMarketingSettings({
-    banners,
+    heroSlides,
+    sideBanners,
     specialDeal: {
       enabled: deal.enabled !== false,
       eyebrow: normalizeText(deal.eyebrow, 80),
@@ -85,7 +100,8 @@ export async function PATCH(request: Request) {
     { key: "homepage" },
     {
       key: "homepage",
-      banners: parsed.settings.banners,
+      heroSlides: parsed.settings.heroSlides,
+      sideBanners: parsed.settings.sideBanners,
       specialDeal: {
         ...parsed.settings.specialDeal,
         endsAt: new Date(parsed.settings.specialDeal.endsAt),
@@ -93,11 +109,15 @@ export async function PATCH(request: Request) {
     },
     { returnDocument: "after", upsert: true, runValidators: true },
   ).lean();
+  const settings = normalizeMarketingSettings(
+    saved as Partial<MarketingSettingsData>,
+  );
+
+  revalidatePath("/");
+  revalidatePath("/admin/marketing");
 
   return NextResponse.json({
     ok: true,
-    settings: normalizeMarketingSettings(
-      saved as Partial<MarketingSettingsData>,
-    ),
+    settings,
   });
 }

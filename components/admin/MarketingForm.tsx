@@ -16,13 +16,14 @@ import type {
   SpecialDealSettings,
 } from "@/types/marketing";
 
-const FALLBACK_BANNER = "/images/marketing1.jpg";
+const FALLBACK_HERO = "/images/marketing1.jpg";
+const FALLBACK_SIDE = "/images/marketing2.jpg";
 const FALLBACK_DEAL_IMAGE = "/images/sutdy.png";
 
-const emptyBanner = (): MarketingBanner => ({
+const emptyBanner = (href = "/products"): MarketingBanner => ({
   image: "",
   alt: "",
-  href: "/products",
+  href,
   isActive: true,
 });
 
@@ -45,36 +46,61 @@ type MarketingFormProps = {
 
 export default function MarketingForm({ settings }: MarketingFormProps) {
   const router = useRouter();
-  const [banners, setBanners] = useState<MarketingBanner[]>(
-    settings.banners.length > 0 ? settings.banners : [emptyBanner()],
+  const [heroSlides, setHeroSlides] = useState<MarketingBanner[]>(
+    settings.heroSlides.length > 0 ? settings.heroSlides : [emptyBanner()],
   );
+  const [sideBanners, setSideBanners] = useState<MarketingBanner[]>(() => {
+    const initial = settings.sideBanners.slice(0, 2);
+    while (initial.length < 2) initial.push(emptyBanner());
+    return initial;
+  });
   const [specialDeal, setSpecialDeal] = useState<SpecialDealSettings>(
     settings.specialDeal,
   );
   const [isSaving, setIsSaving] = useState(false);
 
-  const activeBannerCount = useMemo(
-    () => banners.filter((banner) => banner.isActive && banner.image).length,
-    [banners],
+  const activeHeroCount = useMemo(
+    () =>
+      heroSlides.filter((slide) => slide.isActive && slide.image.trim())
+        .length,
+    [heroSlides],
+  );
+  const activeSideCount = useMemo(
+    () =>
+      sideBanners.filter((banner) => banner.isActive && banner.image.trim())
+        .length,
+    [sideBanners],
   );
 
-  const updateBanner = (
+  const updateHeroSlide = (
     index: number,
     field: keyof MarketingBanner,
     value: string | boolean,
   ) => {
-    setBanners((current) =>
-      current.map((banner, idx) =>
-        idx === index ? { ...banner, [field]: value } : banner,
+    setHeroSlides((current) =>
+      current.map((slide, idx) =>
+        idx === index ? { ...slide, [field]: value } : slide,
       ),
     );
   };
 
-  const removeBanner = (index: number) => {
-    setBanners((current) => {
+  const removeHeroSlide = (index: number) => {
+    setHeroSlides((current) => {
       const next = current.filter((_, idx) => idx !== index);
       return next.length > 0 ? next : [emptyBanner()];
     });
+  };
+
+  const updateSideBanner = (
+    index: number,
+    field: keyof MarketingBanner,
+    value: string | boolean,
+  ) => {
+    setSideBanners((current) =>
+      current.map((banner, idx) =>
+        idx === index ? { ...banner, [field]: value } : banner,
+      ),
+    );
   };
 
   const updateDeal = (
@@ -84,20 +110,24 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
     setSpecialDeal((current) => ({ ...current, [field]: value }));
   };
 
+  const cleanBanner = (banner: MarketingBanner) => ({
+    image: banner.image.trim(),
+    alt: banner.alt.trim(),
+    href: banner.href.trim(),
+    isActive: banner.isActive,
+  });
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const cleanBanners = banners
-      .map((banner) => ({
-        image: banner.image.trim(),
-        alt: banner.alt.trim(),
-        href: banner.href.trim(),
-        isActive: banner.isActive,
-      }))
-      .filter((banner) => banner.image);
+    const cleanHeroSlides = heroSlides.map(cleanBanner).filter((slide) => slide.image);
+    const cleanSideBanners = sideBanners
+      .map(cleanBanner)
+      .filter((banner) => banner.image)
+      .slice(0, 2);
 
-    if (cleanBanners.length === 0) {
-      toast.error("Add at least one banner image.");
+    if (cleanHeroSlides.length === 0) {
+      toast.error("Add at least one main carousel slide.");
       return;
     }
 
@@ -106,7 +136,10 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
       return;
     }
 
-    if (!specialDeal.endsAt || Number.isNaN(new Date(specialDeal.endsAt).getTime())) {
+    if (
+      !specialDeal.endsAt ||
+      Number.isNaN(new Date(specialDeal.endsAt).getTime())
+    ) {
       toast.error("Choose a valid deal end date.");
       return;
     }
@@ -118,7 +151,8 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          banners: cleanBanners,
+          heroSlides: cleanHeroSlides,
+          sideBanners: cleanSideBanners,
           specialDeal,
         }),
       });
@@ -134,7 +168,12 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         return;
       }
 
-      setBanners(data.settings.banners);
+      setHeroSlides(data.settings.heroSlides);
+      setSideBanners(() => {
+        const next = data.settings?.sideBanners.slice(0, 2) ?? [];
+        while (next.length < 2) next.push(emptyBanner());
+        return next;
+      });
       setSpecialDeal(data.settings.specialDeal);
       toast.success("Marketing settings saved.");
       router.refresh();
@@ -149,52 +188,54 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-foreground text-lg font-semibold">
-              Homepage banners
+              Main carousel
             </h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              Manage the carousel and side banners at the top of the homepage.
+              Upload multiple slides for the large homepage carousel.
             </p>
           </div>
           <Button
             type="button"
             variant="outline"
             className="gap-1.5"
-            onClick={() => setBanners((current) => [...current, emptyBanner()])}
+            onClick={() =>
+              setHeroSlides((current) => [...current, emptyBanner()])
+            }
           >
             <Plus className="size-4" />
-            Add banner
+            Add slide
           </Button>
         </div>
 
         <div className="mt-6 space-y-5">
-          {banners.map((banner, index) => (
+          {heroSlides.map((slide, index) => (
             <div
-              key={`banner-${index}`}
-              className="grid gap-4 rounded-xl border p-4 lg:grid-cols-[16rem_1fr]"
+              key={`hero-slide-${index}`}
+              className="grid gap-4 rounded-xl border p-4 lg:grid-cols-[18rem_1fr]"
             >
               <div className="overflow-hidden rounded-xl border bg-zinc-100">
                 <img
-                  src={banner.image || FALLBACK_BANNER}
-                  alt={banner.alt || `Banner ${index + 1}`}
-                  className="aspect-video w-full object-cover"
+                  src={slide.image || FALLBACK_HERO}
+                  alt={slide.alt || `Carousel slide ${index + 1}`}
+                  className="aspect-[16/9] w-full object-cover"
                 />
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">Image URL</label>
+                  <label className="text-sm font-medium">Slide image URL</label>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
-                      value={banner.image}
+                      value={slide.image}
                       onChange={(event) =>
-                        updateBanner(index, "image", event.target.value)
+                        updateHeroSlide(index, "image", event.target.value)
                       }
                       placeholder="/images/marketing1.jpg"
                     />
                     <ImageUploadButton
-                      label="Upload"
+                      label="Upload slide"
                       folder="primepc/marketing"
-                      onUpload={(url) => updateBanner(index, "image", url)}
+                      onUpload={(url) => updateHeroSlide(index, "image", url)}
                     />
                   </div>
                 </div>
@@ -202,9 +243,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Alt text</label>
                   <Input
-                    value={banner.alt}
+                    value={slide.alt}
                     onChange={(event) =>
-                      updateBanner(index, "alt", event.target.value)
+                      updateHeroSlide(index, "alt", event.target.value)
                     }
                     placeholder="Short image description"
                   />
@@ -213,9 +254,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Click link</label>
                   <Input
-                    value={banner.href}
+                    value={slide.href}
                     onChange={(event) =>
-                      updateBanner(index, "href", event.target.value)
+                      updateHeroSlide(index, "href", event.target.value)
                     }
                     placeholder="/products"
                   />
@@ -224,9 +265,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 <div className="flex flex-wrap items-center gap-3 md:col-span-2">
                   <label className="flex items-center gap-2 text-sm font-medium">
                     <Checkbox
-                      checked={banner.isActive}
+                      checked={slide.isActive}
                       onCheckedChange={(checked) =>
-                        updateBanner(index, "isActive", Boolean(checked))
+                        updateHeroSlide(index, "isActive", Boolean(checked))
                       }
                     />
                     Active
@@ -235,7 +276,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                     type="button"
                     variant="outline"
                     className="gap-1.5"
-                    onClick={() => removeBanner(index)}
+                    onClick={() => removeHeroSlide(index)}
                   >
                     <Trash2 className="size-4" />
                     Remove
@@ -247,8 +288,92 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         </div>
 
         <p className="text-muted-foreground mt-4 text-xs">
-          {activeBannerCount} active banner
-          {activeBannerCount === 1 ? "" : "s"} will appear on the homepage.
+          {activeHeroCount} active slide
+          {activeHeroCount === 1 ? "" : "s"} will rotate in the large carousel.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border bg-white p-6 shadow-xs">
+        <div>
+          <h2 className="text-foreground text-lg font-semibold">
+            Static side banners
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            These two smaller homepage blocks are static images, not a carousel.
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          {sideBanners.map((banner, index) => (
+            <div key={`side-banner-${index}`} className="rounded-xl border p-4">
+              <div className="overflow-hidden rounded-xl border bg-zinc-100">
+                <img
+                  src={banner.image || FALLBACK_SIDE}
+                  alt={banner.alt || `Side banner ${index + 1}`}
+                  className="aspect-[16/9] w-full object-cover"
+                />
+              </div>
+
+              <div className="mt-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Side banner {index + 1} image URL
+                  </label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Input
+                      value={banner.image}
+                      onChange={(event) =>
+                        updateSideBanner(index, "image", event.target.value)
+                      }
+                      placeholder="/images/marketing2.jpg"
+                    />
+                    <ImageUploadButton
+                      label="Upload"
+                      folder="primepc/marketing"
+                      onUpload={(url) => updateSideBanner(index, "image", url)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Alt text</label>
+                    <Input
+                      value={banner.alt}
+                      onChange={(event) =>
+                        updateSideBanner(index, "alt", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Click link</label>
+                    <Input
+                      value={banner.href}
+                      onChange={(event) =>
+                        updateSideBanner(index, "href", event.target.value)
+                      }
+                    />
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <Checkbox
+                    checked={banner.isActive}
+                    onCheckedChange={(checked) =>
+                      updateSideBanner(index, "isActive", Boolean(checked))
+                    }
+                  />
+                  Active
+                </label>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-muted-foreground mt-4 text-xs">
+          {activeSideCount} static side banner
+          {activeSideCount === 1 ? "" : "s"} will appear beside the carousel on
+          desktop.
         </p>
       </section>
 

@@ -15,7 +15,8 @@ import {
 const AUTO_ADVANCE_MS = 6500;
 
 type FeaturedBannersCarouselProps = {
-  banners: MarketingBanner[];
+  heroSlides: MarketingBanner[];
+  sideBanners: MarketingBanner[];
 };
 
 function BannerImage({
@@ -45,11 +46,15 @@ function BannerImage({
 }
 
 export default function FeaturedBannersCarousel({
-  banners,
+  heroSlides,
+  sideBanners,
 }: FeaturedBannersCarouselProps) {
-  const slides = banners.filter((banner) => banner.isActive && banner.image);
-  const visibleSlides = slides.length > 0 ? slides : banners;
-  const sideBanners = visibleSlides.slice(1, 3);
+  const visibleSlides = heroSlides.filter(
+    (banner) => banner.isActive && banner.image,
+  );
+  const visibleSideBanners = sideBanners
+    .filter((banner) => banner.isActive && banner.image)
+    .slice(0, 2);
 
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -129,9 +134,9 @@ export default function FeaturedBannersCarousel({
         )}
       </Carousel>
 
-      {sideBanners.length > 0 && (
+      {visibleSideBanners.length > 0 && (
         <div className="hidden gap-4 sm:grid-cols-2 sm:gap-5 lg:grid lg:h-72 lg:grid-cols-1 lg:grid-rows-[1fr_1fr] xl:h-120">
-          {sideBanners.map((banner, index) => (
+          {visibleSideBanners.map((banner, index) => (
             <div
               key={`${banner.image}-side-${index}`}
               className="relative h-32 w-full overflow-hidden rounded-lg sm:h-40 lg:h-full"

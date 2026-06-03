@@ -27,7 +27,9 @@ const specialDealSchema = new mongoose.Schema(
 const MarketingSettingsSchema = new mongoose.Schema(
   {
     key: { type: String, unique: true, default: "homepage" },
-    banners: { type: [bannerSchema], default: [] },
+    heroSlides: { type: [bannerSchema], default: [] },
+    sideBanners: { type: [bannerSchema], default: [] },
+    banners: { type: [bannerSchema], default: undefined },
     specialDeal: { type: specialDealSchema, default: () => ({}) },
   },
   {
@@ -36,6 +38,17 @@ const MarketingSettingsSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+const existingModel = mongoose.models.MarketingSettings;
+
+if (existingModel) {
+  const hasHeroSlides = existingModel.schema.path("heroSlides");
+  const hasSideBanners = existingModel.schema.path("sideBanners");
+
+  if (!hasHeroSlides || !hasSideBanners) {
+    delete mongoose.models.MarketingSettings;
+  }
+}
 
 const MarketingSettings =
   mongoose.models.MarketingSettings ||
