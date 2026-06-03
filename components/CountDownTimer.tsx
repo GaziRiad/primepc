@@ -32,11 +32,11 @@ function formatUnit(value: number) {
 
 function TimeBlock({ value, label }: { value: number; label: string }) {
   return (
-    <div className="border-accent-100 bg-accent-50 min-w-20 rounded-xl border px-4 py-3 text-center shadow-sm backdrop-blur-sm">
-      <p className="text-primary text-2xl leading-none font-semibold">
+    <div className="border-accent-100 bg-accent-50 w-full min-w-0 rounded-lg border px-3 py-3 text-center shadow-sm backdrop-blur-sm sm:w-20 sm:rounded-xl sm:px-4">
+      <p className="text-primary text-xl leading-none font-semibold sm:text-2xl">
         {formatUnit(value)}
       </p>
-      <p className="text-accent-200 mt-1 text-xs tracking-wider uppercase">
+      <p className="text-accent-300 mt-1 text-[10px] tracking-wider uppercase sm:text-xs">
         {label}
       </p>
     </div>
@@ -73,11 +73,11 @@ export default function CountDownTimer({ endDate }: CountDownTimerProps) {
 
   if (timeLeft === null) {
     return (
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <div className="h-19.5 w-20 animate-pulse rounded-xl bg-white/70" />
-        <div className="h-19.5 w-20 animate-pulse rounded-xl bg-white/70" />
-        <div className="h-19.5 w-20 animate-pulse rounded-xl bg-white/70" />
-        <div className="h-19.5 w-20 animate-pulse rounded-xl bg-white/70" />
+      <div className="mb-6 grid max-w-xs grid-cols-2 gap-2 sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:gap-3">
+        <div className="h-16 w-full animate-pulse rounded-lg bg-white/70 sm:h-20 sm:w-20 sm:rounded-xl" />
+        <div className="h-16 w-full animate-pulse rounded-lg bg-white/70 sm:h-20 sm:w-20 sm:rounded-xl" />
+        <div className="h-16 w-full animate-pulse rounded-lg bg-white/70 sm:h-20 sm:w-20 sm:rounded-xl" />
+        <div className="h-16 w-full animate-pulse rounded-lg bg-white/70 sm:h-20 sm:w-20 sm:rounded-xl" />
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function CountDownTimer({ endDate }: CountDownTimerProps) {
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-3">
+    <div className="mb-6 grid max-w-xs grid-cols-2 gap-2 sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:gap-3">
       <TimeBlock value={timeLeft.days} label="Days" />
       <TimeBlock value={timeLeft.hours} label="Hours" />
       <TimeBlock value={timeLeft.minutes} label="Minutes" />

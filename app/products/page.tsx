@@ -8,6 +8,9 @@ import { Suspense } from "react";
 
 import { getAllCategories, getProductsPage } from "@/lib/services";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function page({
   searchParams,
 }: {
@@ -76,7 +79,7 @@ export default async function page({
               ) : (
                 <ul className="grid flex-1 grid-cols-2 content-start gap-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">
                   {products.map((product, index) => (
-                    <li key={index}>
+                    <li key={String(product._id ?? product.slug ?? index)}>
                       <ProductCard product={product} />
                     </li>
                   ))}

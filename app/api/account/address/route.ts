@@ -102,7 +102,7 @@ export async function PUT(request: Request) {
   const user = await User.findByIdAndUpdate(
     session.user.id,
     { shippingAddress: address },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   )
     .select("shippingAddress")
     .lean();

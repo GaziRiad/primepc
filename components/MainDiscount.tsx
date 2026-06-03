@@ -1,16 +1,16 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
 import CountDownTimer from "./CountDownTimer";
 import { Button } from "./ui/button";
+import { getMarketingSettings } from "@/lib/marketing";
 
-const EventProduct = {
-  title: "MacBook Air (M5, 2026)",
-  image: "/images/sutdy.png",
-  discountEnds: "2026-03-26T23:59:59Z",
-};
+export default async function MainDiscount() {
+  const { specialDeal } = await getMarketingSettings();
 
-export default function MainDiscount() {
+  if (!specialDeal.enabled) return null;
+
   return (
-    <section className="bg-accent-700 relative mb-20 overflow-hidden rounded-lg px-6 py-12 sm:px-8 sm:py-16 md:px-10 md:py-24">
+    <section className="bg-accent-700 relative mb-20 overflow-hidden rounded-lg px-4 py-10 sm:px-8 sm:py-16 md:px-10 md:py-24">
       {/* Diagonal Grid with Light */}
       <div
         className="pointer-events-none absolute inset-0 z-10 w-full opacity-75"
@@ -25,7 +25,7 @@ export default function MainDiscount() {
 
       {/* Midnight Mist */}
       <div
-        className="absolute inset-0 z-0 translate-x-1/4"
+        className="absolute inset-0 z-0 translate-y-1/4 md:translate-x-1/4 md:translate-y-0"
         style={{
           backgroundImage: `
           radial-gradient(circle at 50% 100%, rgba(70, 85, 110, 0.5) 0%, transparent 60%),
@@ -35,23 +35,37 @@ export default function MainDiscount() {
         }}
       />
 
-      <div className="relative z-20 max-w-full md:max-w-2xl">
-        <p className="text-accent-100">Don&apos;t Miss!!</p>
-        <p className="text-primary mb-6 max-w-sm text-3xl font-semibold sm:text-4xl">
-          Enhance Your Work Experience
+      <div className="relative z-20 flex flex-col items-center text-center md:block md:max-w-2xl md:text-left">
+        <p className="text-accent-100 text-sm sm:text-base">
+          {specialDeal.eyebrow}
         </p>
-        <p className="text-background mb-6">MacBook Air (M5, 2026)</p>
+        <p className="text-primary mb-4 max-w-sm text-2xl font-semibold sm:mb-6 sm:text-4xl">
+          {specialDeal.title}
+        </p>
+        <p className="text-background mb-6 text-sm sm:text-base">
+          {specialDeal.subtitle}
+        </p>
 
-        <CountDownTimer endDate={EventProduct.discountEnds} />
+        <CountDownTimer endDate={specialDeal.endsAt} />
 
-        <Button>Check it out!</Button>
+        <Button asChild className="w-full max-w-xs sm:w-auto">
+          <Link href={specialDeal.href}>{specialDeal.ctaLabel}</Link>
+        </Button>
+
+        <div className="relative mt-8 aspect-[4/3] w-full max-w-sm md:hidden">
+          <img
+            src={specialDeal.image}
+            alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
+            className="h-full w-full object-contain"
+            loading="lazy"
+          />
+        </div>
       </div>
-      <Image
-        width={800}
-        height={800}
-        src={EventProduct.image}
-        alt={`Image of ${EventProduct.title} from PRIMEPC.`}
-        className="pointer-events-none absolute top-1/2 right-0 z-10 hidden h-3/4 -translate-y-1/2 object-contain md:block"
+      <img
+        src={specialDeal.image}
+        alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
+        className="pointer-events-none absolute top-1/2 right-0 z-10 hidden h-3/4 w-auto -translate-y-1/2 object-contain md:block"
+        loading="lazy"
       />
     </section>
   );

@@ -5,6 +5,8 @@ import {
   Heart,
   Home,
   Info,
+  LogIn,
+  LogOut,
   Mail,
   Menu,
   ShieldCheck,
@@ -17,7 +19,7 @@ import SearchBar from "./SearchBar";
 import LoggedOutProfile from "./LoggedOutProfile";
 import LoggedInProfile from "./LoggedInProfile";
 import Navigation from "./Navigation";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -136,6 +138,34 @@ export default function Header() {
                         </div>
                       </Link>
                     </DrawerClose>
+
+                    <div className="mt-3">
+                      {session?.user ? (
+                        <DrawerClose asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-11 w-full justify-start gap-2 rounded-xl border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                            onClick={() => void signOut({ callbackUrl: "/" })}
+                          >
+                            <LogOut className="size-4" />
+                            Logout
+                          </Button>
+                        </DrawerClose>
+                      ) : (
+                        <DrawerClose asChild>
+                          <Button
+                            asChild
+                            className="bg-primary-800 hover:bg-primary-700 h-11 w-full justify-start gap-2 rounded-xl text-white"
+                          >
+                            <Link href="/signin">
+                              <LogIn className="size-4" />
+                              Sign in / Register
+                            </Link>
+                          </Button>
+                        </DrawerClose>
+                      )}
+                    </div>
                   </div>
 
                   <nav className="relative mt-6 flex-1 overflow-y-auto px-4 pb-6">
@@ -195,7 +225,7 @@ export default function Header() {
                 </span>
               </Link>
 
-              <CartDrawer />
+              <CartDrawer autoOpenViewport="mobile" />
             </div>
           </div>
 
@@ -245,7 +275,7 @@ export default function Header() {
                   </span>
                 </Link>
 
-                <CartDrawer />
+                <CartDrawer autoOpenViewport="desktop" />
               </div>
             </div>
           </div>

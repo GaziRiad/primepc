@@ -34,57 +34,59 @@ export default async function page() {
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-4">
-            {orders.map((order) => {
-              const itemsCount = (order.items ?? []).reduce(
-                (sum: number, item: { quantity?: number }) =>
-                  sum + (item.quantity ?? 0),
-                0,
-              );
-              const orderId = String(order._id);
-              const statusLabel = String(order.status).replace(/_/g, " ");
+          <div className="max-h-168 overflow-y-auto pr-1 sm:pr-2">
+            <div className="flex flex-col gap-4">
+              {orders.map((order) => {
+                const itemsCount = (order.items ?? []).reduce(
+                  (sum: number, item: { quantity?: number }) =>
+                    sum + (item.quantity ?? 0),
+                  0,
+                );
+                const orderId = String(order._id);
+                const statusLabel = String(order.status).replace(/_/g, " ");
 
-              return (
-                <div
-                  key={orderId}
-                  className="rounded-xl border bg-white p-4 shadow-xs"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-foreground text-sm font-semibold">
-                        Order #{orderId.slice(-6)}
-                      </p>
-                      <p className="text-muted-foreground mt-1 text-xs">
-                        {new Date(order.createdAt).toLocaleString()}
-                      </p>
+                return (
+                  <div
+                    key={orderId}
+                    className="rounded-xl border bg-white p-4 shadow-xs"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-foreground text-sm font-semibold">
+                          Order #{orderId.slice(-6)}
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          {new Date(order.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <Badge
+                        className={
+                          STATUS_STYLES[order.status] ??
+                          "bg-muted text-foreground"
+                        }
+                      >
+                        {statusLabel}
+                      </Badge>
                     </div>
-                    <Badge
-                      className={
-                        STATUS_STYLES[order.status] ??
-                        "bg-muted text-foreground"
-                      }
-                    >
-                      {statusLabel}
-                    </Badge>
-                  </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-muted-foreground text-xs">Items</p>
-                      <p className="text-foreground font-medium">
-                        {itemsCount} item{itemsCount === 1 ? "" : "s"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Total</p>
-                      <p className="text-foreground font-semibold">
-                        {formatDZD(order.total ?? 0)}
-                      </p>
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Items</p>
+                        <p className="text-foreground font-medium">
+                          {itemsCount} item{itemsCount === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Total</p>
+                        <p className="text-foreground font-semibold">
+                          {formatDZD(order.total ?? 0)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </>
       )}

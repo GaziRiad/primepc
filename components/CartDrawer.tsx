@@ -15,7 +15,10 @@ import { formatDZD } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+const OPEN_CART_EVENT = "primepc:open-cart";
+const DESKTOP_MEDIA_QUERY = "(min-width: 1024px)";
 
 type TCartDrawerItem = {
   product: {
@@ -29,9 +32,20 @@ type TCartDrawerItem = {
   quantity: number;
 };
 
-export default function CartDrawer() {
-  const [open, setOpen] = useState(false);
+type CartDrawerProps = {
+  autoOpenViewport?: "mobile" | "desktop";
+};
+
+export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
   const pathname = usePathname();
+  const [drawerState, setDrawerState] = useState({
+    pathname,
+    open: false,
+  });
+  const open = drawerState.pathname === pathname ? drawerState.open : false;
+  const setOpen = useCallback((nextOpen: boolean) => {
+    setDrawerState({ pathname, open: nextOpen });
+  }, [pathname]);
   const {
     cartItems,
     itemsCount,
@@ -41,8 +55,24 @@ export default function CartDrawer() {
   } = useCart();
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    const handleOpenCart = () => {
+      if (autoOpenViewport) {
+        const isDesktop = window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+        const shouldOpen =
+          autoOpenViewport === "desktop" ? isDesktop : !isDesktop;
+
+        if (!shouldOpen) return;
+      }
+
+      setOpen(true);
+    };
+
+    window.addEventListener(OPEN_CART_EVENT, handleOpenCart);
+
+    return () => {
+      window.removeEventListener(OPEN_CART_EVENT, handleOpenCart);
+    };
+  }, [autoOpenViewport, setOpen]);
 
   const subtotal = cartItems.reduce(
     (sum: number, item: TCartDrawerItem) =>

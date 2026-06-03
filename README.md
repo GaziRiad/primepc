@@ -1,13 +1,49 @@
-Here’s a practical production‑readiness checklist for an ecommerce platform like yours. If these aren’t covered, I wouldn’t call it “ready to make sales” yet:
+# PRIMEPC Website
 
-Payments: real payment gateway (card + local options), webhook handling, retries, and reconciliation.
-Orders/fulfillment: order status flow, inventory locking, shipping fee logic, delivery zones, and tracking updates.
-Security: auth hardening, rate‑limits, input validation, CSRF protection on forms, secure secrets, and minimal PII exposure.
-Legal/compliance: Terms, Privacy Policy, Refund/Returns, shipping policy, cookie consent, and required tax/VAT info.
-Performance: image optimization, caching strategy, page speed audits, CDN, and SSR/ISR tuning.
-SEO/marketing: proper metadata, OpenGraph, sitemap/robots, structured data, and shareable product URLs.
-Analytics: conversion events, funnel tracking, revenue attribution, and error logging.
-Reliability: monitoring/alerts, uptime checks, backup/restore plan, and incident response basics.
-QA: smoke tests, cart/checkout edge cases, inventory edge cases, and mobile device testing.
-Content: real product copy, pricing accuracy, stock updates, and trustworthy trust signals (reviews, guarantees).
-Support: contact flow, order lookup, and customer service process (email or chat).
+Next.js ecommerce storefront for PRIMEPC, with product browsing, cart and
+wishlist flows, customer checkout, account pages, admin product/category/order
+management, and order/contact notifications.
+
+## Scripts
+
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run start
+npm run db:seed:products
+npm run db:seed:products:reset
+```
+
+## Environment
+
+Copy `.env.example` to `.env.local` and fill in the required values:
+
+```bash
+MONGODB_URI=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+```
+
+Optional production integrations:
+
+```bash
+RESEND_API_KEY=
+RESEND_FROM=
+ADMIN_EMAILS=
+APP_URL=
+SUPPORT_EMAIL=
+SUPPORT_PHONE=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
+```
+
+## Production Checklist
+
+- Configure real production secrets and remove development URLs.
+- Run `npm run lint` and `npm run build` before deploy.
+- Confirm MongoDB indexes are created in the production database.
+- Test the full cart, checkout, order notification, and admin order status flow.
+- Verify legal pages, return policy, shipping policy, analytics, and support links.

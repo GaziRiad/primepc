@@ -82,7 +82,7 @@ export async function PUT(request: Request) {
   const user = await User.findByIdAndUpdate(
     session.user.id,
     { name, image },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   )
     .select("name email image")
     .lean();

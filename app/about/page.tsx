@@ -73,7 +73,7 @@ export default function AboutPage() {
               a faire evoluer.
             </p>
             <p className="text-muted-foreground mt-4 text-sm leading-7">
-              Notre ambition est claire : faire grandir l'industrie tech en
+              Notre ambition est claire : faire grandir l&apos;industrie tech en
               Algerie, avec des choix transparents et un accompagnement humain.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">

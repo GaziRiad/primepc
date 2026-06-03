@@ -24,7 +24,11 @@ export function useFavorites() {
     data = [],
     mutate,
     isLoading,
-  } = useSWR<TFavoriteApiItem[]>(FAVORITES_KEY, fetcher, swrOptions);
+  } = useSWR<TFavoriteApiItem[]>(
+    isAuthenticated ? FAVORITES_KEY : null,
+    fetcher,
+    swrOptions,
+  );
 
   const isFavorite = (productId: string) =>
     data.some((item) => getId(item) === productId);

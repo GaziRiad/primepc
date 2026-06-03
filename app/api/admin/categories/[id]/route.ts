@@ -138,7 +138,7 @@ export async function PATCH(
   }
 
   const category = await Category.findByIdAndUpdate(id, parsed.payload, {
-    new: true,
+    returnDocument: "after",
     runValidators: true,
   })
     .select("name slug image isActive")

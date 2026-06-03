@@ -4,6 +4,8 @@ import { useTransition } from "react";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 
+const OPEN_CART_EVENT = "primepc:open-cart";
+
 type AddToCartButtonProps = {
   productId: string;
   product: {
@@ -45,13 +47,17 @@ export default function AddToCartButton({
       disabled={isDisabled}
       onClick={() => {
         startTransition(async () => {
-          await addToCart(productId, {
+          const added = await addToCart(productId, {
             _id: productId,
             name: product.name,
             coverImage: product.coverImage,
             finalPrice: product.finalPrice,
             stock: product.stock,
           });
+
+          if (added) {
+            window.dispatchEvent(new Event(OPEN_CART_EVENT));
+          }
         });
       }}
     >

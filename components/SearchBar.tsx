@@ -58,9 +58,9 @@ export default function SearchBar() {
       return;
     }
 
-    debounceRef.current = window.setTimeout(() => {
-      const controller = new AbortController();
+    const controller = new AbortController();
 
+    debounceRef.current = window.setTimeout(() => {
       const run = async () => {
         try {
           setIsLoading(true);
@@ -86,14 +86,13 @@ export default function SearchBar() {
       };
 
       run();
-
-      return () => controller.abort();
     }, 250);
 
     return () => {
       if (debounceRef.current) {
         window.clearTimeout(debounceRef.current);
       }
+      controller.abort();
     };
   }, [query]);
 

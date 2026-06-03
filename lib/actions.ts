@@ -125,7 +125,7 @@ export const removeFromCartAction = async (productId: string) => {
   //     items: { $elemMatch: { product: productId, quantity: { $gt: 1 } } },
   //   },
   //   { $inc: { "items.$.quantity": -1 } },
-  //   { new: true, runValidators: true },
+  //   { returnDocument: "after", runValidators: true },
   // );
 
   // if (decremented) return decremented;
@@ -134,7 +134,7 @@ export const removeFromCartAction = async (productId: string) => {
   await Cart.findOneAndUpdate(
     { user: userId },
     { $pull: { items: { product: productId } } },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   );
 
   return { ok: true as const };

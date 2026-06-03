@@ -36,6 +36,8 @@ export default async function RootLayout({
       <body className={`relative antialiased`}>
         <ClientShell>{children}</ClientShell>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

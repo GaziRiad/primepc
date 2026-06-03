@@ -305,7 +305,7 @@ export const updateOrderStatus = async (
         statusHistory: historyEntry,
       },
     },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 };
 
@@ -329,6 +329,6 @@ export const updateOrderArchive = async (
   return Order.findByIdAndUpdate(
     orderId,
     { $set: update },
-    { new: true },
+    { returnDocument: "after" },
   ).lean();
 };

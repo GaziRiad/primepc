@@ -10,6 +10,9 @@ import ProductGallery from "@/components/ProductGallery";
 import { formatDZD } from "@/lib/utils";
 import { getProduct } from "@/lib/services";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type ProductCategory = {
   name?: string;
   slug?: string;
