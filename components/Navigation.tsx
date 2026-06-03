@@ -40,7 +40,7 @@ export default function Navigation() {
             <li
               key={link.href}
               className={`hover:text-primary hover:border-primary border-background border-t-3 font-semibold transition-all duration-200 ${
-                compact ? "py-4" : "py-6"
+                compact ? "py-3" : "py-4.5"
               } ${
                 pathname === link.href
                   ? "text-primary border-primary border-t-3"

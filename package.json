@@ -12,6 +12,7 @@
     "db:seed:products:reset": "tsx lib/seed-products.ts --reset"
   },
   "dependencies": {
+    "@studio-freight/lenis": "^1.0.42",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^2.4.3",

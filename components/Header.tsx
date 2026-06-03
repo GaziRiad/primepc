@@ -235,7 +235,7 @@ export default function Header() {
             </Suspense>
           </div>
 
-          <div className="hidden lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-6 lg:py-6">
+          <div className="hidden lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-6 lg:py-4">
             <Logo />
 
             <div className="w-full">
