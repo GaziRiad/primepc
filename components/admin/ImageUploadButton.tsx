@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useState, type ChangeEvent } from "react";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 type ImageUploadButtonProps = {
   onUpload: (url: string) => void;
@@ -21,13 +22,12 @@ export default function ImageUploadButton({
   label = "Upload",
   folder = "primepc/products",
 }: ImageUploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputId = useId();
   const [isUploading, setIsUploading] = useState(false);
   const isConfigured = Boolean(cloudName && uploadPreset);
+  const isDisabled = !isConfigured || isUploading;
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = "";
 
@@ -79,28 +79,29 @@ export default function ImageUploadButton({
   };
 
   return (
-    <>
+    <label
+      htmlFor={inputId}
+      aria-disabled={isDisabled}
+      className={cn(
+        buttonVariants({ variant: "outline" }),
+        "relative gap-1.5 overflow-hidden",
+        isDisabled && "pointer-events-none opacity-50",
+      )}
+    >
       <input
-        ref={inputRef}
+        id={inputId}
         type="file"
         accept="image/*"
-        className="hidden"
+        className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+        disabled={isDisabled}
         onChange={handleFileChange}
       />
-      <Button
-        type="button"
-        variant="outline"
-        className="gap-1.5"
-        disabled={!isConfigured || isUploading}
-        onClick={() => inputRef.current?.click()}
-      >
-        {isUploading ? (
-          <Spinner className="size-4" />
-        ) : (
-          <Upload className="size-4" />
-        )}
-        {isUploading ? "Uploading..." : label}
-      </Button>
-    </>
+      {isUploading ? (
+        <Spinner className="size-4" />
+      ) : (
+        <Upload className="size-4" />
+      )}
+      {isUploading ? "Uploading..." : label}
+    </label>
   );
 }
