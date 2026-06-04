@@ -99,11 +99,11 @@ export default function FeaturedBannersCarousel({
   }, [api, isPaused, visibleSlides.length]);
 
   return (
-    <section className="mb-8 grid grid-cols-1 gap-4 sm:mb-12 sm:gap-5 lg:grid-cols-[70fr_30fr] lg:gap-x-5">
+    <section className="mb-8 grid grid-cols-1 gap-4 sm:mb-12 sm:gap-5 lg:grid-cols-[minmax(0,70fr)_minmax(0,30fr)] lg:items-start lg:gap-x-5">
       <Carousel
         opts={{ loop: visibleSlides.length > 1 }}
         setApi={setApi}
-        className="relative h-80 w-full touch-pan-y overflow-hidden rounded-lg lg:h-96 xl:h-120"
+        className="relative aspect-[2/1] w-full touch-pan-y overflow-hidden rounded-lg"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onFocus={() => setIsPaused(true)}
@@ -146,15 +146,15 @@ export default function FeaturedBannersCarousel({
       </Carousel>
 
       {visibleSideBanners.length > 0 && (
-        <div className="hidden gap-4 sm:grid-cols-2 sm:gap-5 lg:grid lg:h-72 lg:grid-cols-1 lg:grid-rows-[1fr_1fr] xl:h-120">
+        <div className="hidden gap-4 sm:gap-5 lg:grid lg:grid-cols-1">
           {visibleSideBanners.map((banner, index) => (
             <div
               key={`${banner.image}-side-${index}`}
-              className="relative h-32 w-full overflow-hidden rounded-lg sm:h-40 lg:h-full"
+              className="relative aspect-video w-full overflow-hidden rounded-lg"
             >
               <BannerImage
                 banner={banner}
-                sizes="(min-width: 1280px) 420px, (min-width: 1024px) 30vw, 50vw"
+                sizes="(min-width: 1280px) 420px, (min-width: 1024px) 30vw, 1px"
               />
             </div>
           ))}
