@@ -64,7 +64,7 @@ const BORDER_COLOR = "#E5E7EB";
 const BG_SOFT = "#F6F7F9";
 
 const SITE_URL = APP_URL ? APP_URL.replace(/\/$/, "") : "";
-const LOGO_URL = SITE_URL ? `${SITE_URL}/logo.png` : "";
+const LOGO_URL = SITE_URL ? `${SITE_URL}/logo-icon.png` : "";
 const PRODUCTS_URL = SITE_URL ? `${SITE_URL}/products` : "";
 
 const SOCIALS = SOCIAL_LINKS.filter((link) => link.href);
