@@ -3,7 +3,7 @@
 import useSWR from "swr";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { toggleFavoritesAction } from "@/lib/actions";
+import { removeFavoriteAction, toggleFavoritesAction } from "@/lib/actions";
 import { fetcher } from "@/lib/utils";
 import type { TFavoriteApiItem } from "@/types/types";
 
@@ -74,11 +74,41 @@ export function useFavorites() {
     );
   };
 
+  const removeFavorite = async (productId: string) => {
+    if (!isAuthenticated) {
+      toast.error("Sign in to update favorites.");
+      return;
+    }
+
+    await mutate(
+      async (current = []) => {
+        const result = await removeFavoriteAction(productId);
+        if (!result?.ok) {
+          if (result?.reason === "unauthenticated") {
+            toast.error("Sign in to update favorites.");
+          } else {
+            toast.error("Unable to update favorites.");
+          }
+          throw new Error(result?.reason ?? "failed");
+        }
+        toast.success("Product removed from favorites");
+        return current.filter((item) => getId(item) !== productId);
+      },
+      {
+        optimisticData: (current = []) =>
+          current.filter((item) => getId(item) !== productId),
+        rollbackOnError: true,
+        revalidate: true,
+      },
+    );
+  };
+
   return {
     favorites: data,
     favoritesCount: data.length,
     isLoading,
     isFavorite,
     toggleFavorite,
+    removeFavorite,
   };
 }

@@ -43,9 +43,12 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
     open: false,
   });
   const open = drawerState.pathname === pathname ? drawerState.open : false;
-  const setOpen = useCallback((nextOpen: boolean) => {
-    setDrawerState({ pathname, open: nextOpen });
-  }, [pathname]);
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      setDrawerState({ pathname, open: nextOpen });
+    },
+    [pathname],
+  );
   const {
     cartItems,
     itemsCount,
@@ -88,9 +91,9 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
           {itemsCount || 0}
         </span>
       </DrawerTrigger>
-      <DrawerContent className="flex h-dvh flex-col px-5 py-6 sm:px-8 sm:py-8">
-        <DrawerHeader className="mb-6 grid grid-cols-2 items-center justify-between border-b sm:mb-10">
-          <DrawerTitle className="text-accent text-2xl font-semibold">
+      <DrawerContent className="flex h-dvh flex-col px-4 py-5 sm:px-8 sm:py-8">
+        <DrawerHeader className="mb-5 grid grid-cols-[1fr_auto] items-center justify-between border-b px-0 pb-4 sm:mb-10">
+          <DrawerTitle className="text-accent text-xl font-semibold whitespace-nowrap sm:text-2xl">
             Cart View
           </DrawerTitle>
           <DrawerClose className="text-foreground w-fit justify-self-end bg-transparent hover:bg-transparent focus:ring-0">
@@ -98,7 +101,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
           </DrawerClose>
         </DrawerHeader>
 
-        <div className="mx-2 flex-1 overflow-y-auto sm:mx-6">
+        <div className="flex-1 overflow-y-auto sm:mx-6">
           {cartItems.length === 0 ? (
             <div className="text-accent-300 flex h-full flex-col items-center justify-center gap-6 text-sm">
               <div className="relative flex aspect-square h-32 max-w-32 items-center justify-center overflow-hidden rounded-full bg-zinc-100">
@@ -187,19 +190,21 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
           )}
         </div>
 
-        <div className="mt-6 border-t px-5 pt-6">
-          <div className="mb-5 flex items-center justify-between">
-            <p className="text-accent text-xl font-semibold">Subtotal:</p>
-            <p className="text-primary-800 text-2xl font-semibold">
+        <div className="mt-5 border-t pt-5 sm:mt-6 sm:px-5 sm:pt-6">
+          <div className="mb-4 flex items-center justify-between gap-4 sm:mb-5">
+            <p className="text-accent text-lg font-semibold sm:text-xl">
+              Subtotal:
+            </p>
+            <p className="text-primary-800 text-xl font-semibold sm:text-2xl">
               {formatDZD(subtotal)}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
             <DrawerClose asChild>
               <Button
                 asChild
-                className="bg-primary-400 hover:bg-primary-500 h-12 rounded-full text-white"
+                className="bg-primary-400 hover:bg-primary-500 h-11 rounded-full px-3 text-xs whitespace-nowrap text-white sm:h-12 sm:px-4 sm:text-sm"
               >
                 <Link href="/cart">View Cart</Link>
               </Button>
@@ -208,7 +213,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
             <DrawerClose asChild>
               <Button
                 asChild
-                className="bg-primary-800 hover:bg-primary-700 h-12 rounded-full text-white"
+                className="bg-primary-800 hover:bg-primary-700 h-11 rounded-full px-3 text-xs whitespace-nowrap text-white sm:h-12 sm:px-4 sm:text-sm"
               >
                 <Link href="/checkout">Checkout</Link>
               </Button>

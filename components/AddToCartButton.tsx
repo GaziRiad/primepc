@@ -3,10 +3,12 @@
 import { useTransition } from "react";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
+import { cn } from "@/lib/utils";
 
 const OPEN_CART_EVENT = "primepc:open-cart";
 
 type AddToCartButtonProps = {
+  className?: string;
   productId: string;
   product: {
     name: string;
@@ -18,6 +20,7 @@ type AddToCartButtonProps = {
 };
 
 export default function AddToCartButton({
+  className,
   productId,
   product,
   large = false,
@@ -43,7 +46,7 @@ export default function AddToCartButton({
     <Button
       type="button"
       size={large ? "default" : "sm"}
-      className="cursor-pointer"
+      className={cn("cursor-pointer", className)}
       disabled={isDisabled}
       onClick={() => {
         startTransition(async () => {

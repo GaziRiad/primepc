@@ -130,7 +130,11 @@ export default function ProductCardClient({
               <CarouselContent>
                 {gallery.map((image, index) => (
                   <CarouselItem key={`mobile-image-${index}`}>
-                    <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-zinc-100">
+                    <Link
+                      href={`/products/${slug}`}
+                      aria-label={`View ${name}`}
+                      className="relative block aspect-square w-full overflow-hidden rounded-lg bg-zinc-100"
+                    >
                       <Image
                         fill
                         src={image}
@@ -138,7 +142,7 @@ export default function ProductCardClient({
                         className="object-cover"
                         sizes="(max-width: 639px) 50vw, 33vw"
                       />
-                    </div>
+                    </Link>
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -165,17 +169,23 @@ export default function ProductCardClient({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <Image
-              fill
-              src={activeImage}
-              alt={`Image of ${name} from PRIMEPC algeria.`}
-              className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
-              sizes={
-                large
-                  ? "(min-width: 1536px) 25vw, (min-width: 768px) 33vw, 50vw"
-                  : "(min-width: 768px) 25vw, 50vw"
-              }
-            />
+            <Link
+              href={`/products/${slug}`}
+              aria-label={`View ${name}`}
+              className="absolute inset-0"
+            >
+              <Image
+                fill
+                src={activeImage}
+                alt={`Image of ${name} from PRIMEPC algeria.`}
+                className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
+                sizes={
+                  large
+                    ? "(min-width: 1536px) 25vw, (min-width: 768px) 33vw, 50vw"
+                    : "(min-width: 768px) 25vw, 50vw"
+                }
+              />
+            </Link>
 
             {gallery.length > 1 && (
               <div className="pointer-events-none absolute inset-x-4 bottom-4 flex gap-1 opacity-0 transition-opacity group-hover/image:opacity-100">
@@ -194,12 +204,16 @@ export default function ProductCardClient({
       </CardContent>
 
       <CardFooter className="flex h-full flex-col items-start px-2.5!">
-        <p className="text-accent-400 -mb-1 text-xs uppercase">{brand}</p>
         <Link
           href={`/products/${slug}`}
-          className="mb-2 line-clamp-2 text-sm font-medium underline-offset-2 transition-all hover:underline"
+          className="focus-visible:ring-primary-300 mb-2 block w-full rounded-md transition outline-none focus-visible:ring-2"
         >
-          {name}
+          <span className="text-accent-400 block text-xs uppercase">
+            {brand}
+          </span>
+          <span className="mt-1 line-clamp-2 block text-sm font-medium underline-offset-2 hover:underline">
+            {name}
+          </span>
         </Link>
 
         {badge && (

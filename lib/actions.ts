@@ -33,6 +33,23 @@ export const toggleFavoritesAction = async (productId: string) => {
   return { ok: true as const };
 };
 
+export const removeFavoriteAction = async (productId: string) => {
+  await startDbConnection();
+
+  const session = await auth();
+
+  if (!session?.user) {
+    return { ok: false as const, reason: "unauthenticated" as const };
+  }
+
+  await Favorite.findOneAndDelete({
+    user: session.user.id,
+    product: productId,
+  });
+
+  return { ok: true as const };
+};
+
 export const addToCartAction = async (productId: string) => {
   await startDbConnection();
 

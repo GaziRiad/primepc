@@ -1,6 +1,7 @@
 import Filters from "@/components/(user)/Filters";
 import FiltersDrawer from "@/components/(user)/FiltersDrawer";
 import SorterFilter from "@/components/(user)/SorterFilter";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 
@@ -30,9 +31,14 @@ export default async function page({
   return (
     <div className="">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h2 className="text-accent text-xl font-semibold sm:text-2xl">
-          Explore All products
-        </h2>
+        <div className="flex flex-col gap-3">
+          <Breadcrumbs
+            items={[{ label: "Home", href: "/" }, { label: "Products" }]}
+          />
+          <h2 className="text-accent text-xl font-semibold sm:text-2xl">
+            Explore All products
+          </h2>
+        </div>
       </div>
 
       <section className="bg-accent-50 py-14">

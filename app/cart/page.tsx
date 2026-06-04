@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
 import { formatDZD } from "@/lib/utils";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const SHIPPING_THRESHOLD = 40000;
 const SHIPPING_FEE = 500;
@@ -40,9 +41,14 @@ export default function CartPage() {
   return (
     <div>
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <h2 className="text-accent text-xl font-semibold sm:text-2xl">
-          Your Cart
-        </h2>
+        <div className="flex flex-col gap-3">
+          <Breadcrumbs
+            items={[{ label: "Home", href: "/" }, { label: "Cart" }]}
+          />
+          <h2 className="text-accent text-xl font-semibold sm:text-2xl">
+            Your Cart
+          </h2>
+        </div>
         {hasItems && (
           <Button
             variant="link"
