@@ -203,7 +203,7 @@ export default function ProductCardClient({
         </Link>
 
         {badge && (
-          <Badge className="mb-2 bg-slate-600" variant="default">
+          <Badge className="mb-2 bg-green-500" variant="default">
             Latest & Greatest
           </Badge>
         )}
