@@ -19,7 +19,7 @@ export default async function AdminLayout({
 
   return (
     <section className="bg-accent-50 min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-20">
         <div className="flex flex-col gap-6">
           <div>
             <p className="text-accent-500 text-xs tracking-[0.2em] uppercase">

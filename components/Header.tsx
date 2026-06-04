@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowUpRight,
   BookOpen,
   Heart,
   Home,
@@ -9,7 +10,6 @@ import {
   LogOut,
   Mail,
   Menu,
-  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   X,
@@ -200,9 +200,9 @@ export default function Header() {
                         <DrawerClose asChild>
                           <Link
                             href="/admin"
-                            className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-100"
+                            className="bg-primary-600 hover:bg-primary-700 group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition"
                           >
-                            <ShieldCheck className="size-4 text-slate-700" />
+                            <ArrowUpRight className="size-4" />
                             Admin dashboard
                           </Link>
                         </DrawerClose>
@@ -249,12 +249,11 @@ export default function Header() {
                 {isAdmin && (
                   <Button
                     asChild
-                    variant="outline"
                     size="sm"
-                    className="gap-1.5"
+                    className="bg-primary-600 hover:bg-primary-700 border-0 text-white shadow-sm"
                   >
                     <Link href="/admin" aria-label="Open admin dashboard">
-                      <ShieldCheck className="size-4" />
+                      <ArrowUpRight className="size-4" />
                       Admin
                     </Link>
                   </Button>

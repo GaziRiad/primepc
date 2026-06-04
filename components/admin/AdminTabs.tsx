@@ -20,7 +20,9 @@ export default function AdminTabs() {
     <nav className="flex flex-wrap gap-2">
       {TABS.map((tab) => {
         const isActive =
-          pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+          tab.href === "/admin"
+            ? pathname === tab.href
+            : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
 
         return (
           <Link
