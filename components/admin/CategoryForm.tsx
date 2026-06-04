@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import slugify from "slugify";
 import { toast } from "sonner";
@@ -144,12 +144,13 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
               onUpload={(url) => setImage(url)}
             />
           </div>
-          <div className="overflow-hidden rounded-2xl border bg-zinc-100">
-            <img
+          <div className="relative h-48 overflow-hidden rounded-2xl border bg-zinc-100">
+            <Image
+              fill
               src={image || FALLBACK_IMAGE}
               alt={name || "Category preview"}
-              className="h-48 w-full object-cover"
-              loading="lazy"
+              className="object-cover"
+              sizes="(min-width: 768px) 50vw, 100vw"
             />
           </div>
         </div>

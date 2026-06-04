@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import slugify from "slugify";
 
 import { auth } from "@/lib/auth";
+import { revalidateCategoryCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import Category from "@/models/Category";
 
@@ -115,6 +116,7 @@ export async function POST(request: Request) {
 
   try {
     const category = await Category.create(parsed.payload);
+    revalidateCategoryCache();
     return NextResponse.json({ ok: true, category });
   } catch (error) {
     const message = error instanceof Error ? error.message : "server_error";

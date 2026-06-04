@@ -18,7 +18,7 @@ export default async function layout({
 
       <section className="bg-accent-50 py-14">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-[27fr_73fr] lg:px-8">
-          <Sidebar />
+          <Sidebar user={session.user} />
 
           <main className="h-full w-full rounded-xl border-[0.5px] bg-white px-4 py-6 shadow-xs sm:px-6 lg:px-8">
             {children}

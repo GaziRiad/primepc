@@ -33,5 +33,8 @@ CategorySchema.virtual("products", {
   foreignField: "categories",
 });
 
+CategorySchema.index({ isActive: 1, name: 1 });
+CategorySchema.index({ updatedAt: -1 });
+
 const Category = models.Category || model("Category", CategorySchema);
 export default Category;

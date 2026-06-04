@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 
 import { auth } from "@/lib/auth";
+import { revalidateMarketingCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import {
   DEFAULT_MARKETING_SETTINGS,
@@ -113,8 +113,7 @@ export async function PATCH(request: Request) {
     saved as Partial<MarketingSettingsData>,
   );
 
-  revalidatePath("/");
-  revalidatePath("/admin/marketing");
+  revalidateMarketingCache();
 
   return NextResponse.json({
     ok: true,

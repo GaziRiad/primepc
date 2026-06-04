@@ -122,7 +122,7 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
 
   const ids = normalized.map((item) => item.productId);
   const products = await Product.find({ _id: { $in: ids } })
-    .select("name price discount finalPrice coverImage stock")
+    .select("name slug price discount finalPrice coverImage stock")
     .lean();
 
   const productMap = new Map(
@@ -179,7 +179,16 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
     return { ok: false as const, issues };
   }
 
-  return { ok: true as const, items: orderItems, subtotal };
+  return {
+    ok: true as const,
+    items: orderItems,
+    productSlugs: products
+      .map((product) =>
+        typeof product.slug === "string" ? product.slug : undefined,
+      )
+      .filter((slug): slug is string => Boolean(slug)),
+    subtotal,
+  };
 };
 
 export const getOrdersForAdmin = async () => {
@@ -197,7 +206,8 @@ export const getOrdersForAdminPage = async (query?: OrdersQuery) => {
   const { filter, sort } = buildAdminOrdersFilter(query);
 
   const limit = 10;
-  const total = await Order.countDocuments(filter);
+  const totalPromise = Order.countDocuments(filter);
+  const total = await totalPromise;
   const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
   const requestedPage = Number(toSingle(query?.page)) || 1;
   const page = Math.max(1, Math.min(requestedPage, totalPages || 1));
@@ -228,11 +238,9 @@ export const getOrdersForAdminPage = async (query?: OrdersQuery) => {
   const sortSpec: Record<string, SortOrder> =
     sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
-  const items = await Order.find(filter)
-    .sort(sortSpec)
-    .skip(skip)
-    .limit(limit)
-    .lean();
+  const [items] = await Promise.all([
+    Order.find(filter).sort(sortSpec).skip(skip).limit(limit).lean(),
+  ]);
 
   return { items, total, page, limit, totalPages };
 };
@@ -271,7 +279,10 @@ export const getOrdersForUser = async (userId: string) => {
 
   if (!userId) return [];
 
-  return Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+  return Order.find({ user: userId })
+    .sort({ createdAt: -1 })
+    .select("items.quantity total status createdAt")
+    .lean();
 };
 
 export const updateOrderStatus = async (

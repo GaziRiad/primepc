@@ -10,8 +10,11 @@ import ProductGallery from "@/components/ProductGallery";
 import { formatDZD } from "@/lib/utils";
 import { getProduct } from "@/lib/services";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 type ProductCategory = {
   name?: string;

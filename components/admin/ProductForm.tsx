@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -288,12 +288,13 @@ export default function ProductForm({
                 onUpload={(url) => setCoverImage(url)}
               />
             </div>
-            <div className="overflow-hidden rounded-2xl border bg-zinc-100">
-              <img
+            <div className="relative h-56 overflow-hidden rounded-2xl border bg-zinc-100">
+              <Image
+                fill
                 src={coverImage || FALLBACK_IMAGE}
                 alt={name || "Cover preview"}
-                className="h-56 w-full object-cover"
-                loading="lazy"
+                className="object-cover"
+                sizes="(min-width: 1024px) 50vw, 100vw"
               />
             </div>
           </div>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import startDbConnection from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { revalidateProductCache } from "@/lib/cache";
 import {
   buildOrderItems,
   SHIPPING_FEE,
@@ -223,6 +224,8 @@ export async function POST(request: Request) {
         { $set: { items: [] } },
       ).catch(() => null);
     }
+
+    revalidateProductCache(build.productSlugs);
 
     const emailPayload = {
       orderId: String(order._id),

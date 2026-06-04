@@ -136,6 +136,7 @@ export default function ProductCardClient({
                         src={image}
                         alt={`Image of ${name} from PRIMEPC algeria.`}
                         className="object-cover"
+                        sizes="(max-width: 639px) 50vw, 33vw"
                       />
                     </div>
                   </CarouselItem>
@@ -169,6 +170,11 @@ export default function ProductCardClient({
               src={activeImage}
               alt={`Image of ${name} from PRIMEPC algeria.`}
               className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
+              sizes={
+                large
+                  ? "(min-width: 1536px) 25vw, (min-width: 768px) 33vw, 50vw"
+                  : "(min-width: 768px) 25vw, 50vw"
+              }
             />
 
             {gallery.length > 1 && (

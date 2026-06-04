@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -22,24 +22,31 @@ type FeaturedBannersCarouselProps = {
 function BannerImage({
   banner,
   priority = false,
+  sizes,
 }: {
   banner: MarketingBanner;
   priority?: boolean;
+  sizes: string;
 }) {
   const image = (
-    <img
+    <Image
+      fill
       src={banner.image}
       alt={banner.alt}
-      className="h-full w-full object-cover"
-      loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
+      className="object-cover"
+      priority={priority}
+      sizes={sizes}
     />
   );
 
   if (!banner.href) return image;
 
   return (
-    <Link href={banner.href} aria-label={banner.alt}>
+    <Link
+      href={banner.href}
+      aria-label={banner.alt}
+      className="block h-full w-full"
+    >
       {image}
     </Link>
   );
@@ -109,7 +116,11 @@ export default function FeaturedBannersCarousel({
               key={`${slide.image}-${index}`}
               className="relative h-full"
             >
-              <BannerImage banner={slide} priority={index === 0} />
+              <BannerImage
+                banner={slide}
+                priority={index === 0}
+                sizes="(min-width: 1280px) 980px, (min-width: 1024px) 70vw, 100vw"
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -141,7 +152,10 @@ export default function FeaturedBannersCarousel({
               key={`${banner.image}-side-${index}`}
               className="relative h-32 w-full overflow-hidden rounded-lg sm:h-40 lg:h-full"
             >
-              <BannerImage banner={banner} />
+              <BannerImage
+                banner={banner}
+                sizes="(min-width: 1280px) 420px, (min-width: 1024px) 30vw, 50vw"
+              />
             </div>
           ))}
         </div>

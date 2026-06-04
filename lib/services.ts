@@ -1,8 +1,8 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import Category from "@/models/Category";
 import startDbConnection from "./db";
-import { cache } from "react";
 import Product from "@/models/Product";
 
 import type { QueryFilter } from "mongoose";
@@ -10,10 +10,45 @@ import type { TProduct } from "@/types/types";
 import Favorite from "@/models/Favorite";
 import Cart from "@/models/Cart";
 import { auth } from "./auth";
+import { CACHE_TAGS, PUBLIC_PAGE_REVALIDATE_SECONDS } from "@/lib/cache";
 
 type QueryParams = { [key: string]: string | string[] | undefined };
 
-export const getAllProducts = async (query?: QueryParams) => {
+const stableQueryKey = (query?: QueryParams) => {
+  const entries = Object.entries(query ?? {})
+    .flatMap(([key, value]) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => [key, item] as const);
+      }
+
+      return [[key, value ?? ""] as const];
+    })
+    .sort(([keyA, valueA], [keyB, valueB]) =>
+      keyA === keyB
+        ? String(valueA).localeCompare(String(valueB))
+        : keyA.localeCompare(keyB),
+    );
+
+  return JSON.stringify(entries);
+};
+
+const queryFromStableKey = (key: string): QueryParams => {
+  const entries = JSON.parse(key) as Array<[string, string]>;
+  return entries.reduce<QueryParams>((acc, [name, value]) => {
+    const current = acc[name];
+    if (typeof current === "string") {
+      acc[name] = [current, value];
+    } else if (Array.isArray(current)) {
+      current.push(value);
+    } else {
+      acc[name] = value;
+    }
+
+    return acc;
+  }, {});
+};
+
+const getAllProductsUncached = async (query?: QueryParams) => {
   try {
     await startDbConnection();
 
@@ -123,7 +158,7 @@ export const getAllProducts = async (query?: QueryParams) => {
   }
 };
 
-export const getProductsPage = async (query?: QueryParams) => {
+const getProductsPageUncached = async (query?: QueryParams) => {
   try {
     await startDbConnection();
 
@@ -236,7 +271,7 @@ export const getProductsPage = async (query?: QueryParams) => {
   }
 };
 
-export const getProduct = cache(async (slug: string) => {
+const getProductUncached = async (slug: string) => {
   try {
     await startDbConnection();
     const product = await Product.findOne({ slug })
@@ -254,11 +289,11 @@ export const getProduct = cache(async (slug: string) => {
 
     throw new Error(message);
   }
-});
+};
 
 //
 
-export const getAllCategories = cache(async () => {
+const getAllCategoriesUncached = async () => {
   try {
     await startDbConnection();
     const categories = await Category.find({ isActive: true })
@@ -273,7 +308,55 @@ export const getAllCategories = cache(async () => {
 
     throw new Error(message);
   }
-});
+};
+
+const getAllProductsCached = unstable_cache(
+  async (queryKey: string) =>
+    getAllProductsUncached(queryFromStableKey(queryKey)),
+  ["all-products"],
+  {
+    revalidate: PUBLIC_PAGE_REVALIDATE_SECONDS,
+    tags: [CACHE_TAGS.products, CACHE_TAGS.categories],
+  },
+);
+
+const getProductsPageCached = unstable_cache(
+  async (queryKey: string) =>
+    getProductsPageUncached(queryFromStableKey(queryKey)),
+  ["products-page"],
+  {
+    revalidate: PUBLIC_PAGE_REVALIDATE_SECONDS,
+    tags: [CACHE_TAGS.products, CACHE_TAGS.categories],
+  },
+);
+
+const getProductCached = unstable_cache(
+  getProductUncached,
+  ["product-detail"],
+  {
+    revalidate: PUBLIC_PAGE_REVALIDATE_SECONDS,
+    tags: [CACHE_TAGS.products, CACHE_TAGS.categories],
+  },
+);
+
+const getAllCategoriesCached = unstable_cache(
+  getAllCategoriesUncached,
+  ["active-categories"],
+  {
+    revalidate: PUBLIC_PAGE_REVALIDATE_SECONDS,
+    tags: [CACHE_TAGS.categories],
+  },
+);
+
+export const getAllProducts = async (query?: QueryParams) =>
+  getAllProductsCached(stableQueryKey(query));
+
+export const getProductsPage = async (query?: QueryParams) =>
+  getProductsPageCached(stableQueryKey(query));
+
+export const getProduct = async (slug: string) => getProductCached(slug);
+
+export const getAllCategories = async () => getAllCategoriesCached();
 
 // FAVORITES SERVICES
 

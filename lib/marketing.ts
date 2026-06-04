@@ -1,5 +1,8 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
+import { CACHE_TAGS, MARKETING_REVALIDATE_SECONDS } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import MarketingSettings from "@/models/MarketingSettings";
 import type {
@@ -55,7 +58,9 @@ export const DEFAULT_MARKETING_SETTINGS: MarketingSettingsData = {
   },
 };
 
-const normalizeBanner = (banner: Partial<MarketingBanner>): MarketingBanner => ({
+const normalizeBanner = (
+  banner: Partial<MarketingBanner>,
+): MarketingBanner => ({
   image: String(banner.image ?? "").trim(),
   alt: String(banner.alt ?? "").trim() || "PRIMEPC marketing banner",
   href: String(banner.href ?? "").trim(),
@@ -66,11 +71,14 @@ const normalizeDeal = (
   deal: Partial<SpecialDealSettings> | null | undefined,
 ): SpecialDealSettings => {
   const fallback = DEFAULT_MARKETING_SETTINGS.specialDeal;
-  const rawDate = deal?.endsAt ? new Date(deal.endsAt) : new Date(fallback.endsAt);
+  const rawDate = deal?.endsAt
+    ? new Date(deal.endsAt)
+    : new Date(fallback.endsAt);
 
   return {
     enabled: deal?.enabled !== false,
-    eyebrow: String(deal?.eyebrow ?? fallback.eyebrow).trim() || fallback.eyebrow,
+    eyebrow:
+      String(deal?.eyebrow ?? fallback.eyebrow).trim() || fallback.eyebrow,
     title: String(deal?.title ?? fallback.title).trim() || fallback.title,
     subtitle:
       String(deal?.subtitle ?? fallback.subtitle).trim() || fallback.subtitle,
@@ -85,9 +93,11 @@ const normalizeDeal = (
 };
 
 export const normalizeMarketingSettings = (
-  settings?: (Partial<MarketingSettingsData> & {
-    banners?: Partial<MarketingBanner>[];
-  }) | null,
+  settings?:
+    | (Partial<MarketingSettingsData> & {
+        banners?: Partial<MarketingBanner>[];
+      })
+    | null,
 ): MarketingSettingsData => {
   const legacyBanners = Array.isArray(settings?.banners)
     ? settings.banners.map(normalizeBanner).filter((banner) => banner.image)
@@ -116,12 +126,26 @@ export const normalizeMarketingSettings = (
   };
 };
 
-export const getMarketingSettings = async (): Promise<MarketingSettingsData> => {
-  await startDbConnection();
+const getMarketingSettingsUncached =
+  async (): Promise<MarketingSettingsData> => {
+    await startDbConnection();
 
-  const settings = await MarketingSettings.findOne({ key: "homepage" }).lean();
-  return normalizeMarketingSettings(settings as Partial<MarketingSettingsData>);
-};
+    const settings = await MarketingSettings.findOne({
+      key: "homepage",
+    }).lean();
+    return normalizeMarketingSettings(
+      settings as Partial<MarketingSettingsData>,
+    );
+  };
+
+export const getMarketingSettings = unstable_cache(
+  getMarketingSettingsUncached,
+  ["homepage-marketing-settings"],
+  {
+    revalidate: MARKETING_REVALIDATE_SECONDS,
+    tags: [CACHE_TAGS.marketing],
+  },
+);
 
 export const getOrCreateMarketingSettings =
   async (): Promise<MarketingSettingsData> => {

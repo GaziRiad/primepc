@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import Link from "next/link";
 import CountDownTimer from "./CountDownTimer";
 import { Button } from "./ui/button";
@@ -52,21 +52,25 @@ export default async function MainDiscount() {
           <Link href={specialDeal.href}>{specialDeal.ctaLabel}</Link>
         </Button>
 
-        <div className="relative mt-8 aspect-[4/3] w-full max-w-sm md:hidden">
-          <img
+        <div className="relative mt-8 aspect-4/3 w-full max-w-sm md:hidden">
+          <Image
+            fill
             src={specialDeal.image}
             alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
-            className="h-full w-full object-contain"
-            loading="lazy"
+            className="object-contain"
+            sizes="(max-width: 767px) 100vw, 384px"
           />
         </div>
       </div>
-      <img
-        src={specialDeal.image}
-        alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
-        className="pointer-events-none absolute top-1/2 right-0 z-10 hidden h-3/4 w-auto -translate-y-1/2 object-contain md:block"
-        loading="lazy"
-      />
+      <div className="pointer-events-none absolute top-1/2 right-10 z-10 hidden h-3/4 w-1/2 max-w-xl -translate-y-1/2 md:block">
+        <Image
+          fill
+          src={specialDeal.image}
+          alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
+          className="object-contain"
+          sizes="(min-width: 1024px) 480px, 50vw"
+        />
+      </div>
     </section>
   );
 }

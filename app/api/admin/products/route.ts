@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 
 import { auth } from "@/lib/auth";
+import { revalidateProductCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import Product from "@/models/Product";
 import { getDiscountedPrice } from "@/lib/utils";
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
 
   try {
     const product = await Product.create(parsed.payload);
+    revalidateProductCache([product.slug]);
     return NextResponse.json({ ok: true, product });
   } catch (error) {
     const message = error instanceof Error ? error.message : "server_error";

@@ -6,7 +6,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import ClientShell from "@/components/ClientShell";
-import SmoothScroller from "@/components/SmoothScroller";
 
 import { cn } from "@/lib/utils";
 
@@ -35,10 +34,8 @@ export default async function RootLayout({
       className={`${cn("font-sans", publicSans.variable)} ${cn("font-fjalla", fjalla.variable)}`}
     >
       <body className={`relative antialiased`}>
-        <SmoothScroller>
-          <ClientShell>{children}</ClientShell>
-          <Footer />
-        </SmoothScroller>
+        <ClientShell>{children}</ClientShell>
+        <Footer />
         <Analytics />
         <SpeedInsights />
       </body>

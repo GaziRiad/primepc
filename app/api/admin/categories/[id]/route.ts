@@ -3,6 +3,7 @@ import slugify from "slugify";
 import { Types } from "mongoose";
 
 import { auth } from "@/lib/auth";
+import { revalidateCategoryCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
@@ -79,6 +80,8 @@ export async function GET(
       { status: 404 },
     );
   }
+
+  revalidateCategoryCache();
 
   return NextResponse.json({ ok: true, category });
 }
@@ -182,6 +185,8 @@ export async function DELETE(
   }
 
   await Product.updateMany({ categories: id }, { $pull: { categories: id } });
+
+  revalidateCategoryCache();
 
   return NextResponse.json({ ok: true });
 }

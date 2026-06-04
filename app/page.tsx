@@ -4,8 +4,7 @@ import FeaturesList from "@/components/FeaturesList";
 import MainDiscount from "@/components/MainDiscount";
 import NewArrivals from "@/components/NewArrivals";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 export default async function page() {
   return (

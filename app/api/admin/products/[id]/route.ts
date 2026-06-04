@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 
 import { auth } from "@/lib/auth";
+import { revalidateProductCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import Cart from "@/models/Cart";
 import Favorite from "@/models/Favorite";
@@ -154,11 +155,15 @@ export async function PATCH(
     );
   }
 
+  const previousSlug =
+    typeof product.slug === "string" ? product.slug : undefined;
+
   product.set(parsed.payload);
   product.finalPrice = parsed.payload.finalPrice;
 
   try {
     await product.save();
+    revalidateProductCache([previousSlug, product.slug]);
     return NextResponse.json({ ok: true, product: product.toObject() });
   } catch (error) {
     const message = error instanceof Error ? error.message : "server_error";
@@ -200,6 +205,10 @@ export async function DELETE(
       { "items.product": id },
       { $pull: { items: { product: id } } },
     ),
+  ]);
+
+  revalidateProductCache([
+    typeof deleted.slug === "string" ? deleted.slug : undefined,
   ]);
 
   return NextResponse.json({ ok: true });

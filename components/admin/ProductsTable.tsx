@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -144,12 +144,15 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                 <TableRow key={product._id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <img
-                        src={cover}
-                        alt={product.name}
-                        className="h-12 w-12 rounded-xl object-cover"
-                        loading="lazy"
-                      />
+                      <div className="relative h-12 w-12 overflow-hidden rounded-xl bg-zinc-100">
+                        <Image
+                          fill
+                          src={cover}
+                          alt={product.name}
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-foreground truncate font-medium">
                           {product.name}

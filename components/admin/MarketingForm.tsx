@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -61,8 +61,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
 
   const activeHeroCount = useMemo(
     () =>
-      heroSlides.filter((slide) => slide.isActive && slide.image.trim())
-        .length,
+      heroSlides.filter((slide) => slide.isActive && slide.image.trim()).length,
     [heroSlides],
   );
   const activeSideCount = useMemo(
@@ -120,7 +119,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const cleanHeroSlides = heroSlides.map(cleanBanner).filter((slide) => slide.image);
+    const cleanHeroSlides = heroSlides
+      .map(cleanBanner)
+      .filter((slide) => slide.image);
     const cleanSideBanners = sideBanners
       .map(cleanBanner)
       .filter((banner) => banner.image)
@@ -213,11 +214,13 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
               key={`hero-slide-${index}`}
               className="grid gap-4 rounded-xl border p-4 lg:grid-cols-[18rem_1fr]"
             >
-              <div className="overflow-hidden rounded-xl border bg-zinc-100">
-                <img
+              <div className="relative aspect-[16/9] overflow-hidden rounded-xl border bg-zinc-100">
+                <Image
+                  fill
                   src={slide.image || FALLBACK_HERO}
                   alt={slide.alt || `Carousel slide ${index + 1}`}
-                  className="aspect-[16/9] w-full object-cover"
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 288px, 100vw"
                 />
               </div>
 
@@ -306,11 +309,13 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {sideBanners.map((banner, index) => (
             <div key={`side-banner-${index}`} className="rounded-xl border p-4">
-              <div className="overflow-hidden rounded-xl border bg-zinc-100">
-                <img
+              <div className="relative aspect-[16/9] overflow-hidden rounded-xl border bg-zinc-100">
+                <Image
+                  fill
                   src={banner.image || FALLBACK_SIDE}
                   alt={banner.alt || `Side banner ${index + 1}`}
-                  className="aspect-[16/9] w-full object-cover"
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
                 />
               </div>
 
@@ -412,9 +417,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
               <label className="text-sm font-medium">CTA label</label>
               <Input
                 value={specialDeal.ctaLabel}
-                onChange={(event) =>
-                  updateDeal("ctaLabel", event.target.value)
-                }
+                onChange={(event) => updateDeal("ctaLabel", event.target.value)}
               />
             </div>
 
@@ -469,11 +472,13 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border bg-zinc-100">
-            <img
+          <div className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-zinc-100">
+            <Image
+              fill
               src={specialDeal.image || FALLBACK_DEAL_IMAGE}
               alt={specialDeal.subtitle || "Special deal preview"}
-              className="aspect-[4/3] w-full object-contain"
+              className="object-contain"
+              sizes="(min-width: 1024px) 288px, 100vw"
             />
           </div>
         </div>

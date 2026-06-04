@@ -36,6 +36,7 @@ export default function ProductGallery({
           src={activeImage}
           alt={`Image of ${productName} from PRIMEPC algeria.`}
           className="object-contain"
+          sizes="(min-width: 1024px) 52vw, 100vw"
         />
       </div>
 
@@ -62,6 +63,7 @@ export default function ProductGallery({
                     src={thumb}
                     alt={`Thumbnail ${index + 1} of ${productName}`}
                     className="object-contain"
+                    sizes="(min-width: 1024px) 120px, 25vw"
                   />
                 </button>
               </li>
