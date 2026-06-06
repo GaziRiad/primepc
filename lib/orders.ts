@@ -64,12 +64,16 @@ const normalizeItems = (items: OrderItemInput[]) =>
 const toSingle = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const buildAdminOrdersFilter = (query?: OrdersQuery) => {
   const statusRaw = toSingle(query?.status);
   const sortRaw = toSingle(query?.sort);
   const archivedRaw = toSingle(query?.archived);
   const fromRaw = toSingle(query?.from);
   const toRaw = toSingle(query?.to);
+  const searchRaw = toSingle(query?.q)?.trim().slice(0, 80);
 
   const filter: Record<string, unknown> = {};
 
@@ -104,6 +108,41 @@ const buildAdminOrdersFilter = (query?: OrdersQuery) => {
 
   if (createdAt.$gte || createdAt.$lte) {
     filter.createdAt = createdAt;
+  }
+
+  if (searchRaw) {
+    const escaped = escapeRegex(searchRaw);
+    const regex = new RegExp(escaped, "i");
+    const searchConditions: Record<string, unknown>[] = [
+      { "customer.firstName": regex },
+      { "customer.lastName": regex },
+      { "customer.phone": regex },
+      { "customer.email": regex },
+      { "customer.street": regex },
+      { "customer.apartment": regex },
+      { "customer.city": regex },
+      { "customer.commune": regex },
+      { "items.name": regex },
+      { notes: regex },
+    ];
+
+    if (Types.ObjectId.isValid(searchRaw)) {
+      searchConditions.unshift({ _id: new Types.ObjectId(searchRaw) });
+    }
+
+    if (/^[a-f0-9]{4,24}$/i.test(searchRaw)) {
+      searchConditions.push({
+        $expr: {
+          $regexMatch: {
+            input: { $toString: "$_id" },
+            options: "i",
+            regex: escaped,
+          },
+        },
+      });
+    }
+
+    filter.$or = searchConditions;
   }
 
   const sort =

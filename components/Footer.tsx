@@ -7,22 +7,18 @@ import LogoFooter from "./LogoFooter";
 const shopLinks = [
   { label: "All Products", href: "/products" },
   { label: "New Arrivals", href: "/products?sort=newest" },
-  { label: "Best Deals", href: "/products?sort=price-asc" },
   { label: "Wishlist", href: "/wishlist" },
 ];
 
 const companyLinks = [
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "My Account", href: "/my-account" },
-  { label: "Sign In", href: "/signin" },
 ];
 
 const supportLinks = [
+  { label: "Delivery & Returns", href: "/delivery-returns" },
+  { label: "Warranty", href: "/warranty" },
   { label: "Order Tracking", href: "/my-account/orders" },
-  { label: "Address Book", href: "/my-account/adress" },
-  { label: "Account Details", href: "/my-account/account-details" },
-  { label: "Favorites", href: "/wishlist" },
 ];
 
 type FooterLinkGroupProps = {
@@ -133,9 +129,7 @@ export default function Footer() {
 
             <FooterLinkGroup title="Shop" links={shopLinks} />
             <FooterLinkGroup title="Company" links={companyLinks} />
-            <div className="hidden md:block">
-              <FooterLinkGroup title="Support" links={supportLinks} />
-            </div>
+            <FooterLinkGroup title="Support" links={supportLinks} />
           </div>
 
           <div className="flex flex-col gap-5 border-t border-white/15 pt-6 sm:flex-row sm:items-center sm:justify-between">

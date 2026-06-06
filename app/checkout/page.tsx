@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
+import { trackProductAnalytics } from "@/lib/analyticsClient";
 import { formatDZD } from "@/lib/utils";
 import { ALGERIA_LOCATIONS } from "@/lib/locations";
 
@@ -123,6 +124,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const addressPrefilledRef = useRef(false);
+  const checkoutStartTrackedRef = useRef("");
 
   const errors = useMemo(() => validateForm(form), [form]);
 
@@ -198,6 +200,53 @@ export default function CheckoutPage() {
       controller.abort();
     };
   }, [session?.user?.id, session?.user?.email]);
+
+  useEffect(() => {
+    if (isLoading || !hasItems) return;
+
+    const analyticsItems = cartItems
+      .map((item) => {
+        const productId = String(item.product?._id ?? item.product?.id ?? "");
+        const quantity = Number(item.quantity ?? 0);
+        if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+          return null;
+        }
+
+        return {
+          product: {
+            coverImage: item.product.coverImage,
+            finalPrice: item.product.finalPrice,
+            name: item.product.name,
+            slug: item.product.slug,
+          },
+          productId,
+          quantity,
+          type: "checkout_start" as const,
+          value: item.product.finalPrice,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+    if (analyticsItems.length === 0) return;
+
+    const signature = analyticsItems
+      .map((item) => `${item.productId}:${item.quantity}`)
+      .sort()
+      .join("|");
+
+    if (checkoutStartTrackedRef.current === signature) return;
+
+    const key = `primepc:analytics:checkout-start:${signature}`;
+    try {
+      if (window.sessionStorage.getItem(key) === "1") return;
+      window.sessionStorage.setItem(key, "1");
+    } catch {
+      // Session storage can be unavailable in strict privacy modes.
+    }
+
+    checkoutStartTrackedRef.current = signature;
+    trackProductAnalytics(analyticsItems);
+  }, [cartItems, hasItems, isLoading]);
 
   const firstNameError = showError("firstName");
   const lastNameError = showError("lastName");

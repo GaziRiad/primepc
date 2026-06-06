@@ -253,6 +253,7 @@ export default function ProductCardClient({
               name,
               coverImage: activeImage,
               finalPrice,
+              slug,
               stock,
             }}
             large={large}

@@ -20,7 +20,7 @@ const Features: Feature[] = [
   {
     icon: <BadgeCheck size={32} className="stroke-primary" />,
     title: "100% Payment on delivery",
-    description: "For all orders 40,000DA or more",
+    description: "Check your product before paying",
   },
   {
     icon: <ShieldCheck size={32} className="stroke-primary" />,

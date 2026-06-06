@@ -24,6 +24,7 @@ const UserSchema = new Schema(
     role: { type: String, default: "user" },
     lastLoginAt: { type: Date, default: Date.now },
     shippingAddress: { type: shippingAddressSchema, default: undefined },
+    abandonedCartEmailsEnabled: { type: Boolean, default: true },
   },
   {
     timestamps: true,
@@ -37,8 +38,11 @@ const existingModel = models.User;
 if (existingModel) {
   const hasPasswordHash = existingModel.schema.path("passwordHash");
   const hasShippingAddress = existingModel.schema.path("shippingAddress");
+  const hasAbandonedCartEmails = existingModel.schema.path(
+    "abandonedCartEmailsEnabled",
+  );
 
-  if (!hasPasswordHash || !hasShippingAddress) {
+  if (!hasPasswordHash || !hasShippingAddress || !hasAbandonedCartEmails) {
     delete models.User;
   }
 }

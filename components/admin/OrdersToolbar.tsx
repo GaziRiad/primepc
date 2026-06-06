@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Download } from "lucide-react";
+import { Download, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +47,7 @@ type OrdersToolbarProps = {
   initialStatus?: string;
   initialArchived?: string;
   initialFrom?: string;
+  initialSearch?: string;
   initialTo?: string;
   initialSort?: string;
 };
@@ -55,6 +56,7 @@ export default function OrdersToolbar({
   initialStatus = "all",
   initialArchived = "active",
   initialFrom = "",
+  initialSearch = "",
   initialTo = "",
   initialSort = "newest",
 }: OrdersToolbarProps) {
@@ -64,6 +66,7 @@ export default function OrdersToolbar({
   const [status, setStatus] = useState(initialStatus || "all");
   const [archived, setArchived] = useState(initialArchived || "active");
   const [fromDate, setFromDate] = useState(initialFrom || "");
+  const [search, setSearch] = useState(initialSearch || "");
   const [toDate, setToDate] = useState(initialTo || "");
   const [sort, setSort] = useState(initialSort || "newest");
 
@@ -78,6 +81,7 @@ export default function OrdersToolbar({
     status?: string;
     archived?: string;
     from?: string;
+    q?: string;
     to?: string;
     sort?: string;
   }) => {
@@ -85,9 +89,11 @@ export default function OrdersToolbar({
     const nextStatus = next?.status ?? status;
     const nextArchived = next?.archived ?? archived;
     const nextFrom = next?.from ?? fromDate;
+    const nextSearch = next?.q ?? search;
     const nextTo = next?.to ?? toDate;
     const nextSort = next?.sort ?? sort;
 
+    if (nextSearch.trim()) params.set("q", nextSearch.trim());
     if (nextStatus && nextStatus !== "all") params.set("status", nextStatus);
     if (nextArchived && nextArchived !== "active") {
       params.set("archived", nextArchived);
@@ -109,6 +115,7 @@ export default function OrdersToolbar({
     setStatus("all");
     setArchived("active");
     setFromDate("");
+    setSearch("");
     setToDate("");
     setSort("newest");
     router.replace(pathname, { scroll: false });
@@ -127,6 +134,7 @@ export default function OrdersToolbar({
   };
 
   const exportParams = new URLSearchParams();
+  if (search.trim()) exportParams.set("q", search.trim());
   if (status && status !== "all") exportParams.set("status", status);
   if (archived && archived !== "active") {
     exportParams.set("archived", archived);
@@ -143,6 +151,21 @@ export default function OrdersToolbar({
       className="flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-xs lg:flex-row lg:flex-wrap lg:items-end lg:justify-between"
     >
       <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-1">
+        <div className="space-y-2">
+          <label className="text-muted-foreground text-xs font-semibold uppercase">
+            Search orders
+          </label>
+          <div className="relative">
+            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Order id, customer, phone, email, address, product..."
+              className="pl-9"
+            />
+          </div>
+        </div>
+
         <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-[200px_200px_220px_220px_200px]">
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">

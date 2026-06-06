@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import { trackProductAnalytics } from "@/lib/analyticsClient";
 
 const OPEN_CART_EVENT = "primepc:open-cart";
 
@@ -14,6 +15,7 @@ type AddToCartButtonProps = {
     name: string;
     coverImage: string;
     finalPrice: number;
+    slug?: string;
     stock?: number;
   };
   large?: boolean;
@@ -59,6 +61,18 @@ export default function AddToCartButton({
           });
 
           if (added) {
+            trackProductAnalytics({
+              product: {
+                coverImage: product.coverImage,
+                finalPrice: product.finalPrice,
+                name: product.name,
+                slug: product.slug,
+              },
+              productId,
+              quantity: 1,
+              type: "add_to_cart",
+              value: product.finalPrice,
+            });
             window.dispatchEvent(new Event(OPEN_CART_EVENT));
           }
         });

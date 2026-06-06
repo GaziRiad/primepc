@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 
 import { auth } from "@/lib/auth";
+import { syncAbandonedCartReminder } from "@/lib/cartRecovery";
 import { revalidateProductCache } from "@/lib/cache";
 import startDbConnection from "@/lib/db";
 import Cart from "@/models/Cart";
@@ -191,6 +192,13 @@ export async function DELETE(
 
   await startDbConnection();
 
+  const affectedCarts = await Cart.find({
+    user: { $exists: true },
+    "items.product": id,
+  })
+    .select("user")
+    .lean();
+
   const deleted = await Product.findByIdAndDelete(id).lean();
   if (!deleted) {
     return NextResponse.json(
@@ -201,11 +209,15 @@ export async function DELETE(
 
   await Promise.all([
     Favorite.deleteMany({ product: id }),
-    Cart.updateMany(
-      { "items.product": id },
-      { $pull: { items: { product: id } } },
-    ),
+    Cart.updateMany({ "items.product": id }, { $pull: { items: { product: id } } }),
   ]);
+
+  await Promise.allSettled(
+    affectedCarts
+      .map((cart) => String(cart.user ?? ""))
+      .filter(Boolean)
+      .map((userId) => syncAbandonedCartReminder(userId)),
+  );
 
   revalidateProductCache([
     typeof deleted.slug === "string" ? deleted.slug : undefined,

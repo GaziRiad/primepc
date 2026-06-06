@@ -11,10 +11,11 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { Separator } from "@/components/ui/separator";
 import AddToCartButton from "@/components/AddToCartButton";
 import FavoriteButton from "@/components/(user)/FavoriteButton";
 import ProductGallery from "@/components/ProductGallery";
+import ProductInfoTabs from "@/components/ProductInfoTabs";
+import ProductViewTracker from "@/components/ProductViewTracker";
 import { formatDZD } from "@/lib/utils";
 import { getProduct } from "@/lib/services";
 
@@ -112,6 +113,15 @@ export default async function page({
 
   return (
     <div className="bg-accent-50 py-12">
+      <ProductViewTracker
+        product={{
+          coverImage: product.coverImage,
+          finalPrice: product.finalPrice,
+          name: product.name,
+          slug: product.slug,
+        }}
+        productId={productId}
+      />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Breadcrumbs
           className="mb-6"
@@ -235,6 +245,7 @@ export default async function page({
                       name: product.name,
                       coverImage: product.coverImage,
                       finalPrice: product.finalPrice,
+                      slug: product.slug,
                       stock: product.stock,
                     }}
                     className="h-12 w-full text-base font-semibold"
@@ -291,99 +302,13 @@ export default async function page({
           </aside>
         </div>
 
-        <div className="mt-14 rounded-2xl border bg-white shadow-xs">
-          <div className="flex flex-wrap gap-2 border-b px-4 py-3 text-sm sm:px-6 sm:text-base">
-            <Link
-              href="#description"
-              className="bg-primary/10 text-primary rounded-full px-4 py-2 font-semibold transition"
-            >
-              Description
-            </Link>
-            <Link
-              href="#additional"
-              className="text-accent-400 hover:text-primary rounded-full px-4 py-2 font-semibold transition"
-            >
-              Additional Information
-            </Link>
-            <Link
-              href="#reviews"
-              className="text-accent-400 hover:text-primary rounded-full px-4 py-2 font-semibold transition"
-            >
-              Reviews
-            </Link>
-          </div>
-
-          <div className="space-y-10 px-5 py-6 sm:px-8 sm:py-8">
-            <section id="description" className="scroll-mt-24">
-              <h2 className="text-foreground text-xl font-semibold">
-                Description
-              </h2>
-              <p className="text-accent-500 mt-4 max-w-4xl text-base leading-7">
-                {productSummary}
-              </p>
-            </section>
-
-            <Separator />
-
-            <section id="additional" className="scroll-mt-24">
-              <h2 className="text-foreground text-xl font-semibold">
-                Additional Information
-              </h2>
-              <dl className="mt-5 grid gap-4 text-base">
-                <div className="flex flex-col gap-1 border-b border-slate-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
-                  <dt className="text-accent-400">Brand</dt>
-                  <dd className="text-foreground font-medium">
-                    {displayBrand}
-                  </dd>
-                </div>
-                <div className="flex flex-col gap-1 border-b border-slate-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
-                  <dt className="text-accent-400">Stock</dt>
-                  <dd className="text-foreground font-medium">
-                    {additionalStockLabel}
-                  </dd>
-                </div>
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <dt className="text-accent-400">Categories</dt>
-                  <dd className="text-foreground font-medium sm:text-right">
-                    {categoryNames.length > 0
-                      ? categoryNames.join(", ")
-                      : "Uncategorized"}
-                  </dd>
-                </div>
-              </dl>
-
-              {specs.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-accent-400 text-sm font-semibold tracking-wide uppercase">
-                    Specifications
-                  </h3>
-                  <dl className="mt-4 grid gap-4 text-base">
-                    {specs.map(([label, value]) => (
-                      <div
-                        key={label}
-                        className="flex flex-col gap-1 border-b border-slate-100 pb-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <dt className="text-accent-400 capitalize">
-                          {label.replace(/_/g, " ")}
-                        </dt>
-                        <dd className="text-foreground font-medium">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-            </section>
-
-            <Separator />
-
-            <section id="reviews" className="scroll-mt-24">
-              <h2 className="text-foreground text-xl font-semibold">Reviews</h2>
-              <p className="text-accent-500 mt-4 text-base leading-7">
-                No reviews yet. Be the first to share your experience.
-              </p>
-            </section>
-          </div>
-        </div>
+        <ProductInfoTabs
+          brand={displayBrand}
+          categories={categoryNames}
+          description={productSummary}
+          specs={specs}
+          stockLabel={additionalStockLabel}
+        />
       </div>
     </div>
   );

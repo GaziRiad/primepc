@@ -5,6 +5,10 @@ import { auth } from "./auth";
 import startDbConnection from "./db";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
+import {
+  cancelAbandonedCartReminder,
+  syncAbandonedCartReminder,
+} from "@/lib/cartRecovery";
 
 // used for POST / PUT / DELETE
 // FAVORITES SERVICES
@@ -84,7 +88,10 @@ export const addToCartAction = async (productId: string) => {
     { returnDocument: "after", runValidators: true },
   );
 
-  if (updated) return { ok: true as const };
+  if (updated) {
+    await syncAbandonedCartReminder(userId).catch(() => null);
+    return { ok: true as const };
+  }
 
   // 2) Else append a new item
   await Cart.findOneAndUpdate(
@@ -96,6 +103,7 @@ export const addToCartAction = async (productId: string) => {
     { upsert: true, returnDocument: "after", runValidators: true },
   );
 
+  await syncAbandonedCartReminder(userId).catch(() => null);
   return { ok: true as const };
 };
 
@@ -116,7 +124,10 @@ export const decrementFromCartAction = async (productId: string) => {
     { returnDocument: "after", runValidators: true },
   );
 
-  if (decremented) return { ok: true as const };
+  if (decremented) {
+    await syncAbandonedCartReminder(userId).catch(() => null);
+    return { ok: true as const };
+  }
 
   await Cart.findOneAndUpdate(
     { user: userId },
@@ -124,6 +135,7 @@ export const decrementFromCartAction = async (productId: string) => {
     { returnDocument: "after", runValidators: true },
   );
 
+  await syncAbandonedCartReminder(userId).catch(() => null);
   return { ok: true as const };
 };
 
@@ -154,6 +166,7 @@ export const removeFromCartAction = async (productId: string) => {
     { returnDocument: "after", runValidators: true },
   );
 
+  await syncAbandonedCartReminder(userId).catch(() => null);
   return { ok: true as const };
 };
 
@@ -202,7 +215,9 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
     if (currentQty > 0) {
       await Cart.findOneAndUpdate(
         { user: userId, "items.product": productId },
-        { $inc: { "items.$.quantity": quantityToAdd } },
+        {
+          $inc: { "items.$.quantity": quantityToAdd },
+        },
         { returnDocument: "after", runValidators: true },
       );
       continue;
@@ -218,6 +233,7 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
     );
   }
 
+  await syncAbandonedCartReminder(userId).catch(() => null);
   return { ok: true as const, merged: true as const };
 };
 
@@ -228,6 +244,7 @@ export const clearCartAction = async () => {
 
   if (!session?.user) return { ok: false as const };
 
+  await cancelAbandonedCartReminder(session.user.id).catch(() => null);
   await Cart.findOneAndUpdate(
     { user: session.user.id },
     { $set: { items: [] } },

@@ -11,6 +11,7 @@ import Favorite from "@/models/Favorite";
 import Cart from "@/models/Cart";
 import { auth } from "./auth";
 import { CACHE_TAGS, PUBLIC_PAGE_REVALIDATE_SECONDS } from "@/lib/cache";
+import { syncAbandonedCartReminder } from "@/lib/cartRecovery";
 
 type QueryParams = { [key: string]: string | string[] | undefined };
 
@@ -471,6 +472,7 @@ export const getCartItems = async () => {
         { user: session.user.id },
         { $pull: { items: { product: { $in: missingIds } } } },
       );
+      await syncAbandonedCartReminder(session.user.id).catch(() => null);
     }
 
     const itemsCount = items.reduce(

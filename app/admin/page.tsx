@@ -4,6 +4,7 @@ import startDbConnection from "@/lib/db";
 import Product from "@/models/Product";
 import Order from "@/models/Order";
 import AdminOverviewCharts from "@/components/admin/AdminOverviewCharts";
+import AdminProductAnalytics from "@/components/admin/AdminProductAnalytics";
 import AdminStatCard from "@/components/admin/AdminStatCard";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDZD } from "@/lib/utils";
+import { getProductAnalyticsSummary } from "@/lib/productAnalytics";
 
 const STATUS_STYLES: Record<string, string> = {
   pending_confirmation: "bg-amber-100 text-amber-700",
@@ -56,6 +58,7 @@ export default async function page() {
     deliveredOrders,
     revenueAgg,
     orderTrendAgg,
+    productAnalytics,
     statusAgg,
     recentOrders,
   ] = await Promise.all([
@@ -96,6 +99,7 @@ export default async function page() {
       },
       { $sort: { _id: 1 } },
     ]),
+    getProductAnalyticsSummary(30, 5),
     Order.aggregate([{ $group: { _id: "$status", value: { $sum: 1 } } }]),
     Order.find()
       .sort({ createdAt: -1 })
@@ -209,6 +213,8 @@ export default async function page() {
         statuses={orderStatuses}
         trend={orderTrend}
       />
+
+      <AdminProductAnalytics summary={productAnalytics} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="rounded-2xl border bg-white shadow-xs">

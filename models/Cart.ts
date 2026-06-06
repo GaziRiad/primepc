@@ -22,6 +22,9 @@ const cartSchema = new mongoose.Schema(
       type: String,
     },
     items: [cartItemSchema],
+    recoveryEmailId: { type: String, default: "" },
+    recoveryScheduledAt: { type: Date },
+    recoveryReminderCompleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
@@ -53,6 +56,12 @@ cartSchema.index(
 cartSchema.virtual("itemsCount").get(function () {
   return this.items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
 });
+
+const existingModel = mongoose.models.Cart;
+
+if (existingModel && !existingModel.schema.path("recoveryEmailId")) {
+  delete mongoose.models.Cart;
+}
 
 const Cart = mongoose.models.Cart || mongoose.model("Cart", cartSchema);
 

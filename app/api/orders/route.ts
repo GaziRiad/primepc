@@ -14,6 +14,8 @@ import {
   sendAdminOrderNotification,
   sendCustomerOrderConfirmation,
 } from "@/lib/notifications";
+import { recordProductAnalyticsEvents } from "@/lib/productAnalytics";
+import { cancelAbandonedCartReminder } from "@/lib/cartRecovery";
 import Cart from "@/models/Cart";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
@@ -219,6 +221,7 @@ export async function POST(request: Request) {
     }
 
     if (session?.user?.id) {
+      await cancelAbandonedCartReminder(session.user.id).catch(() => null);
       await Cart.findOneAndUpdate(
         { user: session.user.id },
         { $set: { items: [] } },
@@ -254,6 +257,19 @@ export async function POST(request: Request) {
     };
 
     await Promise.allSettled([
+      recordProductAnalyticsEvents(
+        build.items.map((item) => ({
+          product: {
+            coverImage: item.coverImage,
+            finalPrice: item.finalPrice,
+            name: item.name,
+          },
+          productId: String(item.product),
+          quantity: item.quantity,
+          type: "order",
+          value: item.finalPrice,
+        })),
+      ),
       sendAdminOrderNotification(emailPayload),
       sendCustomerOrderConfirmation(emailPayload),
     ]);

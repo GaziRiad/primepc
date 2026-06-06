@@ -37,6 +37,9 @@ type EmailPayload = {
   subject: string;
   text: string;
   html?: string;
+  replyTo?: string | string[];
+  headers?: Record<string, string>;
+  scheduledAt?: string;
 };
 
 type ContactMessagePayload = {
@@ -48,24 +51,48 @@ type ContactMessagePayload = {
   message: string;
 };
 
+type AbandonedCartReminderPayload = {
+  email: string;
+  name?: string;
+  items: OrderEmailItem[];
+  subtotal: number;
+  cartUrl: string;
+  unsubscribeUrl?: string;
+  scheduledAt: string;
+};
+
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 const RESEND_FROM = process.env.RESEND_FROM || "";
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS || "";
 const APP_NAME = process.env.APP_NAME || "PRIMEPC";
-const APP_URL = process.env.APP_URL || "";
+const APP_URL =
+  process.env.APP_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXTAUTH_URL ||
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+  process.env.VERCEL_URL ||
+  "";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "";
 const SUPPORT_PHONE = process.env.SUPPORT_PHONE || "";
 const CONTACT_EMAIL_FALLBACK = "riadhallouch447@gmail.com";
 
 const BRAND_PRIMARY = "#1847B7";
 const BRAND_DARK = "#1F2937";
+const BRAND_HEADER = "#07111F";
 const BRAND_MUTED = "#6B7280";
 const BORDER_COLOR = "#E5E7EB";
 const BG_SOFT = "#F6F7F9";
 
-const SITE_URL = APP_URL ? APP_URL.replace(/\/$/, "") : "";
-const LOGO_URL = SITE_URL ? `${SITE_URL}/logo-icon.png` : "";
+const SITE_URL = APP_URL
+  ? `${APP_URL.startsWith("http") ? "" : "https://"}${APP_URL}`.replace(
+      /\/$/,
+      "",
+    )
+  : "";
+const LOGO_ICON_URL = SITE_URL ? `${SITE_URL}/logo-icon.png` : "";
+const LOGO_TEXT_URL = SITE_URL ? `${SITE_URL}/logo-text.png` : "";
 const PRODUCTS_URL = SITE_URL ? `${SITE_URL}/products` : "";
+const CART_URL = SITE_URL ? `${SITE_URL}/cart` : "";
 
 const SOCIALS = SOCIAL_LINKS.filter((link) => link.href);
 
@@ -123,22 +150,20 @@ const parseRecipients = (value: string | string[]) => {
   return list.map((entry) => entry.trim()).filter(Boolean);
 };
 
-const getContactRecipients = () => {
-  const recipients = new Set<string>();
-
-  parseRecipients(SUPPORT_EMAIL).forEach((email) => recipients.add(email));
-  parseRecipients(ADMIN_EMAILS).forEach((email) => recipients.add(email));
-  if (CONTACT_EMAIL_FALLBACK) {
-    recipients.add(CONTACT_EMAIL_FALLBACK);
-  }
-
-  return Array.from(recipients).filter(Boolean);
-};
+const getContactRecipients = () => [CONTACT_EMAIL_FALLBACK];
 
 const isResendConfigured = () =>
   Boolean(process.env.RESEND_API_KEY && RESEND_FROM);
 
-const sendEmail = async ({ to, subject, text, html }: EmailPayload) => {
+const sendEmail = async ({
+  to,
+  subject,
+  text,
+  html,
+  replyTo,
+  headers,
+  scheduledAt,
+}: EmailPayload) => {
   if (!isResendConfigured())
     return { ok: false as const, skipped: true as const };
 
@@ -146,16 +171,41 @@ const sendEmail = async ({ to, subject, text, html }: EmailPayload) => {
   if (!recipients.length) return { ok: false as const, skipped: true as const };
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: RESEND_FROM,
       to: recipients,
       subject,
       text,
       html,
+      replyTo,
+      headers,
+      scheduledAt,
     });
-    return { ok: true as const };
-  } catch {
+
+    if (result.error || !result.data?.id) {
+      console.error("Resend email request failed:", result.error);
+      return { ok: false as const };
+    }
+
+    return { ok: true as const, id: result.data.id };
+  } catch (error) {
+    console.error("Resend email request threw:", error);
     return { ok: false as const };
+  }
+};
+
+export const cancelScheduledEmail = async (emailId: string) => {
+  if (!isResendConfigured() || !emailId) return false;
+
+  try {
+    const result = await resend.emails.cancel(emailId);
+    if (result.error) {
+      console.error("Resend scheduled email cancellation failed:", result.error);
+    }
+    return !result.error;
+  } catch (error) {
+    console.error("Resend scheduled email cancellation threw:", error);
+    return false;
   }
 };
 
@@ -173,12 +223,35 @@ const sendTelegram = async (text: string) => {
 };
 
 const buildLogoHtml = () => {
-  if (!LOGO_URL) {
-    return `<div style="font-size:18px;font-weight:700;color:${BRAND_PRIMARY};">${escapeHtml(APP_NAME)}</div>`;
+  if (!LOGO_ICON_URL && !LOGO_TEXT_URL) {
+    return `<div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">${escapeHtml(APP_NAME)}</div>`;
   }
 
   return `
-    <img src="${LOGO_URL}" alt="${escapeHtml(APP_NAME)}" height="36" style="display:block;border:0;outline:none;" />
+    <table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
+      <tr>
+        ${
+          LOGO_ICON_URL
+            ? `<td style="vertical-align:middle;">
+                <img src="${escapeHtml(LOGO_ICON_URL)}" alt="${escapeHtml(
+                  APP_NAME,
+                )}" width="52" height="52" style="display:block;width:52px;height:auto;border:0;outline:none;" />
+              </td>`
+            : ""
+        }
+        <td style="vertical-align:middle;padding-left:${LOGO_ICON_URL ? "12px" : "0"};">
+          ${
+            LOGO_TEXT_URL
+              ? `<img src="${escapeHtml(LOGO_TEXT_URL)}" alt="${escapeHtml(
+                  APP_NAME,
+                )}" width="184" style="display:block;width:184px;max-width:184px;height:auto;border:0;outline:none;" />`
+              : `<div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">${escapeHtml(
+                  APP_NAME,
+                )}</div>`
+          }
+        </td>
+      </tr>
+    </table>
   `;
 };
 
@@ -223,12 +296,12 @@ const buildEmailShell = (content: string, preheader: string) => `
         <td align="center">
           <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;width:100%;background:#fff;border:1px solid ${BORDER_COLOR};border-radius:16px;overflow:hidden;">
             <tr>
-              <td style="padding:24px 28px 8px 28px;">
+              <td style="padding:22px 28px;background:${BRAND_HEADER};">
                 ${buildLogoHtml()}
               </td>
             </tr>
             <tr>
-              <td style="padding:0 28px 24px 28px;">
+              <td style="padding:24px 28px 24px 28px;">
                 ${content}
               </td>
             </tr>
@@ -471,6 +544,78 @@ const buildCustomerHtml = (payload: OrderEmailPayload) => {
   );
 };
 
+const ABANDONED_CART_COPY = {
+  eyebrow: "Votre sélection vous attend",
+  heading: "Votre panier est toujours disponible",
+  intro:
+    "Votre sélection PRIMEPC vous attend depuis 24 heures. Les stocks et les prix peuvent évoluer rapidement, alors finalisez votre commande pendant que vos produits sont encore disponibles.",
+  subject: `Votre panier ${APP_NAME} vous attend toujours`,
+  preheader: "Revenez sur votre sélection avant que les stocks ne changent.",
+  button: "Finaliser ma commande",
+};
+
+const buildAbandonedCartText = (payload: AbandonedCartReminderPayload) => {
+  const copy = ABANDONED_CART_COPY;
+  const firstName = payload.name?.trim().split(" ")[0] || "";
+
+  return [
+    firstName ? `Bonjour ${firstName},` : "Bonjour,",
+    "",
+    copy.heading,
+    copy.intro,
+    "",
+    "Votre sélection :",
+    formatItemLines(payload.items),
+    "",
+    `Sous-total actuel : ${formatDZD(payload.subtotal)}`,
+    "Paiement à la livraison disponible.",
+    "",
+    `Reprendre votre commande : ${payload.cartUrl || CART_URL}`,
+    payload.unsubscribeUrl
+      ? `Ne plus recevoir ces rappels : ${payload.unsubscribeUrl}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+};
+
+const buildAbandonedCartHtml = (payload: AbandonedCartReminderPayload) => {
+  const copy = ABANDONED_CART_COPY;
+  const firstName = payload.name?.trim().split(" ")[0] || "";
+  const greeting = firstName ? `Bonjour ${firstName},` : "Bonjour,";
+  const cartUrl = payload.cartUrl || CART_URL;
+  const unsubscribe = payload.unsubscribeUrl
+    ? `<p style="margin:18px 0 0;text-align:center;font-size:11px;color:${BRAND_MUTED};">
+        Vous ne souhaitez plus recevoir ces rappels ?
+        <a href="${escapeHtml(payload.unsubscribeUrl)}" style="color:${BRAND_MUTED};">Se désinscrire</a>
+      </p>`
+    : "";
+
+  const content = `
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${BRAND_PRIMARY};">${escapeHtml(copy.eyebrow)}</div>
+    <h1 style="margin:8px 0 12px;font-size:28px;line-height:1.2;color:${BRAND_DARK};">${escapeHtml(copy.heading)}</h1>
+    <p style="margin:0 0 10px;color:${BRAND_DARK};">${escapeHtml(greeting)}</p>
+    <p style="margin:0 0 16px;line-height:1.6;color:${BRAND_DARK};">${escapeHtml(copy.intro)}</p>
+    <div style="margin:16px 0;padding:14px;border-left:4px solid ${BRAND_PRIMARY};border-radius:10px;background:#F0F4FF;color:${BRAND_DARK};">
+      <strong>Paiement à la livraison :</strong> commandez maintenant et payez seulement à la réception.
+    </div>
+    <div style="margin-top:18px;font-size:16px;font-weight:700;color:${BRAND_DARK};">Votre panier</div>
+    ${buildOrderTable(payload.items)}
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:12px;border-collapse:collapse;">
+      <tr>
+        <td style="padding:8px 0;font-weight:700;color:${BRAND_DARK};">Sous-total actuel</td>
+        <td style="padding:8px 0;text-align:right;font-weight:700;color:${BRAND_DARK};">${escapeHtml(formatDZD(payload.subtotal))}</td>
+      </tr>
+    </table>
+    <div style="text-align:center;">
+      ${buildButton(copy.button, cartUrl)}
+    </div>
+    ${unsubscribe}
+  `;
+
+  return buildEmailShell(content, copy.preheader);
+};
+
 const buildContactText = (payload: ContactMessagePayload) => {
   const name = `${payload.firstName} ${payload.lastName}`.trim();
   return [
@@ -589,6 +734,32 @@ export const sendWelcomeEmail = async (payload: {
   await sendEmail({ to: email, subject, text, html });
 };
 
+export const scheduleAbandonedCartReminder = async (
+  payload: AbandonedCartReminderPayload,
+) => {
+  const email = payload.email?.trim();
+  if (!email) return { ok: false as const, skipped: true as const };
+
+  const copy = ABANDONED_CART_COPY;
+  const text = buildAbandonedCartText(payload);
+  const html = buildAbandonedCartHtml(payload);
+  const headers = payload.unsubscribeUrl
+    ? {
+        "List-Unsubscribe": `<${payload.unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      }
+    : undefined;
+
+  return sendEmail({
+    to: email,
+    subject: copy.subject,
+    text,
+    html,
+    headers,
+    scheduledAt: payload.scheduledAt,
+  });
+};
+
 export const sendContactMessage = async (payload: ContactMessagePayload) => {
   const recipients = getContactRecipients();
 
@@ -601,5 +772,11 @@ export const sendContactMessage = async (payload: ContactMessagePayload) => {
   const text = buildContactText(payload);
   const html = buildContactHtml(payload);
 
-  return sendEmail({ to: recipients, subject, text, html });
+  return sendEmail({
+    to: recipients,
+    subject,
+    text,
+    html,
+    replyTo: payload.email,
+  });
 };

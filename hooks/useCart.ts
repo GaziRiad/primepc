@@ -19,6 +19,7 @@ type TCartProduct = {
   name?: string;
   coverImage?: string;
   finalPrice?: number;
+  slug?: string;
   stock?: number;
 };
 
@@ -37,6 +38,7 @@ type TCartProductSnapshot = {
   name?: string;
   coverImage?: string;
   finalPrice?: number;
+  slug?: string;
   stock?: number;
 };
 
@@ -80,6 +82,7 @@ const normalizeCart = (value: unknown): TCart => {
           name?: unknown;
           coverImage?: unknown;
           finalPrice?: unknown;
+          slug?: unknown;
           stock?: unknown;
         };
         quantity?: unknown;
@@ -104,6 +107,10 @@ const normalizeCart = (value: unknown): TCart => {
           finalPrice:
             typeof item.product?.finalPrice === "number"
               ? item.product.finalPrice
+              : undefined,
+          slug:
+            typeof item.product?.slug === "string"
+              ? item.product.slug
               : undefined,
           stock:
             typeof item.product?.stock === "number"
@@ -247,6 +254,7 @@ export function useCart() {
     if (typeof product?.finalPrice === "number") {
       nextProduct.finalPrice = product.finalPrice;
     }
+    if (typeof product?.slug === "string") nextProduct.slug = product.slug;
     if (typeof product?.stock === "number") nextProduct.stock = product.stock;
 
     const items =

@@ -96,6 +96,7 @@ export default function WishlistPage() {
                           name: item.product.name,
                           coverImage: item.product.coverImage,
                           finalPrice: item.product.finalPrice,
+                          slug: item.product.slug,
                           stock: item.product.stock,
                         }}
                       />
