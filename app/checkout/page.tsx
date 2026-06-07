@@ -274,6 +274,7 @@ export default function CheckoutPage() {
       const items = cartItems.map((item) => ({
         productId: String(item.product?._id ?? item.product?.id ?? ""),
         quantity: Number(item.quantity ?? 0),
+        variantId: String(item.variantId ?? ""),
       }));
 
       const response = await fetch("/api/orders", {
@@ -286,10 +287,15 @@ export default function CheckoutPage() {
         ok?: boolean;
         orderId?: string;
         error?: string;
+        message?: string;
       };
 
       if (!response.ok || !result?.ok || !result.orderId) {
-        toast.error("Unable to place order. Please try again.");
+        toast.error(
+          result?.error === "rate_limited" && result.message
+            ? result.message
+            : "Unable to place order. Please try again.",
+        );
         return;
       }
 
@@ -635,6 +641,11 @@ export default function CheckoutPage() {
                               <p className="text-muted-foreground text-xs">
                                 x{item.quantity}
                               </p>
+                              {item.variantLabel && (
+                                <p className="text-muted-foreground text-xs">
+                                  {item.variantLabel}
+                                </p>
+                              )}
                             </div>
                             <span className="font-semibold">
                               {formatDZD(total)}

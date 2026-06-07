@@ -11,14 +11,22 @@ const REMINDER_DELAY_MS = 24 * 60 * 60 * 1000;
 
 type PopulatedCartItem = {
   quantity?: number;
-  product?:
-    | {
-        name?: string;
-        coverImage?: string;
-        finalPrice?: number;
-        stock?: number;
-      }
-    | null;
+  variantId?: string;
+  product?: {
+    name?: string;
+    coverImage?: string;
+    finalPrice?: number;
+    stock?: number;
+    variants?: Array<{
+      _id?: unknown;
+      label?: string;
+      finalPrice?: number;
+      stock?: number;
+      active?: boolean;
+      image?: string;
+      options?: Array<{ name?: string; value?: string }>;
+    }>;
+  } | null;
 };
 
 const getSiteUrl = () => {
@@ -64,8 +72,7 @@ export const cancelAbandonedCartReminder = async (
   const scheduledAt = cart?.recoveryScheduledAt
     ? new Date(cart.recoveryScheduledAt)
     : null;
-  const reminderAlreadyDue =
-    scheduledAt && scheduledAt.getTime() <= Date.now();
+  const reminderAlreadyDue = scheduledAt && scheduledAt.getTime() <= Date.now();
 
   if (cart?.recoveryEmailId && !reminderAlreadyDue) {
     await cancelScheduledEmail(cart.recoveryEmailId);
@@ -85,7 +92,7 @@ export const syncAbandonedCartReminder = async (userId: string) => {
       .select(
         "items recoveryEmailId recoveryScheduledAt recoveryReminderCompleted updatedAt",
       )
-      .populate("items.product", "name coverImage finalPrice stock")
+      .populate("items.product", "name coverImage finalPrice stock variants")
       .lean(),
     User.findById(userId)
       .select("email name abandonedCartEmailsEnabled")
@@ -97,8 +104,7 @@ export const syncAbandonedCartReminder = async (userId: string) => {
   const scheduledAt = cart.recoveryScheduledAt
     ? new Date(cart.recoveryScheduledAt)
     : null;
-  const reminderAlreadyDue =
-    scheduledAt && scheduledAt.getTime() <= Date.now();
+  const reminderAlreadyDue = scheduledAt && scheduledAt.getTime() <= Date.now();
 
   if (reminderAlreadyDue) {
     await clearRecoveryState(userId, true);
@@ -113,7 +119,9 @@ export const syncAbandonedCartReminder = async (userId: string) => {
     cancelledPreviousReminder = true;
   }
 
-  const rawItems = (Array.isArray(cart.items) ? cart.items : []) as PopulatedCartItem[];
+  const rawItems = (
+    Array.isArray(cart.items) ? cart.items : []
+  ) as PopulatedCartItem[];
   if (
     rawItems.length === 0 ||
     cart.recoveryReminderCompleted ||
@@ -138,8 +146,20 @@ export const syncAbandonedCartReminder = async (userId: string) => {
     .map((item) => {
       const product = item.product;
       const quantity = Math.max(1, Math.floor(Number(item.quantity ?? 1)));
-      const finalPrice = Number(product?.finalPrice ?? 0);
-      const stock = Number(product?.stock ?? 0);
+      const variants = Array.isArray(product?.variants) ? product.variants : [];
+      const variant = item.variantId
+        ? variants.find(
+            (candidate) =>
+              String(candidate._id ?? "") === item.variantId &&
+              candidate.active !== false,
+          )
+        : undefined;
+      if (variants.length > 0 && !variant) return null;
+
+      const finalPrice = Number(
+        variant?.finalPrice ?? product?.finalPrice ?? 0,
+      );
+      const stock = Number(variant?.stock ?? product?.stock ?? 0);
 
       if (
         !product?.name ||
@@ -153,10 +173,17 @@ export const syncAbandonedCartReminder = async (userId: string) => {
 
       return {
         name: product.name,
-        coverImage: product.coverImage,
+        coverImage: variant?.image || product.coverImage,
         quantity,
         unitPrice: finalPrice,
         finalPrice,
+        variantLabel: variant?.label,
+        variantOptions: Array.isArray(variant?.options)
+          ? variant.options.map((option) => ({
+              name: String(option.name ?? ""),
+              value: String(option.value ?? ""),
+            }))
+          : [],
       };
     })
     .filter((item): item is NonNullable<typeof item> => Boolean(item));

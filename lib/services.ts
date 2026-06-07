@@ -431,7 +431,11 @@ export const getCartItems = async () => {
     }
 
     const rawItems = Array.isArray(cartDoc.items)
-      ? (cartDoc.items as Array<{ product?: unknown; quantity?: unknown }>)
+      ? (cartDoc.items as Array<{
+          product?: unknown;
+          quantity?: unknown;
+          variantId?: unknown;
+        }>)
       : [];
     const productIds = rawItems
       .map((item) => String(item.product ?? ""))
@@ -443,13 +447,18 @@ export const getCartItems = async () => {
 
     const uniqueIds = Array.from(new Set(productIds));
     const products = await Product.find({ _id: { $in: uniqueIds } })
-      .select("name price discount finalPrice coverImage slug stock")
+      .select("name price discount finalPrice coverImage slug stock variants")
       .lean();
 
     const productMap = new Map(
       products.map((product) => [String(product._id), product]),
     );
 
+    const validStoredItems: Array<{
+      product: string;
+      quantity: number;
+      variantId: string;
+    }> = [];
     const items = rawItems
       .map((item) => {
         const productId = String(item.product ?? "");
@@ -459,18 +468,48 @@ export const getCartItems = async () => {
         const quantity = Math.floor(Number(item.quantity ?? 1));
         if (!Number.isFinite(quantity) || quantity <= 0) return null;
 
-        return { product, quantity };
-      })
-      .filter(
-        (item): item is { product: (typeof products)[0]; quantity: number } =>
-          Boolean(item),
-      );
+        const variantId = String(item.variantId ?? "");
+        const variants = Array.isArray(product.variants)
+          ? product.variants
+          : [];
+        const variant = variantId
+          ? variants.find(
+              (candidate: { _id?: unknown; active?: boolean }) =>
+                String(candidate._id ?? "") === variantId &&
+                candidate.active !== false,
+            )
+          : undefined;
 
-    const missingIds = uniqueIds.filter((id) => !productMap.has(id));
-    if (missingIds.length > 0) {
+        if (variants.length > 0 && !variant) return null;
+
+        validStoredItems.push({ product: productId, quantity, variantId });
+
+        return {
+          product: {
+            ...product,
+            coverImage: variant?.image || product.coverImage,
+            finalPrice: Number(variant?.finalPrice ?? product.finalPrice ?? 0),
+            stock: Number(variant?.stock ?? product.stock ?? 0),
+          },
+          quantity,
+          variantId,
+          variantLabel: String(variant?.label ?? ""),
+          variantOptions: Array.isArray(variant?.options)
+            ? variant.options.map(
+                (option: { name?: unknown; value?: unknown }) => ({
+                  name: String(option.name ?? ""),
+                  value: String(option.value ?? ""),
+                }),
+              )
+            : [],
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+    if (validStoredItems.length !== rawItems.length) {
       await Cart.updateOne(
         { user: session.user.id },
-        { $pull: { items: { product: { $in: missingIds } } } },
+        { $set: { items: validStoredItems } },
       );
       await syncAbandonedCartReminder(session.user.id).catch(() => null);
     }

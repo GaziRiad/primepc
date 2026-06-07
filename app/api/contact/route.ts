@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { sendContactMessage } from "@/lib/notifications";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type ContactPayload = {
   firstName: string;
@@ -18,6 +19,19 @@ const normalize = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
 
 export async function POST(request: Request) {
+  const ipLimit = await consumeRateLimit(request, {
+    limit: 5,
+    scope: "contact:ip",
+    windowMs: 60 * 60 * 1000,
+  });
+
+  if (!ipLimit.allowed) {
+    return rateLimitResponse(
+      ipLimit,
+      "Trop de messages envoyes. Veuillez reessayer dans quelques instants.",
+    );
+  }
+
   let body: ContactPayload | null = null;
 
   try {
@@ -78,6 +92,20 @@ export async function POST(request: Request) {
 
   if (company) {
     return NextResponse.json({ ok: true });
+  }
+
+  const emailLimit = await consumeRateLimit(request, {
+    identifier: email,
+    limit: 3,
+    scope: "contact:email",
+    windowMs: 60 * 60 * 1000,
+  });
+
+  if (!emailLimit.allowed) {
+    return rateLimitResponse(
+      emailLimit,
+      "Trop de messages envoyes avec cette adresse email. Veuillez reessayer plus tard.",
+    );
   }
 
   const result = await sendContactMessage({

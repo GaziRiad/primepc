@@ -54,7 +54,47 @@ export const removeFavoriteAction = async (productId: string) => {
   return { ok: true as const };
 };
 
-export const addToCartAction = async (productId: string) => {
+const getCartLineMatch = (productId: string, variantId = "") => ({
+  product: productId,
+  ...(variantId
+    ? { variantId }
+    : { $or: [{ variantId: "" }, { variantId: { $exists: false } }] }),
+});
+
+const getPurchasableStock = async (productId: string, variantId = "") => {
+  const product = await Product.findById(productId)
+    .select("stock variants")
+    .lean();
+
+  if (!product) return { ok: false as const, reason: "out_of_stock" as const };
+
+  const variants = Array.isArray(product.variants) ? product.variants : [];
+  if (variants.length > 0) {
+    if (!variantId) {
+      return { ok: false as const, reason: "variant_required" as const };
+    }
+
+    const variant = variants.find(
+      (candidate: { _id?: unknown; active?: boolean }) =>
+        String(candidate._id ?? "") === variantId && candidate.active !== false,
+    );
+    const stock = Number(variant?.stock ?? 0);
+    if (!variant || !Number.isFinite(stock) || stock <= 0) {
+      return { ok: false as const, reason: "out_of_stock" as const };
+    }
+
+    return { ok: true as const, stock };
+  }
+
+  const stock = Number(product.stock ?? 0);
+  if (!Number.isFinite(stock) || stock <= 0) {
+    return { ok: false as const, reason: "out_of_stock" as const };
+  }
+
+  return { ok: true as const, stock };
+};
+
+export const addToCartAction = async (productId: string, variantId = "") => {
   await startDbConnection();
 
   const session = await auth();
@@ -62,28 +102,28 @@ export const addToCartAction = async (productId: string) => {
   if (!session?.user) return { ok: false as const };
   const userId = session.user.id;
 
-  const product = await Product.findById(productId).select("stock").lean();
+  const purchasable = await getPurchasableStock(productId, variantId);
+  if (!purchasable.ok) return purchasable;
+  const stock = purchasable.stock;
 
-  const stock = Number(product?.stock ?? 0);
-  if (!product || !Number.isFinite(stock) || stock <= 0) {
-    return { ok: false as const, reason: "out_of_stock" as const };
-  }
+  const existing = await Cart.findOne({ user: userId }).select("items").lean();
 
-  const existing = await Cart.findOne({
-    user: userId,
-    "items.product": productId,
-  })
-    .select("items.$")
-    .lean();
-
-  const currentQty = existing?.items?.[0]?.quantity ?? 0;
+  const currentQty =
+    existing?.items?.find(
+      (item: { product?: unknown; variantId?: string }) =>
+        String(item.product ?? "") === productId &&
+        String(item.variantId ?? "") === variantId,
+    )?.quantity ?? 0;
   if (currentQty >= stock) {
     return { ok: false as const, reason: "out_of_stock" as const };
   }
 
   // 1) If item already exists, increment quantity
   const updated = await Cart.findOneAndUpdate(
-    { user: userId, "items.product": productId },
+    {
+      user: userId,
+      items: { $elemMatch: getCartLineMatch(productId, variantId) },
+    },
     { $inc: { "items.$.quantity": 1 } },
     { returnDocument: "after", runValidators: true },
   );
@@ -98,7 +138,7 @@ export const addToCartAction = async (productId: string) => {
     { user: userId },
     {
       $setOnInsert: { user: userId }, // set user if creating new cart
-      $push: { items: { product: productId, quantity: 1 } },
+      $push: { items: { product: productId, variantId, quantity: 1 } },
     },
     { upsert: true, returnDocument: "after", runValidators: true },
   );
@@ -107,7 +147,10 @@ export const addToCartAction = async (productId: string) => {
   return { ok: true as const };
 };
 
-export const decrementFromCartAction = async (productId: string) => {
+export const decrementFromCartAction = async (
+  productId: string,
+  variantId = "",
+) => {
   await startDbConnection();
 
   const session = await auth();
@@ -118,7 +161,12 @@ export const decrementFromCartAction = async (productId: string) => {
   const decremented = await Cart.findOneAndUpdate(
     {
       user: userId,
-      items: { $elemMatch: { product: productId, quantity: { $gt: 1 } } },
+      items: {
+        $elemMatch: {
+          ...getCartLineMatch(productId, variantId),
+          quantity: { $gt: 1 },
+        },
+      },
     },
     { $inc: { "items.$.quantity": -1 } },
     { returnDocument: "after", runValidators: true },
@@ -131,7 +179,7 @@ export const decrementFromCartAction = async (productId: string) => {
 
   await Cart.findOneAndUpdate(
     { user: userId },
-    { $pull: { items: { product: productId } } },
+    { $pull: { items: getCartLineMatch(productId, variantId) } },
     { returnDocument: "after", runValidators: true },
   );
 
@@ -139,7 +187,10 @@ export const decrementFromCartAction = async (productId: string) => {
   return { ok: true as const };
 };
 
-export const removeFromCartAction = async (productId: string) => {
+export const removeFromCartAction = async (
+  productId: string,
+  variantId = "",
+) => {
   await startDbConnection();
 
   const session = await auth();
@@ -162,7 +213,7 @@ export const removeFromCartAction = async (productId: string) => {
   // 2) Otherwise remove the whole line item
   await Cart.findOneAndUpdate(
     { user: userId },
-    { $pull: { items: { product: productId } } },
+    { $pull: { items: getCartLineMatch(productId, variantId) } },
     { returnDocument: "after", runValidators: true },
   );
 
@@ -173,6 +224,7 @@ export const removeFromCartAction = async (productId: string) => {
 type TGuestCartSyncItem = {
   productId: string;
   quantity: number;
+  variantId?: string;
 };
 
 export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
@@ -190,22 +242,24 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
   for (const item of items) {
     const productId = String(item.productId ?? "");
     const quantity = Math.floor(Number(item.quantity ?? 0));
+    const variantId = String(item.variantId ?? "");
 
     if (!productId || !Number.isFinite(quantity) || quantity <= 0) continue;
 
-    const product = await Product.findById(productId).select("stock").lean();
+    const purchasable = await getPurchasableStock(productId, variantId);
+    if (!purchasable.ok) continue;
+    const stock = purchasable.stock;
 
-    const stock = Number(product?.stock ?? 0);
-    if (!product || !Number.isFinite(stock) || stock <= 0) continue;
-
-    const existing = await Cart.findOne({
-      user: userId,
-      "items.product": productId,
-    })
-      .select("items.$")
+    const existing = await Cart.findOne({ user: userId })
+      .select("items")
       .lean();
 
-    const currentQty = existing?.items?.[0]?.quantity ?? 0;
+    const currentQty =
+      existing?.items?.find(
+        (cartItem: { product?: unknown; variantId?: string }) =>
+          String(cartItem.product ?? "") === productId &&
+          String(cartItem.variantId ?? "") === variantId,
+      )?.quantity ?? 0;
     const available = stock - currentQty;
 
     if (available <= 0) continue;
@@ -214,7 +268,10 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
 
     if (currentQty > 0) {
       await Cart.findOneAndUpdate(
-        { user: userId, "items.product": productId },
+        {
+          user: userId,
+          items: { $elemMatch: getCartLineMatch(productId, variantId) },
+        },
         {
           $inc: { "items.$.quantity": quantityToAdd },
         },
@@ -227,7 +284,9 @@ export const mergeGuestCartAction = async (items: TGuestCartSyncItem[]) => {
       { user: userId },
       {
         $setOnInsert: { user: userId },
-        $push: { items: { product: productId, quantity: quantityToAdd } },
+        $push: {
+          items: { product: productId, variantId, quantity: quantityToAdd },
+        },
       },
       { upsert: true, returnDocument: "after", runValidators: true },
     );

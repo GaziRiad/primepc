@@ -45,6 +45,8 @@ type OrderRow = {
     unitPrice?: number;
     finalPrice?: number;
     coverImage?: string;
+    variantLabel?: string;
+    variantOptions?: Array<{ name?: string; value?: string }>;
   }>;
   statusHistory?: Array<{
     status?: string;
@@ -463,6 +465,11 @@ export default function OrdersTable({
                             <p className="text-muted-foreground text-xs">
                               Qty {qty}
                             </p>
+                            {item.variantLabel && (
+                              <p className="text-muted-foreground text-xs">
+                                {item.variantLabel}
+                              </p>
+                            )}
                           </div>
                           <div className="text-sm font-semibold">
                             {formatDZD(price)}

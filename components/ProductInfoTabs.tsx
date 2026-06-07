@@ -85,9 +85,10 @@ export default function ProductInfoTabs({
             <h2 className="text-foreground text-xl font-semibold">
               Description
             </h2>
-            <p className="text-accent-500 mt-4 max-w-4xl whitespace-pre-line text-base leading-8">
-              {description}
-            </p>
+            <div
+              className="product-rich-text text-accent-500 mt-4 max-w-4xl"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
           </section>
         )}
 

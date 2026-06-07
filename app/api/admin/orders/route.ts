@@ -24,7 +24,11 @@ type ExportOrder = {
     city?: string;
     commune?: string;
   };
-  items?: Array<{ name?: string; quantity?: number }>;
+  items?: Array<{
+    name?: string;
+    quantity?: number;
+    variantLabel?: string;
+  }>;
 };
 
 const toCsvValue = (value: string | number | null | undefined) => {
@@ -91,7 +95,7 @@ export async function GET(request: Request) {
             const itemsSummary = (order.items ?? [])
               .map(
                 (item) =>
-                  `${item.name ?? "Item"} x${Number(item.quantity ?? 0)}`,
+                  `${item.name ?? "Item"}${item.variantLabel ? ` (${item.variantLabel})` : ""} x${Number(item.quantity ?? 0)}`,
               )
               .join(" | ");
 

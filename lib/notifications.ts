@@ -8,6 +8,8 @@ type OrderEmailItem = {
   unitPrice: number;
   finalPrice: number;
   coverImage?: string;
+  variantLabel?: string;
+  variantOptions?: Array<{ name: string; value: string }>;
 };
 
 type OrderEmailCustomer = {
@@ -139,7 +141,8 @@ const formatItemLines = (items: OrderEmailItem[]) =>
   items
     .map((item) => {
       const lineTotal = item.finalPrice * item.quantity;
-      return `- ${item.name} x${item.quantity} @ ${formatDZD(
+      const variant = item.variantLabel ? ` (${item.variantLabel})` : "";
+      return `- ${item.name}${variant} x${item.quantity} @ ${formatDZD(
         item.finalPrice,
       )} = ${formatDZD(lineTotal)}`;
     })
@@ -336,6 +339,11 @@ const buildOrderRows = (items: OrderEmailItem[]) =>
                   <div style="font-size:14px;font-weight:600;color:${BRAND_DARK};">${escapeHtml(
                     item.name,
                   )}</div>
+                  ${
+                    item.variantLabel
+                      ? `<div style="margin-top:3px;font-size:12px;color:${BRAND_MUTED};">${escapeHtml(item.variantLabel)}</div>`
+                      : ""
+                  }
                 </td>
               </tr>
             </table>

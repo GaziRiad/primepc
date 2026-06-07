@@ -9,6 +9,8 @@ import Cart from "@/models/Cart";
 import Favorite from "@/models/Favorite";
 import Product from "@/models/Product";
 import { getDiscountedPrice } from "@/lib/utils";
+import { sanitizeProductDescription } from "@/lib/productDescription";
+import { parseProductVariants } from "@/lib/productVariants";
 
 const parseProductPayload = async (request: Request) => {
   let body: Record<string, unknown> = {};
@@ -20,14 +22,25 @@ const parseProductPayload = async (request: Request) => {
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const brand = typeof body.brand === "string" ? body.brand.trim() : "";
-  const description =
-    typeof body.description === "string" ? body.description.trim() : "";
+  const description = sanitizeProductDescription(body.description);
   const coverImage =
     typeof body.coverImage === "string" ? body.coverImage.trim() : "";
 
   const price = Number(body.price);
   const discount = Number(body.discount ?? 0);
   const stock = Number(body.stock ?? 0);
+  const safePrice = Number.isFinite(price) ? price : 0;
+  const safeDiscount = Number.isFinite(discount) ? discount : 0;
+  const variants = parseProductVariants(body.variants, safePrice, safeDiscount);
+  const totalStock =
+    variants.length > 0
+      ? variants.reduce(
+          (sum, variant) => sum + (variant.active ? variant.stock : 0),
+          0,
+        )
+      : Number.isFinite(stock)
+        ? stock
+        : 0;
 
   const images = Array.isArray(body.images)
     ? body.images.map((value) => String(value ?? "").trim()).filter(Boolean)
@@ -74,17 +87,15 @@ const parseProductPayload = async (request: Request) => {
       name,
       brand,
       description,
-      price: Number.isFinite(price) ? price : 0,
-      discount: Number.isFinite(discount) ? discount : 0,
-      stock: Number.isFinite(stock) ? stock : 0,
+      price: safePrice,
+      discount: safeDiscount,
+      stock: totalStock,
       coverImage,
       images,
       categories,
       specs,
-      finalPrice: getDiscountedPrice(
-        Number.isFinite(price) ? price : 0,
-        Number.isFinite(discount) ? discount : 0,
-      ),
+      variants,
+      finalPrice: getDiscountedPrice(safePrice, safeDiscount),
     },
   };
 };
@@ -209,7 +220,10 @@ export async function DELETE(
 
   await Promise.all([
     Favorite.deleteMany({ product: id }),
-    Cart.updateMany({ "items.product": id }, { $pull: { items: { product: id } } }),
+    Cart.updateMany(
+      { "items.product": id },
+      { $pull: { items: { product: id } } },
+    ),
   ]);
 
   await Promise.allSettled(

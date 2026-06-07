@@ -16,6 +16,7 @@ import {
 } from "@/lib/notifications";
 import { recordProductAnalyticsEvents } from "@/lib/productAnalytics";
 import { cancelAbandonedCartReminder } from "@/lib/cartRecovery";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import Cart from "@/models/Cart";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
@@ -80,30 +81,64 @@ const validateCustomer = (customer?: Partial<CustomerDetails>) => {
 };
 
 const rollbackReservedStock = async (
-  items: Array<{ product: unknown; quantity: number }>,
+  items: Array<{ product: unknown; quantity: number; variantId?: string }>,
 ) => {
   if (items.length === 0) return;
 
-  await Product.bulkWrite(
-    items.map((item) => ({
-      updateOne: {
-        filter: { _id: item.product },
-        update: { $inc: { stock: item.quantity } },
-      },
-    })),
-  );
+  for (const item of items) {
+    if (item.variantId) {
+      await Product.updateOne(
+        { _id: item.product, "variants._id": item.variantId },
+        {
+          $inc: {
+            stock: item.quantity,
+            "variants.$.stock": item.quantity,
+          },
+        },
+      );
+    } else {
+      await Product.updateOne(
+        { _id: item.product },
+        { $inc: { stock: item.quantity } },
+      );
+    }
+  }
 };
 
 const reserveStock = async (
-  items: Array<{ product: unknown; quantity: number }>,
+  items: Array<{ product: unknown; quantity: number; variantId?: string }>,
 ) => {
-  const reserved: Array<{ product: unknown; quantity: number }> = [];
+  const reserved: Array<{
+    product: unknown;
+    quantity: number;
+    variantId?: string;
+  }> = [];
 
   for (const item of items) {
-    const result = await Product.updateOne(
-      { _id: item.product, stock: { $gte: item.quantity } },
-      { $inc: { stock: -item.quantity } },
-    );
+    const result = item.variantId
+      ? await Product.updateOne(
+          {
+            _id: item.product,
+            stock: { $gte: item.quantity },
+            variants: {
+              $elemMatch: {
+                _id: item.variantId,
+                active: { $ne: false },
+                stock: { $gte: item.quantity },
+              },
+            },
+          },
+          {
+            $inc: {
+              stock: -item.quantity,
+              "variants.$.stock": -item.quantity,
+            },
+          },
+        )
+      : await Product.updateOne(
+          { _id: item.product, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } },
+        );
 
     if (result.modifiedCount !== 1) {
       await rollbackReservedStock(reserved);
@@ -118,6 +153,19 @@ const reserveStock = async (
 
 export async function POST(request: Request) {
   try {
+    const ipLimit = await consumeRateLimit(request, {
+      limit: 10,
+      scope: "orders:create:ip",
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(
+        ipLimit,
+        "Trop de tentatives de commande. Veuillez reessayer plus tard.",
+      );
+    }
+
     await startDbConnection();
     const session = await auth();
 
@@ -139,6 +187,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const emailLimit = await consumeRateLimit(request, {
+      identifier: customer.email,
+      limit: 5,
+      scope: "orders:create:email",
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!emailLimit.allowed) {
+      return rateLimitResponse(
+        emailLimit,
+        "Trop de commandes ont ete tentees avec cette adresse email. Veuillez reessayer plus tard.",
+      );
+    }
+
     let items: OrderItemInput[] = [];
 
     if (session?.user?.id) {
@@ -149,9 +211,14 @@ export async function POST(request: Request) {
       const cartItems = Array.isArray(cart?.items) ? cart.items : [];
 
       items = cartItems.map(
-        (item: { product?: unknown; quantity?: unknown }) => ({
+        (item: {
+          product?: unknown;
+          quantity?: unknown;
+          variantId?: unknown;
+        }) => ({
           productId: String(item.product ?? ""),
           quantity: Number(item.quantity ?? 0),
+          variantId: String(item.variantId ?? ""),
         }),
       );
     } else {
@@ -238,6 +305,8 @@ export async function POST(request: Request) {
         unitPrice: item.unitPrice,
         finalPrice: item.finalPrice,
         coverImage: item.coverImage,
+        variantLabel: item.variantLabel,
+        variantOptions: item.variantOptions,
       })),
       subtotal: build.subtotal,
       shippingFee,
@@ -276,9 +345,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, orderId: String(order._id) });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to create order";
-
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    console.error("Order creation failed:", error);
+    return NextResponse.json(
+      { ok: false, error: "order_creation_failed" },
+      { status: 500 },
+    );
   }
 }

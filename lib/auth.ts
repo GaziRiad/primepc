@@ -1,13 +1,18 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import startDbConnection from "./db";
 import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/notifications";
+import { consumeRateLimit } from "@/lib/rateLimit";
 
 const escapeRegex = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+class RateLimitedSignin extends CredentialsSignin {
+  code = "rate_limited";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -25,13 +30,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email = String(credentials?.email ?? "")
           .trim()
           .toLowerCase();
         const password = String(credentials?.password ?? "");
 
         if (!email || !password) return null;
+
+        const [ipLimit, emailLimit] = await Promise.all([
+          consumeRateLimit(request, {
+            limit: 20,
+            scope: "auth:credentials:ip",
+            windowMs: 15 * 60 * 1000,
+          }),
+          consumeRateLimit(request, {
+            identifier: email,
+            limit: 8,
+            scope: "auth:credentials:email",
+            windowMs: 15 * 60 * 1000,
+          }),
+        ]);
+
+        if (!ipLimit.allowed || !emailLimit.allowed) {
+          throw new RateLimitedSignin();
+        }
 
         await startDbConnection();
         const user = await User.findOne({

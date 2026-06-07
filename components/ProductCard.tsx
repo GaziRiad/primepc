@@ -24,6 +24,12 @@ export default function ProductCard({
       finalPrice={product.finalPrice}
       discount={product.discount}
       stock={product.stock}
+      hasVariants={
+        Array.isArray(product.variants) &&
+        product.variants.some(
+          (variant: { active?: boolean }) => variant.active !== false,
+        )
+      }
       large={large}
       badge={badge}
     />

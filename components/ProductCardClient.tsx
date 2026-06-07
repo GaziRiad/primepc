@@ -6,6 +6,7 @@ import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import AddToCartButton from "@/components/AddToCartButton";
 import FavoriteButton from "@/components/(user)/FavoriteButton";
 import { formatDZD } from "@/lib/utils";
@@ -31,6 +32,7 @@ type ProductCardClientProps = {
   stock?: number;
   large?: boolean;
   badge?: boolean;
+  hasVariants?: boolean;
 };
 
 export default function ProductCardClient({
@@ -46,6 +48,7 @@ export default function ProductCardClient({
   stock,
   large = false,
   badge,
+  hasVariants = false,
 }: ProductCardClientProps) {
   const gallery = useMemo(() => {
     const cleaned = [coverImage, ...(images ?? [])]
@@ -247,17 +250,23 @@ export default function ProductCardClient({
         </p>
 
         <div className="mt-auto flex items-center gap-2">
-          <AddToCartButton
-            productId={productId}
-            product={{
-              name,
-              coverImage: activeImage,
-              finalPrice,
-              slug,
-              stock,
-            }}
-            large={large}
-          />
+          {hasVariants ? (
+            <Button asChild size={large ? "default" : "sm"}>
+              <Link href={`/products/${slug}`}>Choose options</Link>
+            </Button>
+          ) : (
+            <AddToCartButton
+              productId={productId}
+              product={{
+                name,
+                coverImage: activeImage,
+                finalPrice,
+                slug,
+                stock,
+              }}
+              large={large}
+            />
+          )}
           <FavoriteButton productId={productId} large={large} />
         </div>
       </CardFooter>

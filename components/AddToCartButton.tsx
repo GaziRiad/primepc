@@ -19,6 +19,12 @@ type AddToCartButtonProps = {
     stock?: number;
   };
   large?: boolean;
+  requiresVariant?: boolean;
+  variant?: {
+    label: string;
+    options: Array<{ name: string; value: string }>;
+  };
+  variantId?: string;
 };
 
 export default function AddToCartButton({
@@ -26,6 +32,9 @@ export default function AddToCartButton({
   productId,
   product,
   large = false,
+  requiresVariant = false,
+  variant,
+  variantId,
 }: AddToCartButtonProps) {
   const { addToCart, cartItems } = useCart();
   const [isPending, startTransition] = useTransition();
@@ -33,12 +42,16 @@ export default function AddToCartButton({
   const currentQty =
     cartItems.find(
       (item) =>
-        String(item.product?._id ?? item.product?.id ?? "") === productId,
+        String(item.product?._id ?? item.product?.id ?? "") === productId &&
+        String(item.variantId ?? "") === String(variantId ?? ""),
     )?.quantity ?? 0;
   const isOutOfStock = typeof stock === "number" && stock <= 0;
   const isMaxed = typeof stock === "number" && currentQty >= stock;
-  const isDisabled = isPending || isOutOfStock || isMaxed;
-  const label = isOutOfStock
+  const missingVariant = requiresVariant && !variantId;
+  const isDisabled = isPending || missingVariant || isOutOfStock || isMaxed;
+  const label = missingVariant
+    ? "Choose options"
+    : isOutOfStock
     ? "Out of stock"
     : isMaxed
       ? "Max in cart"
@@ -52,13 +65,23 @@ export default function AddToCartButton({
       disabled={isDisabled}
       onClick={() => {
         startTransition(async () => {
-          const added = await addToCart(productId, {
-            _id: productId,
-            name: product.name,
-            coverImage: product.coverImage,
-            finalPrice: product.finalPrice,
-            stock: product.stock,
-          });
+          const added = await addToCart(
+            productId,
+            {
+              _id: productId,
+              name: product.name,
+              coverImage: product.coverImage,
+              finalPrice: product.finalPrice,
+              stock: product.stock,
+            },
+            variantId
+              ? {
+                  id: variantId,
+                  label: variant?.label,
+                  options: variant?.options,
+                }
+              : undefined,
+          );
 
           if (added) {
             trackProductAnalytics({

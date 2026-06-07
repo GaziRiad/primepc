@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const ALLOWED_FOLDERS = new Set([
@@ -31,6 +32,20 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { ok: false, error: "Please sign in before uploading images." },
       { status: 401 },
+    );
+  }
+
+  const uploadLimit = await consumeRateLimit(request, {
+    identifier: session.user.id,
+    limit: session.user.role === "admin" ? 150 : 20,
+    scope: `uploads:${session.user.role === "admin" ? "admin" : "user"}`,
+    windowMs: 60 * 60 * 1000,
+  });
+
+  if (!uploadLimit.allowed) {
+    return rateLimitResponse(
+      uploadLimit,
+      "Trop de televersements. Veuillez reessayer plus tard.",
     );
   }
 

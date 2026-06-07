@@ -51,6 +51,11 @@ export function LoginForm({
         redirect: false,
       });
 
+      if (result?.code === "rate_limited") {
+        toast.error("Too many sign-in attempts. Please try again later.");
+        return;
+      }
+
       if (result?.error) {
         toast.error("Invalid email or password.");
         return;

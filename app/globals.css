@@ -301,3 +301,53 @@ body {
     @apply font-sans;
   }
 }
+
+@layer components {
+  .product-rich-text {
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .product-rich-text > * + * {
+    margin-top: 1rem;
+  }
+
+  .product-rich-text h3 {
+    margin-top: 1.75rem;
+    color: var(--foreground);
+    font-size: 1.3rem;
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .product-rich-text strong {
+    color: var(--foreground);
+    font-weight: 700;
+  }
+
+  .product-rich-text ul,
+  .product-rich-text ol {
+    padding-left: 1.5rem;
+  }
+
+  .product-rich-text ul {
+    list-style: disc;
+  }
+
+  .product-rich-text ol {
+    list-style: decimal;
+  }
+
+  .product-rich-text li + li {
+    margin-top: 0.4rem;
+  }
+
+  .product-rich-text li::marker {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .product-rich-text p:empty::before {
+    content: "\00a0";
+  }
+}

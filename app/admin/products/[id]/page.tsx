@@ -56,6 +56,37 @@ export default async function page({
       ? product.categories.map((category: unknown) => String(category))
       : [],
     specs,
+    variants: Array.isArray(product.variants)
+      ? product.variants.map(
+          (variant: {
+            _id?: unknown;
+            label?: string;
+            options?: Array<{ name?: string; value?: string }>;
+            price?: number;
+            stock?: number;
+            image?: string;
+            active?: boolean;
+          }) => ({
+            _id: String(variant._id),
+            label: variant.label ?? "",
+            options: Array.isArray(variant.options)
+              ? variant.options.map(
+                  (option: { name?: string; value?: string }) => ({
+                    name: option.name ?? "",
+                    value: option.value ?? "",
+                  }),
+                )
+              : [],
+            price:
+              typeof variant.price === "number"
+                ? Number(variant.price)
+                : undefined,
+            stock: Number(variant.stock ?? 0),
+            image: variant.image ?? "",
+            active: variant.active !== false,
+          }),
+        )
+      : [],
   };
 
   return (

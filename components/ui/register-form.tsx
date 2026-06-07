@@ -62,6 +62,7 @@ export function RegisterForm({
       const data = (await response.json()) as {
         ok?: boolean;
         error?: string;
+        message?: string;
       };
 
       if (!response.ok || !data?.ok) {
@@ -71,6 +72,8 @@ export function RegisterForm({
           toast.error("Password must be at least 8 characters.");
         } else if (data?.error === "invalid_email") {
           toast.error("Please enter a valid email.");
+        } else if (data?.error === "rate_limited") {
+          toast.error(data.message || "Too many attempts. Please try later.");
         } else {
           toast.error("Unable to create account.");
         }

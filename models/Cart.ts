@@ -7,6 +7,7 @@ const cartItemSchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
+    variantId: { type: String, default: "" },
     quantity: { type: Number, default: 1, min: 1 },
   },
   { _id: false },
@@ -59,7 +60,11 @@ cartSchema.virtual("itemsCount").get(function () {
 
 const existingModel = mongoose.models.Cart;
 
-if (existingModel && !existingModel.schema.path("recoveryEmailId")) {
+if (
+  existingModel &&
+  (!existingModel.schema.path("recoveryEmailId") ||
+    !existingModel.schema.path("items.variantId"))
+) {
   delete mongoose.models.Cart;
 }
 

@@ -4,6 +4,7 @@ import {
   recordProductAnalyticsEvents,
   type ProductAnalyticsEvent,
 } from "@/lib/productAnalytics";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 type AnalyticsPayload = {
   events?: ProductAnalyticsEvent[];
@@ -16,6 +17,16 @@ const isValidEventType = (value: unknown) =>
 
 export async function POST(request: Request) {
   try {
+    const limit = await consumeRateLimit(request, {
+      limit: 120,
+      scope: "analytics:product:ip",
+      windowMs: 60 * 1000,
+    });
+
+    if (!limit.allowed) {
+      return rateLimitResponse(limit);
+    }
+
     const body = (await request.json().catch(() => null)) as
       | AnalyticsPayload
       | ProductAnalyticsEvent

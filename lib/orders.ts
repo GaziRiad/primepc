@@ -22,6 +22,7 @@ export const SHIPPING_FEE = 500;
 export type OrderItemInput = {
   productId: string;
   quantity: number;
+  variantId?: string;
 };
 
 export type OrderBuildIssue = {
@@ -39,6 +40,9 @@ type OrderItemSnapshot = {
   unitPrice: number;
   finalPrice: number;
   quantity: number;
+  variantId: string;
+  variantLabel: string;
+  variantOptions: Array<{ name: string; value: string }>;
 };
 
 export type CustomerDetails = {
@@ -58,6 +62,7 @@ const normalizeItems = (items: OrderItemInput[]) =>
     .map((item) => ({
       productId: String(item.productId ?? "").trim(),
       quantity: Math.floor(Number(item.quantity ?? 0)),
+      variantId: String(item.variantId ?? "").trim(),
     }))
     .filter((item) => item.productId && Number.isFinite(item.quantity));
 
@@ -123,6 +128,7 @@ const buildAdminOrdersFilter = (query?: OrdersQuery) => {
       { "customer.city": regex },
       { "customer.commune": regex },
       { "items.name": regex },
+      { "items.variantLabel": regex },
       { notes: regex },
     ];
 
@@ -161,7 +167,7 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
 
   const ids = normalized.map((item) => item.productId);
   const products = await Product.find({ _id: { $in: ids } })
-    .select("name slug price discount finalPrice coverImage stock")
+    .select("name slug price discount finalPrice coverImage stock variants")
     .lean();
 
   const productMap = new Map(
@@ -187,7 +193,21 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
       continue;
     }
 
-    const stock = Number(product.stock ?? 0);
+    const variants = Array.isArray(product.variants) ? product.variants : [];
+    const variant = item.variantId
+      ? variants.find(
+          (candidate: { _id?: unknown; active?: boolean }) =>
+            String(candidate._id ?? "") === item.variantId &&
+            candidate.active !== false,
+        )
+      : undefined;
+
+    if (variants.length > 0 && !variant) {
+      issues.push({ productId: item.productId, reason: "not_found" });
+      continue;
+    }
+
+    const stock = Number(variant?.stock ?? product.stock ?? 0);
     if (!Number.isFinite(stock) || stock < item.quantity) {
       issues.push({
         productId: item.productId,
@@ -197,18 +217,29 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
       continue;
     }
 
-    const unitPrice = Number(product.price ?? 0);
-    const finalPrice = Number.isFinite(Number(product.finalPrice))
-      ? Number(product.finalPrice)
+    const unitPrice = Number(variant?.price ?? product.price ?? 0);
+    const finalPrice = Number.isFinite(
+      Number(variant?.finalPrice ?? product.finalPrice),
+    )
+      ? Number(variant?.finalPrice ?? product.finalPrice)
       : getDiscountedPrice(unitPrice, Number(product.discount ?? 0));
+    const variantOptions = Array.isArray(variant?.options)
+      ? variant.options.map((option: { name?: unknown; value?: unknown }) => ({
+          name: String(option.name ?? ""),
+          value: String(option.value ?? ""),
+        }))
+      : [];
 
     orderItems.push({
       product: product._id,
       name: product.name,
-      coverImage: product.coverImage ?? "",
+      coverImage: variant?.image || product.coverImage || "",
       unitPrice,
       finalPrice,
       quantity: item.quantity,
+      variantId: variant ? String(variant._id) : "",
+      variantLabel: String(variant?.label ?? ""),
+      variantOptions,
     });
 
     subtotal += finalPrice * item.quantity;

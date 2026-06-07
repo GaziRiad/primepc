@@ -4,6 +4,7 @@ import { hash } from "bcryptjs";
 import startDbConnection from "@/lib/db";
 import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/notifications";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 const escapeRegex = (value: string) =>
@@ -11,11 +12,32 @@ const escapeRegex = (value: string) =>
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
-      name?: string;
-      email?: string;
-      password?: string;
-    };
+    const ipLimit = await consumeRateLimit(request, {
+      limit: 8,
+      scope: "auth:register:ip",
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(
+        ipLimit,
+        "Trop de tentatives de creation de compte. Veuillez reessayer plus tard.",
+      );
+    }
+
+    let body: { name?: string; email?: string; password?: string };
+    try {
+      body = (await request.json()) as {
+        name?: string;
+        email?: string;
+        password?: string;
+      };
+    } catch {
+      return NextResponse.json(
+        { ok: false, error: "invalid_payload" },
+        { status: 400 },
+      );
+    }
 
     const name = String(body?.name ?? "").trim();
     const email = String(body?.email ?? "")
@@ -41,6 +63,20 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { ok: false, error: "weak_password" },
         { status: 400 },
+      );
+    }
+
+    const emailLimit = await consumeRateLimit(request, {
+      identifier: email,
+      limit: 3,
+      scope: "auth:register:email",
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!emailLimit.allowed) {
+      return rateLimitResponse(
+        emailLimit,
+        "Trop de tentatives pour cette adresse email. Veuillez reessayer plus tard.",
       );
     }
 
@@ -80,9 +116,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to create account";
-
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    console.error("Account registration failed:", error);
+    return NextResponse.json(
+      { ok: false, error: "registration_failed" },
+      { status: 500 },
+    );
   }
 }

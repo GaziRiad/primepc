@@ -26,6 +26,9 @@ type TCartProduct = {
 type TCartItem = {
   product: TCartProduct;
   quantity: number;
+  variantId?: string;
+  variantLabel?: string;
+  variantOptions?: Array<{ name: string; value: string }>;
 };
 
 type TCart = {
@@ -42,6 +45,12 @@ type TCartProductSnapshot = {
   stock?: number;
 };
 
+type TCartVariantSnapshot = {
+  id: string;
+  label?: string;
+  options?: Array<{ name: string; value: string }>;
+};
+
 const GUEST_CART_STORAGE_KEY = "guest-cart-v1";
 const GUEST_CART_MERGE_LOCK_KEY = "guest-cart-merge-lock-v1";
 const EMPTY_CART: TCart = { items: [], itemsCount: 0 };
@@ -55,8 +64,20 @@ const swrOptions = {
 const getProductId = (item: TCartItem) =>
   String(item.product?._id ?? item.product?.id ?? "");
 
-const getItemQuantity = (cart: TCart | undefined, productId: string) =>
-  cart?.items.find((item) => getProductId(item) === productId)?.quantity ?? 0;
+const getItemKey = (productId: string, variantId = "") =>
+  `${productId}:${variantId}`;
+
+const getCartItemKey = (item: TCartItem) =>
+  getItemKey(getProductId(item), String(item.variantId ?? ""));
+
+const getItemQuantity = (
+  cart: TCart | undefined,
+  productId: string,
+  variantId = "",
+) =>
+  cart?.items.find(
+    (item) => getCartItemKey(item) === getItemKey(productId, variantId),
+  )?.quantity ?? 0;
 
 const computeCount = (items: TCartItem[] = []) =>
   items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
@@ -86,6 +107,9 @@ const normalizeCart = (value: unknown): TCart => {
           stock?: unknown;
         };
         quantity?: unknown;
+        variantId?: unknown;
+        variantLabel?: unknown;
+        variantOptions?: unknown;
       };
 
       const productId = String(item.product?._id ?? item.product?.id ?? "");
@@ -118,6 +142,26 @@ const normalizeCart = (value: unknown): TCart => {
               : undefined,
         },
         quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
+        variantId:
+          typeof item.variantId === "string" ? item.variantId : undefined,
+        variantLabel:
+          typeof item.variantLabel === "string" ? item.variantLabel : undefined,
+        variantOptions: Array.isArray(item.variantOptions)
+          ? item.variantOptions
+              .map((option) => {
+                if (!option || typeof option !== "object") return null;
+                const source = option as { name?: unknown; value?: unknown };
+                const name = String(source.name ?? "").trim();
+                const value = String(source.value ?? "").trim();
+                return name && value ? { name, value } : null;
+              })
+              .filter(
+                (
+                  option,
+                ): option is { name: string; value: string } =>
+                  Boolean(option),
+              )
+          : undefined,
       };
     })
     .filter(isCartItem);
@@ -188,6 +232,7 @@ export function useCart() {
       .map((item) => ({
         productId: getProductId(item),
         quantity: item.quantity,
+        variantId: item.variantId,
       }))
       .filter((item) => item.productId && item.quantity > 0);
 
@@ -224,10 +269,12 @@ export function useCart() {
     current: TCart | undefined,
     productId: string,
     product?: TCartProductSnapshot,
+    variant?: TCartVariantSnapshot,
   ): TCart => {
     const base: TCart = current ?? EMPTY_CART;
+    const variantId = variant?.id ?? "";
     const idx = base.items.findIndex(
-      (item) => getProductId(item) === productId,
+      (item) => getCartItemKey(item) === getItemKey(productId, variantId),
     );
 
     const existingItem = idx === -1 ? undefined : base.items[idx];
@@ -259,7 +306,16 @@ export function useCart() {
 
     const items =
       idx === -1
-        ? [...base.items, { product: nextProduct, quantity: 1 }]
+        ? [
+            ...base.items,
+            {
+              product: nextProduct,
+              quantity: 1,
+              variantId: variant?.id,
+              variantLabel: variant?.label,
+              variantOptions: variant?.options,
+            },
+          ]
         : base.items.map((item, itemIndex) =>
             itemIndex === idx
               ? {
@@ -276,9 +332,12 @@ export function useCart() {
   const optimisticRemove = (
     current: TCart | undefined,
     productId: string,
+    variantId = "",
   ): TCart => {
     const base: TCart = current ?? EMPTY_CART;
-    const items = base.items.filter((item) => getProductId(item) !== productId);
+    const items = base.items.filter(
+      (item) => getCartItemKey(item) !== getItemKey(productId, variantId),
+    );
 
     return { items, itemsCount: computeCount(items) };
   };
@@ -286,12 +345,15 @@ export function useCart() {
   const optimisticDecrement = (
     current: TCart | undefined,
     productId: string,
+    variantId = "",
   ): TCart => {
     const base: TCart = current ?? EMPTY_CART;
 
     const items = base.items
       .map((item) => {
-        if (getProductId(item) !== productId) return item;
+        if (getCartItemKey(item) !== getItemKey(productId, variantId)) {
+          return item;
+        }
 
         const nextQty = (item.quantity ?? 1) - 1;
         if (nextQty <= 0) return null;
@@ -306,10 +368,12 @@ export function useCart() {
   const addToCart = async (
     productId: string,
     product?: TCartProductSnapshot,
+    variant?: TCartVariantSnapshot,
   ) => {
     const stockLimit =
       typeof product?.stock === "number" ? product.stock : undefined;
-    const currentQty = getItemQuantity(data, productId);
+    const variantId = variant?.id ?? "";
+    const currentQty = getItemQuantity(data, productId, variantId);
 
     if (typeof stockLimit === "number") {
       if (!Number.isFinite(stockLimit) || stockLimit <= 0) {
@@ -326,7 +390,7 @@ export function useCart() {
     if (!isAuthenticated) {
       await mutate(
         (current) => {
-          const next = optimisticAdd(current, productId, product);
+          const next = optimisticAdd(current, productId, product, variant);
           writeGuestCart(next);
           return next;
         },
@@ -342,15 +406,17 @@ export function useCart() {
     try {
       await mutate(
         async (current) => {
-          const result = await addToCartAction(productId);
+          const result = await addToCartAction(productId, variantId);
           if (!result?.ok) {
-            throw new Error(result?.reason ?? "failed");
+            throw new Error(
+              "reason" in result ? (result.reason ?? "failed") : "failed",
+            );
           }
-          return optimisticAdd(current, productId, product);
+          return optimisticAdd(current, productId, product, variant);
         },
         {
           optimisticData: (current) =>
-            optimisticAdd(current, productId, product),
+            optimisticAdd(current, productId, product, variant),
           rollbackOnError: true,
           revalidate: true,
         },
@@ -361,6 +427,8 @@ export function useCart() {
       const reason = error instanceof Error ? error.message : "";
       if (reason === "out_of_stock") {
         toast.error("Out of stock");
+      } else if (reason === "variant_required") {
+        toast.error("Choose product options first");
       } else {
         toast.error("Unable to add item to cart");
       }
@@ -368,11 +436,11 @@ export function useCart() {
     }
   };
 
-  const removeFromCart = async (productId: string) => {
+  const removeFromCart = async (productId: string, variantId = "") => {
     if (!isAuthenticated) {
       await mutate(
         (current) => {
-          const next = optimisticRemove(current, productId);
+          const next = optimisticRemove(current, productId, variantId);
           writeGuestCart(next);
           return next;
         },
@@ -388,12 +456,13 @@ export function useCart() {
     try {
       await mutate(
         async (current) => {
-          const result = await removeFromCartAction(productId);
+          const result = await removeFromCartAction(productId, variantId);
           if (!result?.ok) throw new Error("Failed to remove item from cart");
-          return optimisticRemove(current, productId);
+          return optimisticRemove(current, productId, variantId);
         },
         {
-          optimisticData: (current) => optimisticRemove(current, productId),
+          optimisticData: (current) =>
+            optimisticRemove(current, productId, variantId),
           rollbackOnError: true,
           revalidate: true,
         },
@@ -406,11 +475,11 @@ export function useCart() {
     }
   };
 
-  const decrementFromCart = async (productId: string) => {
+  const decrementFromCart = async (productId: string, variantId = "") => {
     if (!isAuthenticated) {
       await mutate(
         (current) => {
-          const next = optimisticDecrement(current, productId);
+          const next = optimisticDecrement(current, productId, variantId);
           writeGuestCart(next);
           return next;
         },
@@ -426,12 +495,13 @@ export function useCart() {
     try {
       await mutate(
         async (current) => {
-          const result = await decrementFromCartAction(productId);
+          const result = await decrementFromCartAction(productId, variantId);
           if (!result?.ok) throw new Error("Failed to decrement item");
-          return optimisticDecrement(current, productId);
+          return optimisticDecrement(current, productId, variantId);
         },
         {
-          optimisticData: (current) => optimisticDecrement(current, productId),
+          optimisticData: (current) =>
+            optimisticDecrement(current, productId, variantId),
           rollbackOnError: true,
           revalidate: true,
         },

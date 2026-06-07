@@ -9,6 +9,18 @@ const orderItemSchema = new mongoose.Schema(
     },
     name: { type: String, required: true },
     coverImage: { type: String, default: "" },
+    variantId: { type: String, default: "" },
+    variantLabel: { type: String, default: "" },
+    variantOptions: {
+      type: [
+        {
+          name: { type: String, required: true },
+          value: { type: String, required: true },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
     unitPrice: { type: Number, required: true },
     finalPrice: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
@@ -85,7 +97,8 @@ const existingModel = mongoose.models.Order;
 
 if (existingModel) {
   const hasArchived = existingModel.schema.path("archived");
-  if (!hasArchived) {
+  const hasVariantLabel = existingModel.schema.path("items.variantLabel");
+  if (!hasArchived || !hasVariantLabel) {
     delete mongoose.models.Order;
   }
 }

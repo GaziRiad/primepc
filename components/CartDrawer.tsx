@@ -30,6 +30,9 @@ type TCartDrawerItem = {
     stock?: number;
   };
   quantity: number;
+  variantId?: string;
+  variantLabel?: string;
+  variantOptions?: Array<{ name: string; value: string }>;
 };
 
 type CartDrawerProps = {
@@ -113,6 +116,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
             <ul className="flex flex-col gap-8 pb-4">
               {cartItems?.map((item: TCartDrawerItem) => {
                 const productId = String(item.product?._id ?? item.product?.id);
+                const variantId = String(item.variantId ?? "");
                 const stock =
                   typeof item.product.stock === "number"
                     ? item.product.stock
@@ -121,7 +125,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                   typeof stock === "number" ? item.quantity < stock : true;
 
                 return (
-                  <li key={productId}>
+                  <li key={`${productId}:${variantId}`}>
                     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 font-medium md:grid-cols-[20fr_60fr_20fr] md:gap-6">
                       <div className="relative flex aspect-square size-16 overflow-hidden rounded-lg sm:size-20 md:size-22">
                         <Image
@@ -131,6 +135,9 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                           }
                           alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
                           className="object-cover"
+                          unoptimized={/^https?:\/\//i.test(
+                            item.product.coverImage ?? "",
+                          )}
                         />
                       </div>
                       <div className="flex min-w-0 flex-col gap-1">
@@ -140,11 +147,18 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                         <p className="text-primary-700 text-sm">
                           {formatDZD(item.product.finalPrice ?? 0)}
                         </p>
+                        {item.variantLabel && (
+                          <p className="text-muted-foreground text-xs">
+                            {item.variantLabel}
+                          </p>
+                        )}
                         <div className="flex items-center gap-2">
                           <Button
                             type="button"
                             aria-label="Decrease quantity"
-                            onClick={() => decrementFromCart(productId)}
+                            onClick={() =>
+                              decrementFromCart(productId, variantId)
+                            }
                             variant="secondary"
                             className="hover:bg-accent-100 flex h-8 w-8 items-center justify-center rounded-full"
                           >
@@ -157,12 +171,22 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                             type="button"
                             aria-label="Increase quantity"
                             onClick={() =>
-                              addToCart(productId, {
-                                name: item.product.name,
-                                coverImage: item.product.coverImage,
-                                finalPrice: item.product.finalPrice,
-                                stock: item.product.stock,
-                              })
+                              addToCart(
+                                productId,
+                                {
+                                  name: item.product.name,
+                                  coverImage: item.product.coverImage,
+                                  finalPrice: item.product.finalPrice,
+                                  stock: item.product.stock,
+                                },
+                                variantId
+                                  ? {
+                                      id: variantId,
+                                      label: item.variantLabel,
+                                      options: item.variantOptions,
+                                    }
+                                  : undefined,
+                              )
                             }
                             variant="secondary"
                             disabled={!canIncrease}
@@ -176,7 +200,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                       <Button
                         type="button"
                         aria-label="Remove item from cart"
-                        onClick={() => removeFromCart(productId)}
+                        onClick={() => removeFromCart(productId, variantId)}
                         variant="secondary"
                         className="hover:bg-destructive/5 hover:text-destructive/60 flex h-11 w-11 items-center justify-center rounded-full"
                       >

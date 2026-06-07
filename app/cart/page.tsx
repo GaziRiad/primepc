@@ -32,7 +32,7 @@ export default function CartPage() {
       const rawId = item.product?._id ?? item.product?.id;
       const productId = rawId ? String(rawId) : "";
       if (!productId) continue;
-      await removeFromCart(productId);
+      await removeFromCart(productId, item.variantId);
     }
   };
 
@@ -92,6 +92,7 @@ export default function CartPage() {
                   const rawId = item.product?._id ?? item.product?.id;
                   const productId = rawId ? String(rawId) : "";
                   const canInteract = Boolean(productId);
+                  const variantId = String(item.variantId ?? "");
                   const price = item.product.finalPrice ?? 0;
                   const stock =
                     typeof item.product.stock === "number"
@@ -102,7 +103,10 @@ export default function CartPage() {
                     (typeof stock === "number" ? item.quantity < stock : true);
 
                   return (
-                    <li key={`${productId || "item"}-${index}`} className="p-4">
+                    <li
+                      key={`${productId || "item"}-${variantId}-${index}`}
+                      className="p-4"
+                    >
                       <div className="flex items-start gap-4">
                         <div className="relative flex aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
                           <Image
@@ -113,6 +117,9 @@ export default function CartPage() {
                             }
                             alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
                             className="object-cover"
+                            unoptimized={/^https?:\/\//i.test(
+                              item.product.coverImage ?? "",
+                            )}
                           />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -122,12 +129,17 @@ export default function CartPage() {
                           <p className="text-muted-foreground mt-1 text-xs">
                             {formatDZD(price)}
                           </p>
+                          {item.variantLabel && (
+                            <p className="text-muted-foreground mt-1 text-xs">
+                              {item.variantLabel}
+                            </p>
+                          )}
                         </div>
                         <Button
                           type="button"
                           aria-label="Remove item from cart"
                           onClick={() =>
-                            canInteract && removeFromCart(productId)
+                            canInteract && removeFromCart(productId, variantId)
                           }
                           variant="secondary"
                           disabled={!canInteract}
@@ -143,7 +155,8 @@ export default function CartPage() {
                             type="button"
                             aria-label="Decrease quantity"
                             onClick={() =>
-                              canInteract && decrementFromCart(productId)
+                              canInteract &&
+                              decrementFromCart(productId, variantId)
                             }
                             variant="secondary"
                             disabled={!canInteract}
@@ -159,12 +172,22 @@ export default function CartPage() {
                             aria-label="Increase quantity"
                             onClick={() =>
                               canInteract &&
-                              addToCart(productId, {
-                                name: item.product.name,
-                                coverImage: item.product.coverImage,
-                                finalPrice: item.product.finalPrice,
-                                stock: item.product.stock,
-                              })
+                              addToCart(
+                                productId,
+                                {
+                                  name: item.product.name,
+                                  coverImage: item.product.coverImage,
+                                  finalPrice: item.product.finalPrice,
+                                  stock: item.product.stock,
+                                },
+                                variantId
+                                  ? {
+                                      id: variantId,
+                                      label: item.variantLabel,
+                                      options: item.variantOptions,
+                                    }
+                                  : undefined,
+                              )
                             }
                             variant="secondary"
                             disabled={!canIncrease}

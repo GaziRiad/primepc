@@ -4,6 +4,7 @@ import { Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useProductVariationImage } from "@/components/ProductVariationImageContext";
 import Lightbox from "yet-another-react-lightbox";
 import Counter from "yet-another-react-lightbox/plugins/counter";
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
@@ -20,12 +21,16 @@ export default function ProductGallery({
   images,
   productName,
 }: ProductGalleryProps) {
+  const variationImage = useProductVariationImage();
+  const [failedImages, setFailedImages] = useState<Set<string>>(
+    () => new Set(),
+  );
   const gallery = useMemo(() => {
     const cleaned = (images ?? [])
       .map((image) => image.trim())
-      .filter((image) => image.length > 0);
+      .filter((image) => image.length > 0 && !failedImages.has(image));
     return cleaned.length > 0 ? cleaned : [FALLBACK_IMAGE];
-  }, [images]);
+  }, [failedImages, images]);
 
   const slides = useMemo(
     () =>
@@ -37,14 +42,32 @@ export default function ProductGallery({
     [gallery, productName],
   );
 
-  const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const safeIndex = activeIndex >= gallery.length ? 0 : activeIndex;
+  const selectedIndex = gallery.indexOf(variationImage?.selectedImage ?? "");
+  const safeIndex = selectedIndex >= 0 ? selectedIndex : 0;
   const activeImage = gallery[safeIndex] ?? gallery[0];
 
+  const markImageFailed = (image: string) => {
+    if (image === FALLBACK_IMAGE) return;
+
+    setFailedImages((current) => {
+      if (current.has(image)) return current;
+      const next = new Set(current);
+      next.add(image);
+      return next;
+    });
+  };
+
+  const isRemoteImage = (image: string) => /^https?:\/\//i.test(image);
+
+  const selectImage = (index: number) => {
+    const image = gallery[index];
+    if (image) variationImage?.setSelectedImage(image);
+  };
+
   const openPreview = (index: number) => {
-    setActiveIndex(index);
+    selectImage(index);
     setLightboxOpen(true);
   };
 
@@ -72,7 +95,7 @@ export default function ProductGallery({
                     type="button"
                     aria-label={`View image ${index + 1} for ${productName}`}
                     aria-pressed={isActive}
-                    onClick={() => setActiveIndex(index)}
+                    onClick={() => selectImage(index)}
                     className={`relative aspect-square w-full overflow-hidden rounded-xl border bg-white transition ${
                       isActive
                         ? "border-primary/50 ring-primary/30 ring-2"
@@ -84,6 +107,8 @@ export default function ProductGallery({
                       src={thumb}
                       alt={`Thumbnail ${index + 1} of ${productName}`}
                       className="object-cover"
+                      unoptimized={isRemoteImage(thumb)}
+                      onError={() => markImageFailed(thumb)}
                       sizes="(min-width: 1280px) 128px, (min-width: 1024px) 112px, 20vw"
                     />
                   </button>
@@ -97,7 +122,7 @@ export default function ProductGallery({
           type="button"
           onClick={() => openPreview(safeIndex)}
           aria-label={`Preview image of ${productName}`}
-          className="group relative order-1 aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-xl bg-zinc-100 lg:order-2 lg:h-[clamp(23rem,38vw,34rem)] lg:aspect-auto"
+          className="group relative order-1 aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-xl bg-zinc-100 lg:order-2 lg:aspect-auto lg:h-[clamp(23rem,38vw,34rem)]"
         >
           <Image
             fill
@@ -105,6 +130,8 @@ export default function ProductGallery({
             src={activeImage}
             alt={`Image of ${productName} from PRIMEPC algeria.`}
             className="object-cover transition-transform duration-300 group-hover:scale-[1.015]"
+            unoptimized={isRemoteImage(activeImage)}
+            onError={() => markImageFailed(activeImage)}
             sizes="(min-width: 1280px) 680px, (min-width: 1024px) 54vw, 100vw"
           />
           <span className="absolute right-4 bottom-4 flex size-10 items-center justify-center rounded-full bg-white/90 text-slate-800 opacity-0 shadow-sm transition group-hover:opacity-100">
@@ -120,7 +147,7 @@ export default function ProductGallery({
         <button
           type="button"
           onClick={() => openPreview(safeIndex)}
-          className="font-medium text-primary underline-offset-4 hover:underline"
+          className="text-primary font-medium underline-offset-4 hover:underline"
         >
           View all photos ({safeIndex + 1} of {gallery.length})
         </button>
@@ -159,7 +186,7 @@ export default function ProductGallery({
           zoomInMultiplier: 1.8,
         }}
         on={{
-          view: ({ index }) => setActiveIndex(index),
+          view: ({ index }) => selectImage(index),
         }}
         styles={{
           container: { backgroundColor: "rgba(8, 10, 14, 0.86)" },
