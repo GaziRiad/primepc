@@ -5,11 +5,24 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import PaginationTable from "@/components/PaginationTable";
 import ProductCard from "@/components/ProductCard";
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getAllCategories, getProductsPage } from "@/lib/services";
 
 export const revalidate = 60;
+export const metadata: Metadata = {
+  title: "Tous les produits",
+  description:
+    "Découvrez les ordinateurs portables, PC et accessoires disponibles chez PRIMEPC en Algérie.",
+  alternates: { canonical: "/products" },
+  openGraph: {
+    url: "/products",
+    title: "Tous les produits | PRIMEPC",
+    description:
+      "Découvrez les ordinateurs portables, PC et accessoires disponibles chez PRIMEPC en Algérie.",
+  },
+};
 
 export default async function page({
   searchParams,

@@ -67,6 +67,7 @@ const parseProductPayload = async (request: Request, productId: string) => {
   const recommendationPriority = Number.isFinite(priorityRaw)
     ? Math.min(100, Math.max(0, priorityRaw))
     : 0;
+  const topSeller = body.topSeller === true;
   const excludedIds = new Set([productId]);
   const recommendedProducts = parseProductIds(
     body.recommendedProducts,
@@ -139,6 +140,7 @@ const parseProductPayload = async (request: Request, productId: string) => {
       similarProducts: [],
       accessoryProducts: [],
       recommendationPriority,
+      topSeller,
       finalPrice: getDiscountedPrice(safePrice, safeDiscount),
     },
   };

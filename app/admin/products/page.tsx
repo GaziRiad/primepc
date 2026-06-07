@@ -44,7 +44,7 @@ export default async function page({
     .skip(skip)
     .limit(limit)
     .select(
-      "name brand price finalPrice discount stock coverImage slug updatedAt",
+      "name brand price finalPrice discount stock coverImage slug topSeller updatedAt",
     )
     .lean();
 

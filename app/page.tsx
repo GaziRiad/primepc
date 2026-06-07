@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import BrowseByCategories from "@/components/BrowseByCategories";
 import FeaturedBanners from "@/components/FeaturedBanners";
 import FeaturesList from "@/components/FeaturesList";
@@ -5,6 +7,10 @@ import MainDiscount from "@/components/MainDiscount";
 import NewArrivals from "@/components/NewArrivals";
 
 export const revalidate = 60;
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { url: "/" },
+};
 
 export default async function page() {
   return (

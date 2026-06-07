@@ -1,11 +1,17 @@
 "use client";
 
-import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Trophy,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
   type CarouselApi,
@@ -111,6 +117,12 @@ export default function ProductRecommendationCarousel({
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                       unoptimized={product.image.startsWith("http")}
                     />
+                    {product.topSeller && (
+                      <Badge className="absolute top-3 left-3 border-amber-300 bg-amber-100 text-amber-900 shadow-sm">
+                        <Trophy />
+                        Top seller
+                      </Badge>
+                    )}
                   </div>
 
                   <div className="flex min-w-0 flex-col p-4">

@@ -15,7 +15,7 @@ export default async function NewArrivals() {
           href="/products"
           className="hover:bg-primary cursor-pointer rounded-full border bg-zinc-100 px-4 py-2 text-sm text-black transition-all hover:text-white"
         >
-          tout voir
+          voir tous
         </Link>
       </div>
       <Suspense

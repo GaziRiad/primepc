@@ -12,7 +12,9 @@ import {
   Menu,
   ShoppingBag,
   ShoppingCart,
+  Trophy,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
@@ -44,9 +46,26 @@ export default function Header() {
 
   const favoritesCount = favProducts?.length || 0;
 
-  const mobileLinks = [
+  const mobileLinks: Array<{
+    badge?: string;
+    badgeTone?: "default" | "hot";
+    href: string;
+    icon: LucideIcon;
+    label: string;
+  }> = [
     { label: "Accueil", href: "/", icon: Home },
-    { label: "Produits", href: "/products", icon: ShoppingBag },
+    {
+      label: "Boutique - Tous les produits",
+      href: "/products",
+      icon: ShoppingBag,
+    },
+    {
+      label: "Top seller",
+      href: "/products?topSeller=true",
+      icon: Trophy,
+      badge: "HOT",
+      badgeTone: "hot",
+    },
     {
       label: "Favoris",
       href: "/wishlist",
@@ -185,10 +204,22 @@ export default function Header() {
                                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                               }`}
                             >
-                              <Icon className="size-4 text-slate-400 transition group-hover:text-slate-700" />
+                              <Icon
+                                className={`size-4 transition ${
+                                  link.badgeTone === "hot"
+                                    ? "text-red-500 group-hover:text-red-600"
+                                    : "text-slate-400 group-hover:text-slate-700"
+                                }`}
+                              />
                               <span className="flex-1">{link.label}</span>
                               {link.badge && (
-                                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                                <span
+                                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                    link.badgeTone === "hot"
+                                      ? "bg-red-600 text-white shadow-sm"
+                                      : "bg-slate-200 text-slate-700"
+                                  }`}
+                                >
                                   {link.badge}
                                 </span>
                               )}
@@ -286,7 +317,9 @@ export default function Header() {
       </div>
 
       <div className="hidden lg:block">
-        <Navigation />
+        <Suspense fallback={<div className="h-13 border-b" aria-hidden />}>
+          <Navigation />
+        </Suspense>
       </div>
     </header>
   );

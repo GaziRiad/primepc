@@ -1,2 +1,12 @@
 (node:30096) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
 (Use `node --trace-warnings ...` to show where the warning was created)
+⨯ upstream image response failed for https://res.cloudinary.com/dsgiy6pqy/image/upload/v1780797745/primepc/products/fxd4jbsno0w1u5ljqxuu.jpg 404
+⨯ upstream image response failed for https://res.cloudinary.com/dsgiy6pqy/image/upload/v1780797745/primepc/products/fxd4jbsno0w1u5ljqxuu.jpg 404
+⨯ upstream image response failed for https://res.cloudinary.com/dsgiy6pqy/image/upload/v1780797745/primepc/products/fxd4jbsno0w1u5ljqxuu.jpg 404
+⨯ upstream image response failed for https://res.cloudinary.com/dsgiy6pqy/image/upload/v1780797745/primepc/products/fxd4jbsno0w1u5ljqxuu.jpg 404
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/image-component.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/image-component.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⨯ upstream image response failed for https://res.cloudinary.com/dsgiy6pqy/image/upload/v1780797745/primepc/products/fxd4jbsno0w1u5ljqxuu.jpg 404
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/image-component.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/image-component.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ Fast Refresh had to perform a full reload when ./node_modules/next/dist/client/image-component.js changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload

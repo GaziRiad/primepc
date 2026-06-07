@@ -29,6 +29,7 @@ type ProductRow = {
   discount?: number;
   stock?: number;
   coverImage?: string;
+  topSeller?: boolean;
   updatedAt?: string;
 };
 
@@ -163,6 +164,11 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                         <p className="text-muted-foreground text-xs">
                           {product.brand || "Marque"}
                         </p>
+                        {product.topSeller && (
+                          <Badge className="mt-1 border-amber-300 bg-amber-100 text-amber-900">
+                            Top seller
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </TableCell>

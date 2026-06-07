@@ -6,6 +6,7 @@ import {
 } from "@/lib/notifications";
 import Cart from "@/models/Cart";
 import User from "@/models/User";
+import { getSiteUrl } from "@/lib/site";
 
 const REMINDER_DELAY_MS = 24 * 60 * 60 * 1000;
 
@@ -27,23 +28,6 @@ type PopulatedCartItem = {
       options?: Array<{ name?: string; value?: string }>;
     }>;
   } | null;
-};
-
-const getSiteUrl = () => {
-  const configured =
-    process.env.APP_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXTAUTH_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_URL ||
-    "";
-
-  return configured
-    ? `${configured.startsWith("http") ? "" : "https://"}${configured}`.replace(
-        /\/$/,
-        "",
-      )
-    : "";
 };
 
 const clearRecoveryState = async (userId: string, completed = false) => {

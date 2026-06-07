@@ -124,6 +124,7 @@ export default async function page({
       : [],
     recommendationPriority: Number(product.recommendationPriority ?? 0),
     recommendedProducts: safeRecommendedProducts,
+    topSeller: Boolean(product.topSeller),
   };
 
   return (

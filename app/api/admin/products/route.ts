@@ -64,6 +64,7 @@ const parseProductPayload = async (request: Request, requireAll: boolean) => {
   const recommendationPriority = Number.isFinite(priorityRaw)
     ? Math.min(100, Math.max(0, priorityRaw))
     : 0;
+  const topSeller = body.topSeller === true;
   const recommendedProducts = parseProductIds(body.recommendedProducts);
   const totalStock =
     variants.length > 0
@@ -134,6 +135,7 @@ const parseProductPayload = async (request: Request, requireAll: boolean) => {
       similarProducts: [],
       accessoryProducts: [],
       recommendationPriority,
+      topSeller,
       finalPrice: getDiscountedPrice(safePrice, safeDiscount),
     },
   };
@@ -198,7 +200,7 @@ export async function GET(request: Request) {
     .sort({ updatedAt: -1 })
     .limit(limit)
     .select(
-      "name brand price finalPrice discount stock coverImage slug recommendationPriority updatedAt",
+      "name brand price finalPrice discount stock coverImage slug recommendationPriority topSeller updatedAt",
     )
     .lean();
 

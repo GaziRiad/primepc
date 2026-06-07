@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   CircleX,
   PackageCheck,
@@ -30,6 +31,37 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   return [];
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+
+  if (!product) return {};
+
+  const description =
+    productDescriptionToPlainText(product.description).slice(0, 160) ||
+    `Découvrez ${product.name} chez PRIMEPC avec livraison partout en Algérie.`;
+  const canonical = `/products/${product.slug}`;
+
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title: `${product.name} | PRIMEPC`,
+      description,
+      images: product.coverImage
+        ? [{ url: product.coverImage, alt: product.name }]
+        : undefined,
+    },
+  };
 }
 
 type ProductCategory = {
@@ -85,8 +117,6 @@ export default async function page({
   const descriptionHtml = sanitizeProductDescription(
     product.description || fallbackDescription,
   );
-  const productSummary =
-    productDescriptionToPlainText(descriptionHtml) || fallbackDescription;
 
   const variantImages = Array.isArray(product.variants)
     ? product.variants
@@ -210,16 +240,23 @@ export default async function page({
                       {product.name}
                     </h1>
                   </div>
-                  <Badge
-                    variant={inStock ? "secondary" : "destructive"}
-                    className={
-                      inStock
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-rose-50 text-rose-700"
-                    }
-                  >
-                    {inStock ? "En stock" : "Rupture de stock"}
-                  </Badge>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {product.topSeller && (
+                      <Badge className="border-amber-300 bg-amber-100 text-amber-900">
+                        Top seller
+                      </Badge>
+                    )}
+                    <Badge
+                      variant={inStock ? "secondary" : "destructive"}
+                      className={
+                        inStock
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-rose-50 text-rose-700"
+                      }
+                    >
+                      {inStock ? "En stock" : "Rupture de stock"}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="text-accent-400 mt-4 flex flex-wrap items-center gap-2 text-xs">

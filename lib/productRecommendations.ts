@@ -18,6 +18,7 @@ type CandidateDocument = {
   finalPrice?: number;
   discount?: number;
   recommendationPriority?: number;
+  topSeller?: boolean;
   updatedAt?: Date;
 };
 
@@ -37,6 +38,7 @@ export type RecommendedProduct = {
   name: string;
   price: number;
   slug: string;
+  topSeller: boolean;
 };
 
 export type ProductRecommendations = {
@@ -58,6 +60,7 @@ const toRecommendedProduct = (
   name: String(product.name ?? ""),
   price: Number(product.price ?? 0),
   slug: String(product.slug ?? ""),
+  topSeller: Boolean(product.topSeller),
 });
 
 const sortCandidates = (
@@ -90,7 +93,7 @@ const sortCandidates = (
 };
 
 const candidateProjection =
-  "name brand slug coverImage images.0 price finalPrice discount recommendationPriority updatedAt";
+  "name brand slug coverImage images.0 price finalPrice discount recommendationPriority topSeller updatedAt";
 
 export const getProductRecommendationsUncached = async (
   productId: string,

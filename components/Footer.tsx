@@ -50,6 +50,11 @@ function FooterLinkGroup({ title, links }: FooterLinkGroupProps) {
 }
 
 export default function Footer() {
+  const supportEmail =
+    process.env.SUPPORT_EMAIL || "riadhallouch447@gmail.com";
+  const supportPhone = process.env.SUPPORT_PHONE || "+213555000000";
+  const supportPhoneLabel = process.env.SUPPORT_PHONE || "+213 555 00 00 00";
+
   return (
     <footer>
       <div className="mx-auto overflow-hidden rounded-t-[2rem] bg-[#1847B7] text-white shadow-[0_20px_80px_rgba(24,71,183,0.24)]">
@@ -106,19 +111,19 @@ export default function Footer() {
                 <li className="flex items-center gap-3">
                   <Mail className="size-4 shrink-0" />
                   <a
-                    href="mailto:support@primepc.dz"
+                    href={`mailto:${supportEmail}`}
                     className="transition hover:text-white"
                   >
-                    support@primepc.dz
+                    {supportEmail}
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="size-4 shrink-0" />
                   <a
-                    href="tel:+213555000000"
+                    href={`tel:${supportPhone.replace(/\s+/g, "")}`}
                     className="transition hover:text-white"
                   >
-                    +213 555 00 00 00
+                    {supportPhoneLabel}
                   </a>
                 </li>
                 <li className="flex items-center gap-3">

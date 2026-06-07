@@ -28,12 +28,14 @@ export default function Filters({ categories }: FiltersProps) {
   const sliderKey = `${urlMin}-${urlMax}`;
 
   const currentCategories = searchParams.getAll("categories") || [];
+  const currentTopSeller = searchParams.get("topSeller") === "true";
 
   const [range, setRange] = useState([urlMin, urlMax]);
   const [, startTransition] = useTransition();
 
   // optimistic state
   const [selected, setSelected] = useState(currentCategories);
+  const [topSellerOnly, setTopSellerOnly] = useState(currentTopSeller);
 
   function handleCategoryChange(slug: string) {
     const next = selected.includes(slug)
@@ -65,11 +67,29 @@ export default function Filters({ categories }: FiltersProps) {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     });
   }
+
+  function handleTopSellerChange(checked: boolean) {
+    setTopSellerOnly(checked);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    if (checked) {
+      params.set("topSeller", "true");
+    } else {
+      params.delete("topSeller");
+    }
+
+    startTransition(() => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+  }
+
   function handleClear() {
     if (!searchParams.toString()) return;
 
     setSelected([]);
     setRange([DEFAULT_MIN, DEFAULT_MAX]);
+    setTopSellerOnly(false);
 
     startTransition(() => {
       router.replace(pathname, { scroll: false });
@@ -110,6 +130,26 @@ export default function Filters({ categories }: FiltersProps) {
               </Field>
             ))}
           </FieldGroup>
+        </FieldSet>
+      </FilterBlock>
+
+      <FilterBlock title="Sélection">
+        <FieldSet>
+          <Field orientation="horizontal">
+            <Checkbox
+              id="top-seller-filter"
+              checked={topSellerOnly}
+              onCheckedChange={(checked) =>
+                handleTopSellerChange(Boolean(checked))
+              }
+            />
+            <FieldLabel
+              htmlFor="top-seller-filter"
+              className="cursor-pointer font-normal"
+            >
+              Top seller
+            </FieldLabel>
+          </Field>
         </FieldSet>
       </FilterBlock>
 

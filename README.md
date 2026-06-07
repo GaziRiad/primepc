@@ -22,7 +22,8 @@ Copy `.env.example` to `.env.local` and fill in the required values:
 ```bash
 MONGODB_URI=
 NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+AUTH_URL=https://primepcdz.com
+NEXTAUTH_URL=https://primepcdz.com
 ```
 
 Optional production integrations:
@@ -31,7 +32,7 @@ Optional production integrations:
 RESEND_API_KEY=
 RESEND_FROM=
 ADMIN_EMAILS=
-APP_URL=
+APP_URL=https://primepcdz.com
 SUPPORT_EMAIL=
 SUPPORT_PHONE=
 TELEGRAM_BOT_TOKEN=
@@ -44,6 +45,18 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 ## Production Checklist
 
 - Configure real production secrets and remove development URLs.
+- Point `primepcdz.com` and `www.primepcdz.com` to the production deployment,
+  then redirect `www` to the canonical non-`www` domain.
+- Set `APP_URL`, `AUTH_URL`, and `NEXTAUTH_URL` to `https://primepcdz.com` in
+  the production environment.
+- Add `https://primepcdz.com/api/auth/callback/google` to the authorized Google
+  OAuth redirect URIs and `https://primepcdz.com` to the authorized JavaScript
+  origins when Google sign-in is enabled.
+- Add and verify `primepcdz.com` in Resend, then change `RESEND_FROM` to an
+  address such as `PRIMEPC <orders@primepcdz.com>` only after SPF and DKIM are
+  verified.
+- Submit `https://primepcdz.com/sitemap.xml` to Google Search Console after the
+  domain is live.
 - Run `npm run lint` and `npm run build` before deploy.
 - Confirm MongoDB indexes are created in the production database.
 - Test the full cart, checkout, order notification, and admin order status flow.

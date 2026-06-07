@@ -24,6 +24,7 @@ export default function ProductCard({
       finalPrice={product.finalPrice}
       discount={product.discount}
       stock={product.stock}
+      topSeller={Boolean(product.topSeller)}
       hasVariants={
         Array.isArray(product.variants) &&
         product.variants.some(

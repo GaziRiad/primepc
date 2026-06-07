@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
 import { formatDZD, SOCIAL_LINKS } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site";
 
 type OrderEmailItem = {
   name: string;
@@ -67,13 +68,6 @@ const resend = new Resend(process.env.RESEND_API_KEY || "");
 const RESEND_FROM = process.env.RESEND_FROM || "";
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS || "";
 const APP_NAME = process.env.APP_NAME || "PRIMEPC";
-const APP_URL =
-  process.env.APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  process.env.NEXTAUTH_URL ||
-  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-  process.env.VERCEL_URL ||
-  "";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "";
 const SUPPORT_PHONE = process.env.SUPPORT_PHONE || "";
 const CONTACT_EMAIL_FALLBACK = "riadhallouch447@gmail.com";
@@ -85,12 +79,7 @@ const BRAND_MUTED = "#6B7280";
 const BORDER_COLOR = "#E5E7EB";
 const BG_SOFT = "#F6F7F9";
 
-const SITE_URL = APP_URL
-  ? `${APP_URL.startsWith("http") ? "" : "https://"}${APP_URL}`.replace(
-      /\/$/,
-      "",
-    )
-  : "";
+const SITE_URL = getSiteUrl();
 const LOGO_ICON_URL = SITE_URL ? `${SITE_URL}/logo-icon.png` : "";
 const LOGO_TEXT_URL = SITE_URL ? `${SITE_URL}/logo-text.png` : "";
 const PRODUCTS_URL = SITE_URL ? `${SITE_URL}/products` : "";

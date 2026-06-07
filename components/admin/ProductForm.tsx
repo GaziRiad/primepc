@@ -50,6 +50,7 @@ type ProductFormProduct = {
   variants?: ProductVariantRow[];
   recommendationPriority?: number;
   recommendedProducts?: string[];
+  topSeller?: boolean;
 };
 
 type SpecRow = { key: string; value: string };
@@ -108,6 +109,7 @@ export default function ProductForm({
   const [recommendedProducts, setRecommendedProducts] = useState<string[]>(
     product?.recommendedProducts ?? [],
   );
+  const [topSeller, setTopSeller] = useState(Boolean(product?.topSeller));
   const [variationGroups, setVariationGroups] = useState<
     ProductVariationGroup[]
   >(() => getVariationGroupsFromVariants(product?.variants));
@@ -382,6 +384,7 @@ export default function ProductForm({
       variants: normalizedVariants,
       recommendationPriority: Number(recommendationPriority) || 0,
       recommendedProducts,
+      topSeller,
     };
 
     setIsSaving(true);
@@ -499,6 +502,19 @@ export default function ProductForm({
               favoriser les produits importants ou à meilleure marge.
             </p>
           </div>
+          <label className="flex items-start gap-3 rounded-xl border bg-slate-50/60 p-4 md:col-span-2">
+            <Checkbox
+              checked={topSeller}
+              onCheckedChange={(checked) => setTopSeller(Boolean(checked))}
+            />
+            <span>
+              <span className="block text-sm font-semibold">Top seller</span>
+              <span className="text-muted-foreground mt-1 block text-xs">
+                Ajoute un badge Top seller sur ce produit et permet de le
+                retrouver avec le filtre dédié.
+              </span>
+            </span>
+          </label>
         </div>
 
         <div className="mt-6 space-y-2">

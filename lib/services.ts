@@ -64,6 +64,8 @@ const getAllProductsUncached = async (query?: QueryParams) => {
 
     const searchTerm = toSingle(queryObj.q);
     delete queryObj.q;
+    const topSellerFilter = toSingle(queryObj.topSeller);
+    delete queryObj.topSeller;
 
     const excludedFields = ["page", "sort", "limit", "fields"];
 
@@ -72,6 +74,8 @@ const getAllProductsUncached = async (query?: QueryParams) => {
     const mongoQuery: QueryFilter<TProduct> = {
       ...queryObj,
     } as QueryFilter<TProduct>;
+    if (topSellerFilter === "true") mongoQuery.topSeller = true;
+    if (topSellerFilter === "false") mongoQuery.topSeller = false;
 
     if (queryObj.categories) {
       const categories = Array.isArray(queryObj.categories)
@@ -172,6 +176,8 @@ const getProductsPageUncached = async (query?: QueryParams) => {
 
     const searchTerm = toSingle(queryObj.q);
     delete queryObj.q;
+    const topSellerFilter = toSingle(queryObj.topSeller);
+    delete queryObj.topSeller;
 
     const excludedFields = ["page", "sort", "limit", "fields"];
 
@@ -180,6 +186,8 @@ const getProductsPageUncached = async (query?: QueryParams) => {
     const mongoQuery: QueryFilter<TProduct> = {
       ...queryObj,
     } as QueryFilter<TProduct>;
+    if (topSellerFilter === "true") mongoQuery.topSeller = true;
+    if (topSellerFilter === "false") mongoQuery.topSeller = false;
 
     if (queryObj.categories) {
       const categories = Array.isArray(queryObj.categories)

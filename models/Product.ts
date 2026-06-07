@@ -91,6 +91,10 @@ const ProductSchema = new Schema(
       min: 0,
       max: 100,
     },
+    topSeller: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -129,6 +133,7 @@ ProductSchema.index({ finalPrice: 1 });
 ProductSchema.index({ stock: 1, updatedAt: -1 });
 ProductSchema.index({ updatedAt: -1 });
 ProductSchema.index({ recommendationPriority: -1, stock: -1 });
+ProductSchema.index({ topSeller: 1, stock: 1, updatedAt: -1 });
 ProductSchema.index({
   categories: 1,
   stock: 1,
@@ -148,7 +153,8 @@ if (
     !existingModel.schema.path("recommendedProducts") ||
     !existingModel.schema.path("similarProducts") ||
     !existingModel.schema.path("accessoryProducts") ||
-    !existingModel.schema.path("recommendationPriority"))
+    !existingModel.schema.path("recommendationPriority") ||
+    !existingModel.schema.path("topSeller"))
 ) {
   delete models.Product;
 }

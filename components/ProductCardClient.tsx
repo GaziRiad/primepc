@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Trophy } from "lucide-react";
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -33,6 +34,7 @@ type ProductCardClientProps = {
   large?: boolean;
   badge?: boolean;
   hasVariants?: boolean;
+  topSeller?: boolean;
 };
 
 export default function ProductCardClient({
@@ -49,6 +51,7 @@ export default function ProductCardClient({
   large = false,
   badge,
   hasVariants = false,
+  topSeller = false,
 }: ProductCardClientProps) {
   const gallery = useMemo(() => {
     const cleaned = [coverImage, ...(images ?? [])]
@@ -221,10 +224,20 @@ export default function ProductCardClient({
           </span>
         </Link>
 
-        {badge && (
-          <Badge className="mb-2 bg-green-500" variant="default">
-            Nouveauté
-          </Badge>
+        {(badge || topSeller) && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {topSeller && (
+              <Badge className="border-amber-300 bg-amber-100 text-amber-900">
+                <Trophy />
+                Top seller
+              </Badge>
+            )}
+            {badge && (
+              <Badge className="bg-green-500" variant="default">
+                Nouveauté
+              </Badge>
+            )}
+          </div>
         )}
 
         <div
