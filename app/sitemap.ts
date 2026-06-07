@@ -10,7 +10,6 @@ const publicRoutes = [
   "/about",
   "/blogs",
   "/contact",
-  "/delivery",
   "/delivery-returns",
   "/returns",
   "/warranty",
@@ -28,9 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     await startDbConnection();
-    const products = await Product.find()
-      .select("slug updatedAt")
-      .lean();
+    const products = await Product.find().select("slug updatedAt").lean();
 
     return [
       ...staticPages,
