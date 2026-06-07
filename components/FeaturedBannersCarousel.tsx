@@ -108,7 +108,7 @@ export default function FeaturedBannersCarousel({
         onMouseLeave={() => setIsPaused(false)}
         onFocus={() => setIsPaused(true)}
         onBlur={() => setIsPaused(false)}
-        aria-label="Featured product highlights"
+        aria-label="Produits mis en avant"
       >
         <CarouselContent className="h-full">
           {visibleSlides.map((slide, index) => (
@@ -132,7 +132,7 @@ export default function FeaturedBannersCarousel({
                 key={`${slide.image}-dot-${index}`}
                 type="button"
                 onClick={() => api?.scrollTo(index)}
-                aria-label={`Show slide ${index + 1}`}
+                aria-label={`Afficher la diapositive ${index + 1}`}
                 aria-current={index === activeIndex ? "true" : undefined}
                 className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${
                   index === activeIndex

@@ -83,49 +83,49 @@ export default function RichTextEditor({
 
   const toolbar = [
     {
-      label: "Normal text",
+      label: "Texte normal",
       icon: Pilcrow,
       active: editor?.isActive("paragraph"),
       disabled: !editor,
       action: () => editor?.chain().focus().setParagraph().run(),
     },
     {
-      label: "Large text",
+      label: "Grand texte",
       icon: Heading3,
       active: editor?.isActive("heading", { level: 3 }),
       disabled: !editor,
       action: () => editor?.chain().focus().toggleHeading({ level: 3 }).run(),
     },
     {
-      label: "Bold",
+      label: "Gras",
       icon: Bold,
       active: editor?.isActive("bold"),
       disabled: !editor?.can().chain().focus().toggleBold().run(),
       action: () => editor?.chain().focus().toggleBold().run(),
     },
     {
-      label: "Bullet list",
+      label: "Liste à puces",
       icon: List,
       active: editor?.isActive("bulletList"),
       disabled: !editor?.can().chain().focus().toggleBulletList().run(),
       action: () => editor?.chain().focus().toggleBulletList().run(),
     },
     {
-      label: "Numbered list",
+      label: "Liste numérotée",
       icon: ListOrdered,
       active: editor?.isActive("orderedList"),
       disabled: !editor?.can().chain().focus().toggleOrderedList().run(),
       action: () => editor?.chain().focus().toggleOrderedList().run(),
     },
     {
-      label: "Undo",
+      label: "Annuler",
       icon: Undo2,
       active: false,
       disabled: !editor?.can().chain().focus().undo().run(),
       action: () => editor?.chain().focus().undo().run(),
     },
     {
-      label: "Redo",
+      label: "Rétablir",
       icon: Redo2,
       active: false,
       disabled: !editor?.can().chain().focus().redo().run(),
@@ -134,7 +134,7 @@ export default function RichTextEditor({
   ];
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-white focus-within:border-primary/60 focus-within:ring-3 focus-within:ring-primary/10">
+    <div className="focus-within:border-primary/60 focus-within:ring-primary/10 overflow-hidden rounded-xl border bg-white focus-within:ring-3">
       <div className="flex flex-wrap items-center gap-1 border-b bg-slate-50 px-2 py-2">
         {toolbar.map(({ label, icon: Icon, active, disabled, action }) => (
           <Button

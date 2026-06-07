@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import ImageUploadButton from "@/components/admin/ImageUploadButton";
+import ProductRelationshipPicker, {
+  type RelationshipProductOption,
+} from "@/components/admin/ProductRelationshipPicker";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { formatDZD, getDiscountedPrice } from "@/lib/utils";
 import {
@@ -45,6 +48,8 @@ type ProductFormProduct = {
   categories?: string[];
   specs?: Record<string, string>;
   variants?: ProductVariantRow[];
+  recommendationPriority?: number;
+  recommendedProducts?: string[];
 };
 
 type SpecRow = { key: string; value: string };
@@ -62,12 +67,14 @@ type ProductFormProps = {
   mode: "create" | "edit";
   product?: ProductFormProduct;
   categories: CategoryOption[];
+  relationshipProducts?: RelationshipProductOption[];
 };
 
 export default function ProductForm({
   mode,
   product,
   categories,
+  relationshipProducts = [],
 }: ProductFormProps) {
   const router = useRouter();
 
@@ -94,6 +101,12 @@ export default function ProductForm({
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     product?.categories ?? [],
+  );
+  const [recommendationPriority, setRecommendationPriority] = useState(
+    String(product?.recommendationPriority ?? 0),
+  );
+  const [recommendedProducts, setRecommendedProducts] = useState<string[]>(
+    product?.recommendedProducts ?? [],
   );
   const [variationGroups, setVariationGroups] = useState<
     ProductVariationGroup[]
@@ -235,7 +248,7 @@ export default function ProductForm({
     const combinationCount = getVariantCombinationCount(variationGroups);
     if (combinationCount > MAX_PRODUCT_VARIANTS) {
       toast.error(
-        `This setup creates ${combinationCount} combinations. Keep it to ${MAX_PRODUCT_VARIANTS} or fewer.`,
+        `Cette configuration crée ${combinationCount} combinaisons. Limitez-vous à ${MAX_PRODUCT_VARIANTS} ou moins.`,
       );
       return;
     }
@@ -243,7 +256,7 @@ export default function ProductForm({
     const next = buildCombinations(variationGroups, variants);
     setVariants(next);
     if (next.length === 0 && variationGroups.length > 0) {
-      toast.error("Add at least one value to every option group.");
+      toast.error("Ajoutez au moins une valeur à chaque groupe d’options.");
     }
   };
 
@@ -257,17 +270,17 @@ export default function ProductForm({
     const stockValue = Number(stock);
 
     if (!nameValue) {
-      toast.error("Name is required.");
+      toast.error("Le nom est obligatoire.");
       return;
     }
 
     if (!coverValue) {
-      toast.error("Cover image URL is required.");
+      toast.error("L’URL de l’image principale est obligatoire.");
       return;
     }
 
     if (!Number.isFinite(priceValue) || priceValue <= 0) {
-      toast.error("Price must be a positive number.");
+      toast.error("Le prix doit être un nombre positif.");
       return;
     }
 
@@ -283,20 +296,20 @@ export default function ProductForm({
     if (
       cleanedGroups.some((group) => !group.name || group.values.length === 0)
     ) {
-      toast.error("Every option needs a name and at least one value.");
+      toast.error("Chaque option doit avoir un nom et au moins une valeur.");
       return;
     }
 
     const groupNames = cleanedGroups.map((group) => group.name.toLowerCase());
     if (new Set(groupNames).size !== groupNames.length) {
-      toast.error("Option names must be unique.");
+      toast.error("Les noms des options doivent être uniques.");
       return;
     }
 
     const combinationCount = getVariantCombinationCount(cleanedGroups);
     if (combinationCount > MAX_PRODUCT_VARIANTS) {
       toast.error(
-        `This setup creates ${combinationCount} combinations. Keep it to ${MAX_PRODUCT_VARIANTS} or fewer.`,
+        `Cette configuration crée ${combinationCount} combinaisons. Limitez-vous à ${MAX_PRODUCT_VARIANTS} ou moins.`,
       );
       return;
     }
@@ -332,7 +345,9 @@ export default function ProductForm({
           (variant.price !== undefined && variant.price < 100),
       )
     ) {
-      toast.error("Each variation needs options and a valid optional price.");
+      toast.error(
+        "Chaque variante doit avoir des options et un prix facultatif valide.",
+      );
       return;
     }
 
@@ -365,6 +380,8 @@ export default function ProductForm({
           return acc;
         }, {}),
       variants: normalizedVariants,
+      recommendationPriority: Number(recommendationPriority) || 0,
+      recommendedProducts,
     };
 
     setIsSaving(true);
@@ -387,17 +404,17 @@ export default function ProductForm({
       };
 
       if (!response.ok || !data.ok) {
-        toast.error(data?.error || "Unable to save product.");
+        toast.error(data?.error || "Impossible d’enregistrer le produit.");
         return;
       }
 
       toast.success(
-        mode === "create" ? "Product created." : "Product updated.",
+        mode === "create" ? "Produit créé." : "Produit mis à jour.",
       );
       router.push("/admin/products");
       router.refresh();
     } catch {
-      toast.error("Unable to save product. Please try again.");
+      toast.error("Impossible d’enregistrer le produit. Veuillez réessayer.");
     } finally {
       setIsSaving(false);
     }
@@ -406,22 +423,24 @@ export default function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
-        <h2 className="text-foreground text-lg font-semibold">Basics</h2>
+        <h2 className="text-foreground text-lg font-semibold">
+          Informations principales
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Core details that appear on product listings.
+          Informations principales affichées dans les listes de produits.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium">Nom</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Brand</label>
+            <label className="text-sm font-medium">Marque</label>
             <Input value={brand} onChange={(e) => setBrand(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Price (DZD)</label>
+            <label className="text-sm font-medium">Prix (DZD)</label>
             <Input
               type="number"
               min="0"
@@ -431,7 +450,7 @@ export default function ProductForm({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Discount (%)</label>
+            <label className="text-sm font-medium">Remise (%)</label>
             <Input
               type="number"
               min="0"
@@ -443,7 +462,7 @@ export default function ProductForm({
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              {variants.length > 0 ? "Total variation stock" : "Stock"}
+              {variants.length > 0 ? "Stock total des variantes" : "Stock"}
             </label>
             <Input
               type="number"
@@ -455,10 +474,30 @@ export default function ProductForm({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Final price preview</label>
+            <label className="text-sm font-medium">Aperçu du prix final</label>
             <div className="border-input bg-input/30 flex h-9 items-center rounded-4xl border px-3 text-sm">
               {formatDZD(finalPrice)}
             </div>
+          </div>
+          <div className="space-y-2 md:col-span-2">
+            <label className="text-sm font-medium">
+              Priorité de recommandation
+            </label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value={recommendationPriority}
+              onChange={(event) =>
+                setRecommendationPriority(event.target.value)
+              }
+            />
+            <p className="text-muted-foreground text-xs">
+              Usage interne uniquement. Les produits prioritaires apparaissent
+              en premier dans les recommandations. Utilisez cette valeur pour
+              favoriser les produits importants ou à meilleure marge.
+            </p>
           </div>
         </div>
 
@@ -471,12 +510,10 @@ export default function ProductForm({
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-foreground text-lg font-semibold">
-              Variations
-            </h2>
+            <h2 className="text-foreground text-lg font-semibold">Variantes</h2>
             <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-              Optional. Define options once, then manage stock for every
-              generated combination.
+              Facultatif. Définissez les options une fois, puis gérez le stock
+              de chaque combinaison générée.
             </p>
           </div>
           <Button
@@ -487,20 +524,20 @@ export default function ProductForm({
               setVariationGroups((current) => [
                 ...current,
                 {
-                  name: current.length === 0 ? "Color" : "",
+                  name: current.length === 0 ? "Couleur" : "",
                   values: [],
                 },
               ])
             }
           >
-            Add option
+            Ajouter une option
           </Button>
         </div>
 
         {variationGroups.length === 0 ? (
           <div className="text-muted-foreground mt-6 rounded-xl border border-dashed px-4 py-6 text-sm">
-            This is a simple product. Add an option such as Color to create
-            separate stock entries for Black, Blue, and other values.
+            Ce produit est simple. Ajoutez une option comme Couleur pour créer
+            des stocks séparés pour Noir, Bleu et les autres valeurs.
           </div>
         ) : (
           <div className="mt-6 space-y-6">
@@ -511,10 +548,12 @@ export default function ProductForm({
                   className="grid gap-3 rounded-xl border bg-slate-50/60 p-4 md:grid-cols-[0.65fr_1.35fr_auto]"
                 >
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Option name</label>
+                    <label className="text-sm font-medium">
+                      Nom de l’option
+                    </label>
                     <Input
                       value={group.name}
-                      placeholder="Color"
+                      placeholder="Couleur"
                       onChange={(event) =>
                         updateVariationGroup(
                           groupIndex,
@@ -530,7 +569,7 @@ export default function ProductForm({
                     </label>
                     <Input
                       value={group.values.join(", ")}
-                      placeholder="Black, Blue, Red"
+                      placeholder="Noir, Bleu, Rouge"
                       onChange={(event) =>
                         updateVariationGroup(
                           groupIndex,
@@ -554,15 +593,16 @@ export default function ProductForm({
                       );
                     }}
                   >
-                    Remove
+                    Retirer
                   </Button>
                 </div>
               ))}
 
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-muted-foreground text-xs">
-                  Example: Color with Black, Blue creates one stock row per
-                  color. Add Size to create color and size combinations.
+                  Exemple : Couleur avec Noir et Bleu crée une ligne de stock
+                  par couleur. Ajoutez Taille pour créer des combinaisons de
+                  couleur et de taille.
                 </p>
                 <Button
                   type="button"
@@ -578,10 +618,10 @@ export default function ProductForm({
               <div className="overflow-x-auto rounded-xl border">
                 <div className="min-w-[760px]">
                   <div className="grid grid-cols-[minmax(150px,1.4fr)_90px_minmax(130px,0.8fr)_minmax(180px,1fr)] gap-3 border-b bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500">
-                    <span>Combination</span>
-                    <span>Available</span>
+                    <span>Combinaison</span>
+                    <span>Disponible</span>
                     <span>Stock</span>
-                    <span>Price override</span>
+                    <span>Prix personnalisé</span>
                   </div>
                   <div className="divide-y">
                     {variants.map((variant, variantIndex) => (
@@ -610,7 +650,7 @@ export default function ProductForm({
                             <Input
                               value={variant.image ?? ""}
                               className="h-8 text-xs"
-                              placeholder="Optional image URL"
+                              placeholder="URL d’image facultative"
                               onChange={(event) =>
                                 updateVariant(
                                   variantIndex,
@@ -620,7 +660,7 @@ export default function ProductForm({
                               }
                             />
                             <ImageUploadButton
-                              label="Upload"
+                              label="Importer"
                               onUpload={(url) =>
                                 updateVariant(variantIndex, "image", url)
                               }
@@ -629,7 +669,7 @@ export default function ProductForm({
                         </div>
                         <Checkbox
                           checked={variant.active}
-                          aria-label={`Make ${variant.label} available`}
+                          aria-label={`Rendre ${variant.label} disponible`}
                           onCheckedChange={(value) =>
                             updateVariant(
                               variantIndex,
@@ -662,7 +702,7 @@ export default function ProductForm({
                               : ""
                           }
                           disabled={!variant.active}
-                          placeholder={`Base: ${formatDZD(finalPrice)}`}
+                          placeholder={`Prix de base : ${formatDZD(finalPrice)}`}
                           onChange={(event) =>
                             updateVariant(
                               variantIndex,
@@ -684,20 +724,21 @@ export default function ProductForm({
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <h2 className="text-foreground text-lg font-semibold">Images</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Upload images or paste URLs. Cover image is required.
+          Importez des images ou collez leurs URL. L’image principale est
+          obligatoire.
         </p>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           <div className="space-y-3">
-            <label className="text-sm font-medium">Cover image</label>
+            <label className="text-sm font-medium">Image principale</label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Input
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="Paste image URL"
+                placeholder="Collez l’URL de l’image"
               />
               <ImageUploadButton
-                label="Upload cover"
+                label="Importer l’image principale"
                 onUpload={(url) => setCoverImage(url)}
               />
             </div>
@@ -714,15 +755,17 @@ export default function ProductForm({
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="text-sm font-medium">Gallery images</label>
+              <label className="text-sm font-medium">
+                Images de la galerie
+              </label>
               <ImageUploadButton
-                label="Upload image"
+                label="Importer une image"
                 onUpload={(url) => setImages((current) => [...current, url])}
               />
             </div>
             {images.length === 0 && (
               <p className="text-muted-foreground text-sm">
-                No gallery images yet.
+                Aucune image dans la galerie.
               </p>
             )}
             <div className="space-y-3">
@@ -737,7 +780,7 @@ export default function ProductForm({
                     variant="outline"
                     onClick={() => handleImageRemove(index)}
                   >
-                    Remove
+                    Retirer
                   </Button>
                 </div>
               ))}
@@ -747,24 +790,24 @@ export default function ProductForm({
               variant="outline"
               onClick={() => setImages((current) => [...current, ""])}
             >
-              Add image URL
+              Ajouter une URL d’image
             </Button>
           </div>
         </div>
       </section>
 
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
-        <h2 className="text-foreground text-lg font-semibold">Categories</h2>
+        <h2 className="text-foreground text-lg font-semibold">Catégories</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Assign the product to one or more categories.
+          Associez le produit à une ou plusieurs catégories.
         </p>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categories.length === 0 ? (
             <p className="text-muted-foreground text-sm">
-              No categories available. Create one in{" "}
+              Aucune catégorie disponible. Créez-en une dans{" "}
               <Link href="/admin/categories" className="text-primary">
-                Categories
+                Catégories
               </Link>
               .
             </p>
@@ -800,27 +843,31 @@ export default function ProductForm({
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-foreground text-lg font-semibold">Specs</h2>
+            <h2 className="text-foreground text-lg font-semibold">
+              Caractéristiques
+            </h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              Add key specs like RAM, storage, or GPU.
+              Ajoutez des caractéristiques comme la RAM, le stockage ou le GPU.
             </p>
           </div>
-          <Badge variant="outline">Optional</Badge>
+          <Badge variant="outline">Facultatif</Badge>
         </div>
 
         <div className="mt-6 space-y-3">
           {specs.length === 0 && (
-            <p className="text-muted-foreground text-sm">No specs added yet.</p>
+            <p className="text-muted-foreground text-sm">
+              Aucune caractéristique ajoutée.
+            </p>
           )}
           {specs.map((spec, index) => (
             <div key={`spec-${index}`} className="flex gap-2">
               <Input
-                placeholder="Label (e.g. RAM)"
+                placeholder="Libellé (ex. RAM)"
                 value={spec.key}
                 onChange={(e) => handleSpecChange(index, "key", e.target.value)}
               />
               <Input
-                placeholder="Value (e.g. 16GB)"
+                placeholder="Valeur (ex. 16 Go)"
                 value={spec.value}
                 onChange={(e) =>
                   handleSpecChange(index, "value", e.target.value)
@@ -831,7 +878,7 @@ export default function ProductForm({
                 variant="outline"
                 onClick={() => handleSpecRemove(index)}
               >
-                Remove
+                Retirer
               </Button>
             </div>
           ))}
@@ -845,8 +892,32 @@ export default function ProductForm({
             setSpecs((current) => [...current, { key: "", value: "" }])
           }
         >
-          Add spec
+          Ajouter une caractéristique
         </Button>
+      </section>
+
+      <section className="rounded-2xl border bg-white p-6 shadow-xs">
+        <div>
+          <h2 className="text-foreground text-lg font-semibold">
+            Recommandations
+          </h2>
+          <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
+            Choisissez librement les produits à recommander. Laissez cette liste
+            vide pour afficher automatiquement des produits en stock de la même
+            catégorie.
+          </p>
+        </div>
+
+        <div className="mt-6">
+          <ProductRelationshipPicker
+            label="Produits recommandés"
+            description="Mélangez alternatives, accessoires et produits complémentaires dans l’ordre souhaité."
+            value={recommendedProducts}
+            onChange={setRecommendedProducts}
+            initialProducts={relationshipProducts}
+            excludeId={product?._id}
+          />
+        </div>
       </section>
 
       <div className="flex items-center justify-end gap-2">
@@ -855,14 +926,14 @@ export default function ProductForm({
           variant="ghost"
           onClick={() => router.push("/admin/products")}
         >
-          Cancel
+          Annuler
         </Button>
         <Button type="submit" disabled={isSaving}>
           {isSaving
-            ? "Saving..."
+            ? "Enregistrement..."
             : mode === "create"
-              ? "Create product"
-              : "Save changes"}
+              ? "Créer le produit"
+              : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

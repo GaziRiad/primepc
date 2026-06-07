@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 const accountLabels: Record<string, string> = {
-  "/my-account/account-details": "Account details",
-  "/my-account/adress": "Address",
-  "/my-account/orders": "Orders",
+  "/my-account/account-details": "Détails du compte",
+  "/my-account/adress": "Adresse",
+  "/my-account/orders": "Commandes",
 };
 
 export default function AccountBreadcrumbs() {
@@ -17,8 +17,8 @@ export default function AccountBreadcrumbs() {
   return (
     <Breadcrumbs
       items={[
-        { label: "Home", href: "/" },
-        { label: "My account", href: "/my-account" },
+        { label: "Accueil", href: "/" },
+        { label: "Mon compte", href: "/my-account" },
         ...(currentLabel ? [{ label: currentLabel }] : []),
       ]}
     />

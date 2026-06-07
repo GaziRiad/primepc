@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 
-const DEFAULT_COUNTRY = "Algeria";
+const DEFAULT_COUNTRY = "Algérie";
 
 const emptyAddress = {
   firstName: "",
@@ -97,7 +97,7 @@ export default function AddressForm() {
     event.preventDefault();
 
     if (!isValidAddress(address)) {
-      toast.error("Please fill all required address fields.");
+      toast.error("Veuillez remplir tous les champs d’adresse obligatoires.");
       return;
     }
 
@@ -113,13 +113,13 @@ export default function AddressForm() {
       const data = (await response.json()) as { ok?: boolean };
 
       if (!response.ok || !data?.ok) {
-        toast.error("Unable to save address.");
+        toast.error("Impossible d’enregistrer l’adresse.");
         return;
       }
 
-      toast.success("Address saved successfully.");
+      toast.success("Adresse enregistrée avec succès.");
     } catch {
-      toast.error("Unable to save address. Please try again.");
+      toast.error("Impossible d’enregistrer l’adresse. Veuillez réessayer.");
     } finally {
       setIsSaving(false);
     }
@@ -128,16 +128,19 @@ export default function AddressForm() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h3 className="text-foreground text-lg font-semibold">Saved address</h3>
+        <h3 className="text-foreground text-lg font-semibold">
+          Adresse enregistrée
+        </h3>
         <p className="text-muted-foreground text-sm">
-          Save a default shipping address to prefill checkout.
+          Enregistrez une adresse de livraison par défaut pour préremplir la
+          commande.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="first-name">First name</FieldLabel>
+            <FieldLabel htmlFor="first-name">Prénom</FieldLabel>
             <Input
               id="first-name"
               value={address.firstName}
@@ -152,7 +155,7 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="last-name">Last name</FieldLabel>
+            <FieldLabel htmlFor="last-name">Nom</FieldLabel>
             <Input
               id="last-name"
               value={address.lastName}
@@ -167,7 +170,7 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="phone">Phone number</FieldLabel>
+            <FieldLabel htmlFor="phone">Numéro de téléphone</FieldLabel>
             <Input
               id="phone"
               value={address.phone}
@@ -182,7 +185,7 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="street">Street address</FieldLabel>
+            <FieldLabel htmlFor="street">Adresse</FieldLabel>
             <Input
               id="street"
               value={address.street}
@@ -197,7 +200,9 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="apartment">Apartment, suite, etc.</FieldLabel>
+            <FieldLabel htmlFor="apartment">
+              Appartement, suite, etc.
+            </FieldLabel>
             <Input
               id="apartment"
               value={address.apartment}
@@ -212,7 +217,7 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel>City</FieldLabel>
+            <FieldLabel>Ville</FieldLabel>
             <Select
               value={address.city}
               onValueChange={(value) =>
@@ -225,7 +230,7 @@ export default function AddressForm() {
               disabled={isLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select city" />
+                <SelectValue placeholder="Sélectionnez une ville" />
               </SelectTrigger>
               <SelectContent>
                 {ALGERIA_LOCATIONS.map((location) => (
@@ -253,8 +258,8 @@ export default function AddressForm() {
                 <SelectValue
                   placeholder={
                     communes.length === 0
-                      ? "Select a city first"
-                      : "Select commune"
+                      ? "Sélectionnez d’abord une ville"
+                      : "Sélectionnez une commune"
                   }
                 />
               </SelectTrigger>
@@ -269,7 +274,7 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="country">Country</FieldLabel>
+            <FieldLabel htmlFor="country">Pays</FieldLabel>
             <Input
               id="country"
               value={address.country}
@@ -282,7 +287,8 @@ export default function AddressForm() {
               disabled={isLoading}
             />
             <FieldDescription>
-              This address will be used as the default for future orders.
+              Cette adresse sera utilisée par défaut pour vos prochaines
+              commandes.
             </FieldDescription>
           </Field>
         </FieldGroup>
@@ -295,7 +301,7 @@ export default function AddressForm() {
                 Saving
               </span>
             ) : (
-              "Save address"
+              "Enregistrer l’adresse"
             )}
           </Button>
         </div>

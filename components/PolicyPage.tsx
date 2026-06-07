@@ -48,7 +48,9 @@ export default function PolicyPage({
   return (
     <main className="bg-accent-50 min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: title }]} />
+        <Breadcrumbs
+          items={[{ label: "Accueil", href: "/" }, { label: title }]}
+        />
       </div>
 
       <section className="bg-primary text-white">
@@ -149,8 +151,8 @@ export default function PolicyPage({
                 Besoin d&apos;aide ?
               </h2>
               <p className="text-muted-foreground mt-2 text-sm leading-6">
-                Notre equipe peut confirmer les details de votre commande, de
-                la livraison ou de la garantie avant votre achat.
+                Notre equipe peut confirmer les details de votre commande, de la
+                livraison ou de la garantie avant votre achat.
               </p>
               <div className="mt-5 grid gap-3">
                 <Link
@@ -171,7 +173,7 @@ export default function PolicyPage({
 
             <div
               className={cn(
-                "mt-5 rounded-2xl border border-primary/10 bg-white p-6 shadow-xs",
+                "border-primary/10 mt-5 rounded-2xl border bg-white p-6 shadow-xs",
                 !aside && "hidden",
               )}
             >
@@ -186,7 +188,7 @@ export default function PolicyPage({
               <Link
                 key={link.href}
                 href={link.href}
-                className="group rounded-2xl border bg-white p-5 shadow-xs transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                className="group hover:border-primary/30 rounded-2xl border bg-white p-5 shadow-xs transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <p className="text-primary text-sm font-semibold">
                   {link.label}

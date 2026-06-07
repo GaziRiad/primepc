@@ -12,8 +12,8 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const sortOptions = [
-  { value: "-finalPrice", label: "Price: High to Low" },
-  { value: "finalPrice", label: "Price: Low to High" },
+  { value: "-finalPrice", label: "Prix : décroissant" },
+  { value: "finalPrice", label: "Prix : croissant" },
 ];
 
 export default function SorterFilter() {
@@ -35,7 +35,7 @@ export default function SorterFilter() {
   return (
     <Select value={currentSort} onValueChange={handleSorting}>
       <SelectTrigger size="sm" className="w-full sm:max-w-48">
-        <SelectValue placeholder="Sort By:" />
+        <SelectValue placeholder="Trier par :" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

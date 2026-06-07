@@ -17,7 +17,7 @@ export default function Breadcrumbs({ className, items }: BreadcrumbsProps) {
 
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label="Fil d’Ariane"
       className={cn(
         "text-accent-400 flex flex-wrap items-center gap-2 text-sm",
         className,

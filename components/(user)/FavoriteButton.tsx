@@ -26,7 +26,7 @@ export default function FavoriteButton({
       }}
       disabled={isLoading}
       aria-pressed={fav}
-      aria-label={fav ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
       className={cn(
         "inline-flex cursor-pointer items-center justify-center rounded-full transition-all disabled:pointer-events-none disabled:opacity-50",
         large ? "size-9" : "size-8",

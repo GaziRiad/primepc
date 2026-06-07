@@ -33,10 +33,10 @@ export default async function page({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3">
           <Breadcrumbs
-            items={[{ label: "Home", href: "/" }, { label: "Products" }]}
+            items={[{ label: "Accueil", href: "/" }, { label: "Produits" }]}
           />
           <h2 className="text-accent text-xl font-semibold sm:text-2xl">
-            Explore All products
+            Découvrir tous les produits
           </h2>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default async function page({
                 </Suspense>
               </div>
               <p className="text-xs sm:text-sm">
-                Showing {start}-{end} of {total} Products
+                Affichage {start}-{end} sur {total} Produits
               </p>
             </div>
 
@@ -79,7 +79,7 @@ export default async function page({
             <div className="flex flex-col py-3 shadow-xs">
               {products.length === 0 ? (
                 <div className="flex flex-1 items-center justify-center">
-                  <p className="text-muted-foreground">No products found.</p>
+                  <p className="text-muted-foreground">Aucun produit trouvé.</p>
                 </div>
               ) : (
                 <ul className="grid flex-1 grid-cols-2 content-start gap-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">

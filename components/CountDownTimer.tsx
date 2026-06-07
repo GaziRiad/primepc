@@ -85,17 +85,17 @@ export default function CountDownTimer({ endDate }: CountDownTimerProps) {
   if (timeLeft.totalMs <= 0) {
     return (
       <div className="mb-6 flex max-w-md text-xl font-medium text-blue-950">
-        Event ended.
+        L’événement est terminé.
       </div>
     );
   }
 
   return (
     <div className="mb-6 grid max-w-xs grid-cols-2 gap-2 sm:flex sm:max-w-none sm:flex-wrap sm:items-center sm:gap-3">
-      <TimeBlock value={timeLeft.days} label="Days" />
-      <TimeBlock value={timeLeft.hours} label="Hours" />
+      <TimeBlock value={timeLeft.days} label="Jours" />
+      <TimeBlock value={timeLeft.hours} label="Heures" />
       <TimeBlock value={timeLeft.minutes} label="Minutes" />
-      <TimeBlock value={timeLeft.seconds} label="Seconds" />
+      <TimeBlock value={timeLeft.seconds} label="Secondes" />
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function LoggedInProfile({ user }: LoggedInProfileProps) {
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
       <div className="flex flex-col">
-        <span className="text-accent-200 text-[10px] uppercase">Account</span>
+        <span className="text-accent-200 text-[10px] uppercase">Compte</span>
         <Link
           href="/my-account"
           className="hover:text-primary text-xs transition-all"

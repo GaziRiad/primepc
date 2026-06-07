@@ -55,7 +55,7 @@ export default function BrowseByCategoriesCarousel({
       <Carousel
         opts={{ align: "center", containScroll: "trimSnaps", dragFree: true }}
         className="relative"
-        aria-label="Browse by category"
+        aria-label="Parcourir par catégorie"
         setApi={(nextApi) => setApi(nextApi)}
       >
         <CarouselContent

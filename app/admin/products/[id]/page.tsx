@@ -40,6 +40,41 @@ export default async function page({
     product.specs instanceof Map
       ? Object.fromEntries(product.specs)
       : ((product.specs as Record<string, string> | undefined) ?? {});
+  const toRelationshipIds = (value: unknown): string[] =>
+    Array.isArray(value)
+      ? value.map((relatedId: unknown) => String(relatedId))
+      : [];
+  const savedRecommendations = toRelationshipIds(product.recommendedProducts);
+  const legacyRecommendations = [
+    ...toRelationshipIds(product.similarProducts),
+    ...toRelationshipIds(product.accessoryProducts),
+  ];
+  const relationshipIds: string[] = Array.from(
+    new Set<string>(
+      savedRecommendations.length > 0
+        ? savedRecommendations
+        : legacyRecommendations,
+    ),
+  );
+  const relationshipDocs =
+    relationshipIds.length > 0
+      ? await Product.find({ _id: { $in: relationshipIds } })
+          .select("name coverImage finalPrice stock")
+          .lean()
+      : [];
+  const relationshipProducts = relationshipDocs.map((relatedProduct) => ({
+    _id: String(relatedProduct._id),
+    name: relatedProduct.name,
+    coverImage: relatedProduct.coverImage ?? "",
+    finalPrice: Number(relatedProduct.finalPrice ?? 0),
+    stock: Number(relatedProduct.stock ?? 0),
+  }));
+  const existingRelationshipIds = new Set(
+    relationshipProducts.map((relatedProduct) => relatedProduct._id),
+  );
+  const safeRecommendedProducts = relationshipIds.filter((relatedId: string) =>
+    existingRelationshipIds.has(relatedId),
+  );
 
   const safeProduct = {
     _id: String(product._id),
@@ -87,14 +122,18 @@ export default async function page({
           }),
         )
       : [],
+    recommendationPriority: Number(product.recommendationPriority ?? 0),
+    recommendedProducts: safeRecommendedProducts,
   };
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-foreground text-xl font-semibold">Edit product</h2>
+        <h2 className="text-foreground text-xl font-semibold">
+          Modifier le produit
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Update product details, pricing, and inventory.
+          Modifiez les informations, les prix et le stock du produit.
         </p>
       </div>
 
@@ -102,6 +141,7 @@ export default async function page({
         mode="edit"
         product={safeProduct}
         categories={safeCategories}
+        relationshipProducts={relationshipProducts}
       />
     </div>
   );

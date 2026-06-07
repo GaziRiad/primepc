@@ -1,7 +1,7 @@
 export default function page() {
   return (
     <div className="">
-      <h3>DASHBOARD</h3>
+      <h3>TABLEAU DE BORD</h3>
     </div>
   );
 }

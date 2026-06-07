@@ -49,12 +49,12 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
     const slugValue = slug.trim();
 
     if (!nameValue) {
-      toast.error("Category name is required.");
+      toast.error("Le nom de la catégorie est obligatoire.");
       return;
     }
 
     if (!imageValue) {
-      toast.error("Category image is required.");
+      toast.error("L’image de la catégorie est obligatoire.");
       return;
     }
 
@@ -88,12 +88,12 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
       };
 
       if (!response.ok || !data.ok) {
-        toast.error(data?.error || "Unable to save category.");
+        toast.error(data?.error || "Impossible d’enregistrer la catégorie.");
         return;
       }
 
       toast.success(
-        mode === "create" ? "Category created." : "Category updated.",
+        mode === "create" ? "Catégorie créée." : "Catégorie mise à jour.",
       );
       router.push("/admin/categories");
       router.refresh();
@@ -106,26 +106,27 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
     <form onSubmit={handleSubmit} className="space-y-8">
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <h2 className="text-foreground text-lg font-semibold">
-          Category details
+          Informations de la catégorie
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Name, slug, and image used across the storefront.
+          Nom, slug et image utilisés dans la boutique.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium">Nom</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Slug (optional)</label>
+            <label className="text-sm font-medium">Slug (facultatif)</label>
             <Input
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              placeholder={autoSlug || "auto-generated"}
+              placeholder={autoSlug || "généré automatiquement"}
             />
             <p className="text-muted-foreground text-xs">
-              Leave blank to use: {autoSlug || "auto-generated"}
+              Laissez vide pour utiliser :{" "}
+              {autoSlug || "généré automatiquement"}
             </p>
           </div>
         </div>
@@ -136,10 +137,10 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
             <Input
               value={image}
               onChange={(e) => setImage(e.target.value)}
-              placeholder="Paste image URL"
+              placeholder="Collez l’URL de l’image"
             />
             <ImageUploadButton
-              label="Upload image"
+              label="Importer une image"
               folder="primepc/categories"
               onUpload={(url) => setImage(url)}
             />
@@ -148,7 +149,7 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
             <Image
               fill
               src={image || FALLBACK_IMAGE}
-              alt={name || "Category preview"}
+              alt={name || "Aperçu de la catégorie"}
               className="object-cover"
               sizes="(min-width: 768px) 50vw, 100vw"
             />
@@ -160,20 +161,20 @@ export default function CategoryForm({ mode, category }: CategoryFormProps) {
             checked={isActive}
             onCheckedChange={(value) => setIsActive(Boolean(value))}
           />
-          <span className="text-sm">Category is active</span>
+          <span className="text-sm">La catégorie est active</span>
         </div>
       </section>
 
       <div className="flex items-center justify-end gap-2">
         <Button type="button" variant="ghost" asChild>
-          <Link href="/admin/categories">Cancel</Link>
+          <Link href="/admin/categories">Annuler</Link>
         </Button>
         <Button type="submit" disabled={isSaving}>
           {isSaving
-            ? "Saving..."
+            ? "Enregistrement..."
             : mode === "create"
-              ? "Create category"
-              : "Save changes"}
+              ? "Créer la catégorie"
+              : "Enregistrer les modifications"}
         </Button>
       </div>
     </form>

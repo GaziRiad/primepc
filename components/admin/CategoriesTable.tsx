@@ -75,7 +75,11 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
 
   const handleDelete = async (categoryId: string) => {
     if (!categoryId) return;
-    if (!window.confirm("Delete this category? This cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Supprimer cette catégorie ? Cette action est irréversible.",
+      )
+    ) {
       return;
     }
 
@@ -90,14 +94,14 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       };
 
       if (!response.ok || !data.ok) {
-        toast.error(data?.error || "Unable to delete category.");
+        toast.error(data?.error || "Impossible de supprimer la catégorie.");
         return;
       }
 
       setDeletedIds((current) =>
         current.includes(categoryId) ? current : [...current, categoryId],
       );
-      toast.success("Category deleted.");
+      toast.success("Catégorie supprimée.");
     } finally {
       setDeletingId(null);
     }
@@ -107,9 +111,9 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
     <div className="rounded-2xl border bg-white shadow-xs">
       <div className="flex items-center justify-between border-b px-6 py-4">
         <div>
-          <h2 className="text-foreground text-lg font-semibold">Categories</h2>
+          <h2 className="text-foreground text-lg font-semibold">Catégories</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Manage product categories and storefront visibility.
+            Gérez les catégories et leur visibilité sur la boutique.
           </p>
         </div>
       </div>
@@ -117,9 +121,9 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
       <Table>
         <TableHeader className="bg-muted/40">
           <TableRow>
-            <TableHead>Category</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Updated</TableHead>
+            <TableHead>Catégorie</TableHead>
+            <TableHead>Statut</TableHead>
+            <TableHead>Mis à jour</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -127,7 +131,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
           {rows.length === 0 ? (
             <TableRow>
               <TableCell colSpan={4} className="text-muted-foreground">
-                No categories found.
+                Aucune catégorie trouvée.
               </TableCell>
             </TableRow>
           ) : (
@@ -177,7 +181,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/admin/categories/${category._id}`}>
-                          Edit
+                          Modifier
                         </Link>
                       </Button>
                       <Button variant="ghost" size="sm" asChild>
@@ -186,7 +190,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                             category.slug,
                           )}`}
                         >
-                          View
+                          Voir
                         </Link>
                       </Button>
                       <Button
@@ -195,7 +199,7 @@ export default function CategoriesTable({ categories }: CategoriesTableProps) {
                         onClick={() => handleDelete(category._id)}
                         disabled={deletingId === category._id}
                       >
-                        Delete
+                        Supprimer
                       </Button>
                     </div>
                   </TableCell>

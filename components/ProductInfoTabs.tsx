@@ -16,14 +16,12 @@ type TabId = "description" | "additional" | "reviews";
 
 const tabs: Array<{ id: TabId; label: string }> = [
   { id: "description", label: "Description" },
-  { id: "additional", label: "Additional Information" },
-  { id: "reviews", label: "Reviews" },
+  { id: "additional", label: "Informations complémentaires" },
+  { id: "reviews", label: "Avis" },
 ];
 
 const formatSpecLabel = (label: string) =>
-  label
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  label.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -47,7 +45,7 @@ export default function ProductInfoTabs({
     <div className="mt-14 rounded-2xl border bg-white shadow-xs">
       <div
         role="tablist"
-        aria-label="Product details"
+        aria-label="Détails du produit"
         className="flex gap-2 overflow-x-auto border-b px-4 py-3 text-sm sm:px-6 sm:text-base"
       >
         {tabs.map((tab) => {
@@ -63,7 +61,7 @@ export default function ProductInfoTabs({
               aria-controls={`${tab.id}-panel`}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "shrink-0 rounded-full px-4 py-2 font-semibold transition outline-none focus-visible:ring-2 focus-visible:ring-primary/35",
+                "focus-visible:ring-primary/35 shrink-0 rounded-full px-4 py-2 font-semibold transition outline-none focus-visible:ring-2",
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-accent-400 hover:bg-accent-100 hover:text-primary",
@@ -99,17 +97,17 @@ export default function ProductInfoTabs({
             aria-labelledby="additional-tab"
           >
             <h2 className="text-foreground text-xl font-semibold">
-              Additional Information
+              Informations complémentaires
             </h2>
             <dl className="mt-5 grid gap-4 text-base">
-              <InfoRow label="Brand" value={brand} />
+              <InfoRow label="Marque" value={brand} />
               <InfoRow label="Stock" value={stockLabel} />
               <InfoRow
-                label="Categories"
+                label="Catégories"
                 value={
                   categories.length > 0
                     ? categories.join(", ")
-                    : "Uncategorized"
+                    : "Sans catégorie"
                 }
               />
             </dl>
@@ -139,9 +137,10 @@ export default function ProductInfoTabs({
             role="tabpanel"
             aria-labelledby="reviews-tab"
           >
-            <h2 className="text-foreground text-xl font-semibold">Reviews</h2>
+            <h2 className="text-foreground text-xl font-semibold">Avis</h2>
             <p className="text-accent-500 mt-4 text-base leading-7">
-              No reviews yet. Be the first to share your experience.
+              Aucun avis pour le moment. Soyez le premier à partager votre
+              expérience.
             </p>
           </section>
         )}

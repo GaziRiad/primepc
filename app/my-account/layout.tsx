@@ -16,7 +16,7 @@ export default async function layout({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3">
           <AccountBreadcrumbs />
-          <h2 className="text-accent text-2xl font-semibold">My account</h2>
+          <h2 className="text-accent text-2xl font-semibold">Mon compte</h2>
         </div>
       </div>
 

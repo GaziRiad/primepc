@@ -19,7 +19,7 @@ export default function AboutPage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 text-white">
               <span className="h-0.5 w-10 bg-white/80" />
-              <p className="text-xs tracking-[0.35em] uppercase">A propos</p>
+              <p className="text-xs tracking-[0.35em] uppercase">À propos</p>
             </div>
             <h1 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
               A propos de PRIMEPC
@@ -119,7 +119,7 @@ export default function AboutPage() {
               <p className="mt-4 text-base font-semibold text-white">
                 Riad Hallouch
               </p>
-              <p className="text-sm text-white/70">Fondateur et gerant</p>
+              <p className="text-sm text-white/70">Fondateur et gérant</p>
               <p className="mt-3 text-sm text-white/70">
                 Freelance reconnu et consultant tech. Il veut rendre la
                 performance accessible partout en Algerie.

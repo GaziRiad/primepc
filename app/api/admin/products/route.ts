@@ -9,6 +9,37 @@ import { getDiscountedPrice } from "@/lib/utils";
 import { sanitizeProductDescription } from "@/lib/productDescription";
 import { parseProductVariants } from "@/lib/productVariants";
 
+const parseProductIds = (value: unknown, excludedIds = new Set<string>()) => {
+  if (!Array.isArray(value)) return [];
+
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item ?? "").trim())
+        .filter(
+          (item) => Types.ObjectId.isValid(item) && !excludedIds.has(item),
+        ),
+    ),
+  ).slice(0, 12);
+};
+
+const removeMissingRelationships = async (payload: {
+  recommendedProducts: string[];
+}) => {
+  if (payload.recommendedProducts.length === 0) return;
+
+  const existingIds = new Set(
+    (
+      await Product.find({
+        _id: { $in: payload.recommendedProducts },
+      }).distinct("_id")
+    ).map(String),
+  );
+  payload.recommendedProducts = payload.recommendedProducts.filter((id) =>
+    existingIds.has(id),
+  );
+};
+
 const parseProductPayload = async (request: Request, requireAll: boolean) => {
   let body: Record<string, unknown> = {};
   try {
@@ -29,6 +60,11 @@ const parseProductPayload = async (request: Request, requireAll: boolean) => {
   const safePrice = Number.isFinite(price) ? price : 0;
   const safeDiscount = Number.isFinite(discount) ? discount : 0;
   const variants = parseProductVariants(body.variants, safePrice, safeDiscount);
+  const priorityRaw = Math.floor(Number(body.recommendationPriority ?? 0));
+  const recommendationPriority = Number.isFinite(priorityRaw)
+    ? Math.min(100, Math.max(0, priorityRaw))
+    : 0;
+  const recommendedProducts = parseProductIds(body.recommendedProducts);
   const totalStock =
     variants.length > 0
       ? variants.reduce(
@@ -94,6 +130,10 @@ const parseProductPayload = async (request: Request, requireAll: boolean) => {
       categories,
       specs,
       variants,
+      recommendedProducts,
+      similarProducts: [],
+      accessoryProducts: [],
+      recommendationPriority,
       finalPrice: getDiscountedPrice(safePrice, safeDiscount),
     },
   };
@@ -114,6 +154,7 @@ export async function POST(request: Request) {
   }
 
   await startDbConnection();
+  await removeMissingRelationships(parsed.payload);
 
   try {
     const product = await Product.create(parsed.payload);
@@ -133,6 +174,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const search = (searchParams.get("q") ?? "").trim();
+  const exclude = (searchParams.get("exclude") ?? "").trim();
   const limitRaw = Number(searchParams.get("limit"));
   const limit =
     Number.isFinite(limitRaw) && limitRaw > 0
@@ -142,6 +184,10 @@ export async function GET(request: Request) {
   await startDbConnection();
 
   const filter: Record<string, unknown> = {};
+  if (Types.ObjectId.isValid(exclude)) {
+    filter._id = { $ne: exclude };
+  }
+
   if (search) {
     const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = new RegExp(escaped, "i");
@@ -152,7 +198,7 @@ export async function GET(request: Request) {
     .sort({ updatedAt: -1 })
     .limit(limit)
     .select(
-      "name brand price finalPrice discount stock coverImage slug updatedAt",
+      "name brand price finalPrice discount stock coverImage slug recommendationPriority updatedAt",
     )
     .lean();
 

@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "PRIMEPC",
   description:
-    "Primepc is a website that sells laptops and accessories. We offer a wide range of products at competitive prices, and we are committed to providing excellent customer service for algerians.",
+    "PRIMEPC propose des ordinateurs portables et des accessoires à prix compétitifs, avec un service client attentif partout en Algérie.",
 };
 
 const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-sans" });

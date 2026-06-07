@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import TabList from "./TabList";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 type SidebarUser = {
   name?: string | null;
@@ -34,7 +35,10 @@ export default function Sidebar({ user }: SidebarProps) {
           <div className="flex flex-col">
             <p className="text-primary-500 mb-1 text-sm">{user.name}</p>
             <p className="text-xs">
-              Member Since {createdAt ? format(createdAt, "MMMM dd yyyy") : "-"}
+              Membre depuis{" "}
+              {createdAt
+                ? format(createdAt, "dd MMMM yyyy", { locale: fr })
+                : "-"}
             </p>
           </div>
         </div>

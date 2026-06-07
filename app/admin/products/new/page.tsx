@@ -21,10 +21,10 @@ export default async function page() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-foreground text-xl font-semibold">
-          Create product
+          Créer le produit
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Add a new product to your catalog.
+          Ajoutez un nouveau produit à votre catalogue.
         </p>
       </div>
 

@@ -38,7 +38,7 @@ export function LoginForm({
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail || !password) {
-      toast.error("Please enter your email and password.");
+      toast.error("Veuillez saisir votre e-mail et votre mot de passe.");
       return;
     }
 
@@ -52,19 +52,21 @@ export function LoginForm({
       });
 
       if (result?.code === "rate_limited") {
-        toast.error("Too many sign-in attempts. Please try again later.");
+        toast.error(
+          "Trop de tentatives de connexion. Veuillez réessayer plus tard.",
+        );
         return;
       }
 
       if (result?.error) {
-        toast.error("Invalid email or password.");
+        toast.error("E-mail ou mot de passe incorrect.");
         return;
       }
 
       router.push("/my-account");
       router.refresh();
     } catch {
-      toast.error("Unable to sign in. Please try again.");
+      toast.error("Impossible de vous connecter. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
@@ -74,8 +76,10 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login to your account to continue.</CardDescription>
+          <CardTitle className="text-xl">Heureux de vous revoir</CardTitle>
+          <CardDescription>
+            Connectez-vous à votre compte pour continuer.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -101,11 +105,11 @@ export function LoginForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Login with Google
+                  Se connecter avec Google
                 </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or continue with
+                Ou continuer avec
               </FieldSeparator>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -121,12 +125,12 @@ export function LoginForm({
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
                   <Link
                     href="#"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    Mot de passe oublié ?
                   </Link>
                 </div>
                 <Input
@@ -144,12 +148,12 @@ export function LoginForm({
                   type="submit"
                   disabled={isSubmitting}
                 >
-                  Login
+                  Se connecter
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account?{" "}
+                  Vous n&apos;avez pas de compte ?{" "}
                   <Link href="/register" className="underline">
-                    Sign up
+                    S&apos;inscrire
                   </Link>
                 </FieldDescription>
               </Field>
@@ -158,8 +162,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        En continuant, vous acceptez nos{" "}
+        <a href="#">Conditions d’utilisation</a> et{" "}
+        <a href="#">Politique de confidentialité</a>.
       </FieldDescription>
     </div>
   );

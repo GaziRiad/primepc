@@ -38,17 +38,17 @@ export default function CategoriesToolbar({
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search categories..."
+          placeholder="Rechercher des catégories..."
           className="w-full"
         />
         <Button type="submit" variant="outline">
-          Search
+          Rechercher
         </Button>
       </form>
 
       <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
         <Button asChild>
-          <Link href="/admin/categories/new">New category</Link>
+          <Link href="/admin/categories/new">Nouvelle catégorie</Link>
         </Button>
       </div>
     </div>

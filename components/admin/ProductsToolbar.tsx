@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/select";
 
 const STOCK_OPTIONS = [
-  { value: "all", label: "All stock" },
-  { value: "in", label: "In stock" },
-  { value: "out", label: "Out of stock" },
+  { value: "all", label: "Tous les stocks" },
+  { value: "in", label: "En stock" },
+  { value: "out", label: "Rupture de stock" },
 ];
 
 type ProductsToolbarProps = {
@@ -57,11 +57,11 @@ export default function ProductsToolbar({
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search products..."
+          placeholder="Rechercher des produits..."
           className="w-full"
         />
         <Button type="submit" variant="outline">
-          Search
+          Rechercher
         </Button>
       </form>
 
@@ -86,7 +86,7 @@ export default function ProductsToolbar({
         </Select>
 
         <Button asChild>
-          <Link href="/admin/products/new">New product</Link>
+          <Link href="/admin/products/new">Nouveau produit</Link>
         </Button>
       </div>
     </div>

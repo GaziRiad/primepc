@@ -32,7 +32,8 @@ const parseMarketingPayload = async (request: Request) => {
     .slice(0, MAX_HERO_SLIDES)
     .map((banner) => ({
       image: normalizeText(banner?.image, 500),
-      alt: normalizeText(banner?.alt, 160) || "PRIMEPC carousel slide",
+      alt:
+        normalizeText(banner?.alt, 160) || "Diapositive du carrousel PRIMEPC",
       href: normalizeText(banner?.href, 300),
       isActive: banner?.isActive !== false,
     }))
@@ -44,7 +45,7 @@ const parseMarketingPayload = async (request: Request) => {
     .slice(0, MAX_SIDE_BANNERS)
     .map((banner) => ({
       image: normalizeText(banner?.image, 500),
-      alt: normalizeText(banner?.alt, 160) || "PRIMEPC side banner",
+      alt: normalizeText(banner?.alt, 160) || "Bannière latérale PRIMEPC",
       href: normalizeText(banner?.href, 300),
       isActive: banner?.isActive !== false,
     }))

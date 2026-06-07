@@ -1,4 +1,5 @@
 import { formatDZD } from "@/lib/utils";
+import { getOrderStatusLabel } from "@/lib/orderStatus";
 
 type TrendPoint = {
   label: string;
@@ -37,8 +38,6 @@ const statusStyles: Record<string, string> = {
   failed: "bg-slate-500",
 };
 
-const readableStatus = (status: string) => status.replace(/_/g, " ");
-
 export default function AdminOverviewCharts({
   salesSummary,
   statuses,
@@ -56,22 +55,22 @@ export default function AdminOverviewCharts({
         <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-foreground text-lg font-semibold">
-              30-day sales overview
+              Aperçu des ventes sur 30 jours
             </h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              Order value, delivered revenue, and volume grouped into clear
-              periods.
+              Valeur des commandes, chiffre d’affaires livré et volume regroupés
+              par période.
             </p>
           </div>
           <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            Last 30 days
+            30 derniers jours
           </p>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
             <p className="text-muted-foreground text-xs uppercase">
-              Order value
+              Valeur des commandes
             </p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {formatDZD(salesSummary.orderValue)}
@@ -79,7 +78,7 @@ export default function AdminOverviewCharts({
           </div>
           <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
             <p className="text-muted-foreground text-xs uppercase">
-              Delivered revenue
+              Chiffre d’affaires livré
             </p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {formatDZD(salesSummary.revenue)}
@@ -87,7 +86,7 @@ export default function AdminOverviewCharts({
           </div>
           <div className="border-primary-100 bg-primary-50 rounded-xl border p-3">
             <p className="text-muted-foreground text-xs uppercase">
-              Orders placed
+              Commandes passées
             </p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {salesSummary.orders}
@@ -95,7 +94,7 @@ export default function AdminOverviewCharts({
           </div>
           <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
             <p className="text-muted-foreground text-xs uppercase">
-              Avg order value
+              Panier moyen
             </p>
             <p className="text-foreground mt-1 text-lg font-semibold">
               {formatDZD(salesSummary.averageOrderValue)}
@@ -124,7 +123,9 @@ export default function AdminOverviewCharts({
                     {point.label}
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    {point.orders} orders - {point.deliveredOrders} delivered
+                    {point.orders} commande{point.orders === 1 ? "" : "s"} -{" "}
+                    {point.deliveredOrders} livrée
+                    {point.deliveredOrders === 1 ? "" : "s"}
                   </p>
                 </div>
 
@@ -134,7 +135,7 @@ export default function AdminOverviewCharts({
                       {formatDZD(point.orderValue)}
                     </span>
                     <span className="text-muted-foreground">
-                      Delivered {formatDZD(point.revenue)}
+                      Livrée {formatDZD(point.revenue)}
                     </span>
                   </div>
                   <div className="relative h-3 overflow-hidden rounded-full bg-slate-100">
@@ -156,14 +157,14 @@ export default function AdminOverviewCharts({
         <div className="mt-5 flex flex-wrap items-center gap-4 border-t pt-4 text-xs text-slate-600">
           <span className="flex items-center gap-2">
             <span className="bg-primary-500 size-2.5 rounded-full" />
-            Order value
+            Valeur des commandes
           </span>
           <span className="flex items-center gap-2">
             <span className="size-2.5 rounded-full bg-emerald-500" />
-            Delivered revenue
+            Chiffre d’affaires livré
           </span>
           <span>
-            Best period:{" "}
+            Meilleure période :{" "}
             <strong className="text-foreground">
               {salesSummary.bestPeriodLabel} -{" "}
               {formatDZD(salesSummary.bestPeriodRevenue)}
@@ -174,10 +175,10 @@ export default function AdminOverviewCharts({
 
       <section className="rounded-2xl border bg-white p-4 shadow-xs sm:p-6">
         <h2 className="text-foreground text-lg font-semibold">
-          Order status mix
+          Répartition des statuts
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          See where orders are waiting, moving, or completed.
+          Visualisez les commandes en attente, en cours et terminées.
         </p>
 
         <div className="mt-6 flex flex-col gap-4">
@@ -191,7 +192,7 @@ export default function AdminOverviewCharts({
               <div key={status.label} className="space-y-2">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="text-foreground capitalize">
-                    {readableStatus(status.label)}
+                    {getOrderStatusLabel(status.label)}
                   </span>
                   <span className="font-semibold">
                     {status.value} - {percentage}%

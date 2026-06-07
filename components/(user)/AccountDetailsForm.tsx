@@ -101,12 +101,12 @@ export default function AccountDetailsForm() {
     const image = profile.image.trim();
 
     if (name.length < NAME_MIN || name.length > NAME_MAX) {
-      toast.error("Please enter a valid full name.");
+      toast.error("Veuillez saisir un nom complet valide.");
       return;
     }
 
     if (image && !/^https?:\/\//i.test(image)) {
-      toast.error("Profile image must be a valid URL.");
+      toast.error("La photo de profil doit être une URL valide.");
       return;
     }
 
@@ -126,7 +126,7 @@ export default function AccountDetailsForm() {
       };
 
       if (!response.ok || !data?.ok || !data.profile) {
-        toast.error("Unable to update profile.");
+        toast.error("Impossible de mettre à jour le profil.");
         return;
       }
 
@@ -136,11 +136,11 @@ export default function AccountDetailsForm() {
         image: data.profile.image ?? "",
       });
 
-      toast.success("Profile updated successfully.");
+      toast.success("Profil mis à jour avec succès.");
       await update();
       router.refresh();
     } catch {
-      toast.error("Unable to update profile. Please try again.");
+      toast.error("Impossible de mettre à jour le profil. Veuillez réessayer.");
     } finally {
       setIsSaving(false);
     }
@@ -150,10 +150,10 @@ export default function AccountDetailsForm() {
     <div className="flex flex-col gap-6">
       <div>
         <h3 className="text-foreground text-lg font-semibold">
-          Account details
+          Détails du compte
         </h3>
         <p className="text-muted-foreground text-sm">
-          Update your profile information and profile picture.
+          Mettez à jour vos informations et votre photo de profil.
         </p>
       </div>
 
@@ -164,14 +164,14 @@ export default function AccountDetailsForm() {
             <AvatarFallback>{initials || "??"}</AvatarFallback>
           </Avatar>
           <div className="flex flex-1 flex-col gap-2">
-            <p className="text-sm font-medium">Profile photo</p>
+            <p className="text-sm font-medium">Photo de profil</p>
             <p className="text-muted-foreground text-xs">
-              Upload a square image for the best result.
+              Importez une image carrée pour un meilleur rendu.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <ImageUploadButton
-              label="Upload photo"
+              label="Importer une photo"
               folder="primepc/users"
               onUpload={(url) =>
                 setProfile((prev) => ({ ...prev, image: url }))
@@ -182,18 +182,18 @@ export default function AccountDetailsForm() {
               variant="outline"
               onClick={() => setProfile((prev) => ({ ...prev, image: "" }))}
             >
-              Remove
+              Retirer
             </Button>
           </div>
         </div>
 
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="full-name">Full name</FieldLabel>
+            <FieldLabel htmlFor="full-name">Nom complet</FieldLabel>
             <Input
               id="full-name"
               type="text"
-              placeholder="Your full name"
+              placeholder="Votre nom complet"
               value={profile.name}
               onChange={(event) =>
                 setProfile((prev) => ({
@@ -204,7 +204,7 @@ export default function AccountDetailsForm() {
               disabled={isLoading}
             />
             <FieldDescription>
-              This name will be used for your account and orders.
+              Ce nom sera utilisé pour votre compte et vos commandes.
             </FieldDescription>
           </Field>
 
@@ -212,12 +212,15 @@ export default function AccountDetailsForm() {
             <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input id="email" type="email" value={profile.email} disabled />
             <FieldDescription>
-              Your email is used for login and order updates.
+              Votre e-mail est utilisé pour la connexion et le suivi de vos
+              commandes.
             </FieldDescription>
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="profile-image">Profile image URL</FieldLabel>
+            <FieldLabel htmlFor="profile-image">
+              URL de la photo de profil
+            </FieldLabel>
             <Input
               id="profile-image"
               type="url"
@@ -232,7 +235,8 @@ export default function AccountDetailsForm() {
               disabled={isLoading}
             />
             <FieldDescription>
-              You can paste a direct image URL or upload above.
+              Vous pouvez coller une URL d’image directe ou utiliser le bouton
+              d’importation ci-dessus.
             </FieldDescription>
           </Field>
         </FieldGroup>
@@ -245,7 +249,7 @@ export default function AccountDetailsForm() {
                 Saving
               </span>
             ) : (
-              "Save changes"
+              "Enregistrer les modifications"
             )}
           </Button>
         </div>

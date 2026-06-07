@@ -273,7 +273,7 @@ export async function POST(request: Request) {
         statusHistory: [
           {
             status: "pending_confirmation",
-            note: "Order placed",
+            note: "Commande passée",
             changedAt: new Date(),
             changedBy: session?.user?.id ?? null,
           },

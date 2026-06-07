@@ -8,6 +8,7 @@ import { MoreHorizontal, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDZD } from "@/lib/utils";
+import { getOrderStatusLabel } from "@/lib/orderStatus";
 
 const STATUS_OPTIONS = [
   "pending_confirmation",
@@ -126,7 +127,7 @@ export default function OrdersTable({
 
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     if (!orderId) {
-      toast.error("Invalid order id.");
+      toast.error("Identifiant de commande invalide.");
       return;
     }
     setUpdatingId(orderId);
@@ -146,9 +147,12 @@ export default function OrdersTable({
 
       if (!response.ok || !data?.ok || !data.order) {
         if (response.status === 403) {
-          toast.error("You are not authorized to update orders.");
+          toast.error("Vous n’êtes pas autorisé à modifier les commandes.");
         } else {
-          toast.error(data?.error || "Unable to update order status.");
+          toast.error(
+            data?.error ||
+              "Impossible de mettre à jour le statut de la commande.",
+          );
         }
         return;
       }
@@ -181,7 +185,7 @@ export default function OrdersTable({
 
   const updateArchive = async (orderId: string, archived: boolean) => {
     if (!orderId) {
-      toast.error("Invalid order id.");
+      toast.error("Identifiant de commande invalide.");
       return;
     }
     setArchivingId(orderId);
@@ -200,7 +204,9 @@ export default function OrdersTable({
       };
 
       if (!response.ok || !data?.ok || !data.order) {
-        toast.error(data?.error || "Unable to update archive state.");
+        toast.error(
+          data?.error || "Impossible de modifier l’état d’archivage.",
+        );
         return;
       }
 
@@ -241,9 +247,9 @@ export default function OrdersTable({
   return (
     <div className="rounded-2xl border bg-white shadow-xs">
       <div className="border-b px-6 py-4">
-        <h2 className="text-foreground text-lg font-semibold">Orders</h2>
+        <h2 className="text-foreground text-lg font-semibold">Commandes</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Manage incoming COD orders and update fulfillment status.
+          Gérez les commandes avec paiement à la livraison et leur traitement.
         </p>
       </div>
 
@@ -251,20 +257,20 @@ export default function OrdersTable({
         <table className="w-full min-w-180 text-sm">
           <thead className="bg-muted/30 text-muted-foreground">
             <tr className="text-left">
-              <th className="px-6 py-3 font-medium">Order</th>
-              <th className="px-6 py-3 font-medium">Customer</th>
+              <th className="px-6 py-3 font-medium">Commande</th>
+              <th className="px-6 py-3 font-medium">Client</th>
               <th className="px-6 py-3 font-medium">Total</th>
-              <th className="px-6 py-3 font-medium">Status</th>
-              <th className="px-6 py-3 font-medium">Placed</th>
-              <th className="px-6 py-3 font-medium">Update</th>
-              <th className="px-6 py-3 font-medium">Details</th>
+              <th className="px-6 py-3 font-medium">Statut</th>
+              <th className="px-6 py-3 font-medium">Date</th>
+              <th className="px-6 py-3 font-medium">Mettre à jour</th>
+              <th className="px-6 py-3 font-medium">Détails</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
                 <td className="text-muted-foreground px-6 py-6" colSpan={7}>
-                  No orders yet.
+                  Aucune commande pour le moment.
                 </td>
               </tr>
             ) : (
@@ -288,12 +294,12 @@ export default function OrdersTable({
                         #{orderId.slice(-6)}
                       </div>
                       <div className="text-muted-foreground text-xs">
-                        {itemsCount} item{itemsCount === 1 ? "" : "s"}
+                        {itemsCount} article{itemsCount === 1 ? "" : "s"}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-foreground font-medium">
-                        {name || "Guest"}
+                        {name || "Invité"}
                       </div>
                       <div className="text-muted-foreground text-xs">
                         {order.customer?.phone ?? ""}
@@ -312,16 +318,16 @@ export default function OrdersTable({
                           "bg-muted text-foreground"
                         }
                       >
-                        {order.status.replace(/_/g, " ")}
+                        {getOrderStatusLabel(order.status)}
                       </Badge>
                       {order.archived && (
                         <Badge variant="outline" className="ml-2">
-                          Archived
+                          Archivée
                         </Badge>
                       )}
                     </td>
                     <td className="text-muted-foreground px-6 py-4 text-xs">
-                      {new Date(order.createdAt).toLocaleString()}
+                      {new Date(order.createdAt).toLocaleString("fr-FR")}
                     </td>
                     <td className="px-6 py-4">
                       <select
@@ -337,7 +343,7 @@ export default function OrdersTable({
                       >
                         {STATUS_OPTIONS.map((status) => (
                           <option key={status} value={status}>
-                            {status.replace(/_/g, " ")}
+                            {getOrderStatusLabel(status)}
                           </option>
                         ))}
                       </select>
@@ -352,7 +358,7 @@ export default function OrdersTable({
                           size="icon-xs"
                           variant="ghost"
                           aria-haspopup="menu"
-                          aria-label="Order actions"
+                          aria-label="Actions de la commande"
                           aria-expanded={menuOpenId === orderId}
                           onClick={(event) => {
                             event.stopPropagation();
@@ -378,7 +384,7 @@ export default function OrdersTable({
                               }}
                               role="menuitem"
                             >
-                              View details
+                              Voir les détails
                             </button>
                             <button
                               type="button"
@@ -390,7 +396,7 @@ export default function OrdersTable({
                               disabled={archivingId === orderId}
                               role="menuitem"
                             >
-                              {order.archived ? "Unarchive" : "Archive"}
+                              {order.archived ? "Désarchiver" : "Archiver"}
                             </button>
                           </div>
                         )}
@@ -415,16 +421,16 @@ export default function OrdersTable({
             <div className="flex items-start justify-between border-b px-6 py-4">
               <div>
                 <h3 className="text-foreground text-lg font-semibold">
-                  Order #{activeOrder._id.slice(-6)}
+                  Commande nº {activeOrder._id.slice(-6)}
                 </h3>
                 <p className="text-muted-foreground text-xs">
-                  {new Date(activeOrder.createdAt).toLocaleString()}
+                  {new Date(activeOrder.createdAt).toLocaleString("fr-FR")}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                aria-label="Close order details"
+                aria-label="Fermer les détails de la commande"
                 className="text-muted-foreground hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-full border"
               >
                 <X className="size-4" />
@@ -435,7 +441,7 @@ export default function OrdersTable({
               <div className="flex flex-col gap-5">
                 <div>
                   <h4 className="text-foreground text-sm font-semibold">
-                    Items
+                    Articles
                   </h4>
                   <div className="mt-3 space-y-3">
                     {(activeOrder.items ?? []).map((item, index) => {
@@ -453,17 +459,17 @@ export default function OrdersTable({
                               <Image
                                 fill
                                 src={item.coverImage}
-                                alt={item.name ?? "Order item"}
+                                alt={item.name ?? "Article commandé"}
                                 className="object-cover"
                               />
                             )}
                           </div>
                           <div className="flex-1">
                             <p className="text-foreground text-sm font-medium">
-                              {item.name ?? "Item"}
+                              {item.name ?? "Article"}
                             </p>
                             <p className="text-muted-foreground text-xs">
-                              Qty {qty}
+                              Qté : {qty}
                             </p>
                             {item.variantLabel && (
                               <p className="text-muted-foreground text-xs">
@@ -482,18 +488,18 @@ export default function OrdersTable({
 
                 <div>
                   <h4 className="text-foreground text-sm font-semibold">
-                    Status history
+                    Historique des statuts
                   </h4>
                   <div className="text-muted-foreground mt-3 space-y-2 text-xs">
                     {(activeOrder.statusHistory ?? []).length === 0
-                      ? "No updates yet."
+                      ? "Aucune mise à jour pour le moment."
                       : activeOrder.statusHistory?.map((entry, index) => (
                           <div key={`${entry.status}-${index}`}>
                             <span className="text-foreground font-medium">
-                              {entry.status?.replace(/_/g, " ")}
+                              {getOrderStatusLabel(entry.status)}
                             </span>
                             {entry.changedAt
-                              ? ` • ${new Date(entry.changedAt).toLocaleString()}`
+                              ? ` • ${new Date(entry.changedAt).toLocaleString("fr-FR")}`
                               : ""}
                             {entry.note ? ` • ${entry.note}` : ""}
                           </div>
@@ -505,12 +511,12 @@ export default function OrdersTable({
               <div className="flex flex-col gap-4">
                 <div className="rounded-xl border px-4 py-3">
                   <h4 className="text-foreground text-sm font-semibold">
-                    Customer
+                    Client
                   </h4>
                   <p className="text-foreground mt-2 text-sm font-medium">
                     {`${activeOrder.customer?.firstName ?? ""} ${
                       activeOrder.customer?.lastName ?? ""
-                    }`.trim() || "Guest"}
+                    }`.trim() || "Invité"}
                   </p>
                   <p className="text-muted-foreground text-xs">
                     {activeOrder.customer?.phone ?? ""}
@@ -537,16 +543,16 @@ export default function OrdersTable({
 
                 <div className="rounded-xl border px-4 py-3">
                   <h4 className="text-foreground text-sm font-semibold">
-                    Summary
+                    Récapitulatif
                   </h4>
                   <div className="mt-3 flex items-center justify-between text-sm">
-                    <span>Subtotal</span>
+                    <span>Sous-total</span>
                     <span className="font-semibold">
                       {formatDZD(activeOrder.subtotal ?? 0)}
                     </span>
                   </div>
                   <div className="text-muted-foreground mt-2 flex items-center justify-between text-sm">
-                    <span>Shipping</span>
+                    <span>Livraison</span>
                     <span>{formatDZD(activeOrder.shippingFee ?? 0)}</span>
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t pt-3 text-sm">
@@ -559,7 +565,7 @@ export default function OrdersTable({
 
                 <div className="rounded-xl border px-4 py-3">
                   <h4 className="text-foreground text-sm font-semibold">
-                    Status
+                    Statut
                   </h4>
                   <Badge
                     className={
@@ -567,14 +573,14 @@ export default function OrdersTable({
                       "bg-muted text-foreground"
                     }
                   >
-                    {activeOrder.status.replace(/_/g, " ")}
+                    {getOrderStatusLabel(activeOrder.status)}
                   </Badge>
                   <p className="text-muted-foreground mt-2 text-xs">
-                    Payment: {activeOrder.paymentMethod ?? "cod"}
+                    Paiement : {activeOrder.paymentMethod ?? "cod"}
                   </p>
                   {activeOrder.notes && (
                     <p className="text-muted-foreground mt-2 text-xs">
-                      Notes: {activeOrder.notes}
+                      Notes : {activeOrder.notes}
                     </p>
                   )}
                 </div>

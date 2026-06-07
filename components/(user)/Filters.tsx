@@ -79,17 +79,17 @@ export default function Filters({ categories }: FiltersProps) {
   return (
     <div className="flex flex-col gap-5 text-sm">
       <div className="flex items-center justify-between rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs">
-        <p>Filter:</p>
+        <p>Filtrer :</p>
         <Button
           variant="link"
           className="h-auto border-0 p-0 font-normal no-underline!"
           onClick={handleClear}
         >
-          Clean All
+          Tout effacer
         </Button>
       </div>
 
-      <FilterBlock title="Categories">
+      <FilterBlock title="Catégories">
         <FieldSet>
           <FieldGroup>
             {categories.map((category, index) => (
@@ -113,7 +113,7 @@ export default function Filters({ categories }: FiltersProps) {
         </FieldSet>
       </FilterBlock>
 
-      <FilterBlock title="Price">
+      <FilterBlock title="Prix">
         <Slider
           key={sliderKey}
           defaultValue={[urlMin, urlMax]}

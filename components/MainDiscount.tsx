@@ -56,7 +56,7 @@ export default async function MainDiscount() {
           <Image
             fill
             src={specialDeal.image}
-            alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
+            alt={`Image de ${specialDeal.subtitle} sur PRIMEPC.`}
             className="object-contain"
             sizes="(max-width: 767px) 100vw, 384px"
           />
@@ -66,7 +66,7 @@ export default async function MainDiscount() {
         <Image
           fill
           src={specialDeal.image}
-          alt={`Image of ${specialDeal.subtitle} from PRIMEPC.`}
+          alt={`Image de ${specialDeal.subtitle} sur PRIMEPC.`}
           className="object-contain"
           sizes="(min-width: 1024px) 480px, 50vw"
         />

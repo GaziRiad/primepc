@@ -80,7 +80,10 @@ export default function ProductsTable({ products }: ProductsTableProps) {
 
   const handleDelete = async (productId: string) => {
     if (!productId) return;
-    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+    if (
+      !window.confirm("Supprimer ce produit ? Cette action est irréversible.")
+    )
+      return;
 
     setDeletingId(productId);
     try {
@@ -93,14 +96,14 @@ export default function ProductsTable({ products }: ProductsTableProps) {
       };
 
       if (!response.ok || !data.ok) {
-        toast.error(data?.error || "Unable to delete product.");
+        toast.error(data?.error || "Impossible de supprimer le produit.");
         return;
       }
 
       setDeletedIds((current) =>
         current.includes(productId) ? current : [...current, productId],
       );
-      toast.success("Product deleted.");
+      toast.success("Produit supprimé.");
     } finally {
       setDeletingId(null);
     }
@@ -110,9 +113,9 @@ export default function ProductsTable({ products }: ProductsTableProps) {
     <div className="rounded-2xl border bg-white shadow-xs">
       <div className="flex items-center justify-between border-b px-6 py-4">
         <div>
-          <h2 className="text-foreground text-lg font-semibold">Products</h2>
+          <h2 className="text-foreground text-lg font-semibold">Produits</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Manage product catalog, pricing, and inventory.
+            Gérez le catalogue, les prix et le stock.
           </p>
         </div>
       </div>
@@ -120,10 +123,10 @@ export default function ProductsTable({ products }: ProductsTableProps) {
       <Table>
         <TableHeader className="bg-muted/40">
           <TableRow>
-            <TableHead>Product</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>Produit</TableHead>
+            <TableHead>Prix</TableHead>
             <TableHead>Stock</TableHead>
-            <TableHead>Updated</TableHead>
+            <TableHead>Mis à jour</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -131,7 +134,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
           {rows.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-muted-foreground">
-                No products found.
+                Aucun produit trouvé.
               </TableCell>
             </TableRow>
           ) : (
@@ -158,7 +161,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                           {product.name}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          {product.brand || "Brand"}
+                          {product.brand || "Marque"}
                         </p>
                       </div>
                     </div>
@@ -178,7 +181,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                       variant={isOut ? "destructive" : "secondary"}
                       className={isOut ? "" : "bg-emerald-100 text-emerald-700"}
                     >
-                      {isOut ? "Out of stock" : `${stock} in stock`}
+                      {isOut ? "Rupture de stock" : `${stock} en stock`}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-xs">
@@ -190,11 +193,11 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/admin/products/${product._id}`}>
-                          Edit
+                          Modifier
                         </Link>
                       </Button>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/products/${product.slug}`}>View</Link>
+                        <Link href={`/products/${product.slug}`}>Voir</Link>
                       </Button>
                       <Button
                         variant="destructive"
@@ -202,7 +205,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                         onClick={() => handleDelete(product._id)}
                         disabled={deletingId === product._id}
                       >
-                        Delete
+                        Supprimer
                       </Button>
                     </div>
                   </TableCell>

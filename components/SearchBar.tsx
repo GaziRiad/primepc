@@ -151,7 +151,7 @@ export default function SearchBar() {
               type="text"
               onChange={(e) => setQuery(e.target.value)}
               id="product-search"
-              placeholder="I am shopping for..."
+              placeholder="Je recherche..."
               onFocus={() => {
                 if (results.length > 0) setIsOpen(true);
               }}
@@ -184,7 +184,7 @@ export default function SearchBar() {
               }}
             />
             <InputGroupAddon align="inline-end">
-              <InputGroupButton type="submit" aria-label="Search">
+              <InputGroupButton type="submit" aria-label="Rechercher">
                 <Search />
               </InputGroupButton>
             </InputGroupAddon>
@@ -195,11 +195,11 @@ export default function SearchBar() {
           <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-2xl border bg-white shadow-lg">
             {isLoading ? (
               <div className="text-accent-400 px-4 py-3 text-sm">
-                Searching...
+                Recherche en cours...
               </div>
             ) : displayResults.length === 0 ? (
               <div className="text-accent-400 px-4 py-3 text-sm">
-                No products found.
+                Aucun produit trouvé.
               </div>
             ) : (
               <ul className="max-h-72 overflow-y-auto py-2">

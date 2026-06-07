@@ -30,7 +30,10 @@ export async function POST(request: Request) {
 
   if (!session?.user?.id) {
     return NextResponse.json(
-      { ok: false, error: "Please sign in before uploading images." },
+      {
+        ok: false,
+        error: "Veuillez vous connecter avant d’importer des images.",
+      },
       { status: 401 },
     );
   }
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
   const { cloudName, uploadPreset } = getCloudinaryConfig();
   if (!cloudName || !uploadPreset) {
     return NextResponse.json(
-      { ok: false, error: "Cloudinary upload is not configured." },
+      { ok: false, error: "L’importation Cloudinary n’est pas configurée." },
       { status: 500 },
     );
   }
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
     formData = await request.formData();
   } catch {
     return NextResponse.json(
-      { ok: false, error: "Invalid upload payload." },
+      { ok: false, error: "Données d’importation invalides." },
       { status: 400 },
     );
   }
@@ -72,35 +75,38 @@ export async function POST(request: Request) {
 
   if (!(file instanceof File)) {
     return NextResponse.json(
-      { ok: false, error: "Please choose an image file." },
+      { ok: false, error: "Veuillez choisir un fichier image." },
       { status: 400 },
     );
   }
 
   if (!file.type.startsWith("image/")) {
     return NextResponse.json(
-      { ok: false, error: "Only image uploads are allowed." },
+      { ok: false, error: "Seules les images peuvent être importées." },
       { status: 400 },
     );
   }
 
   if (file.size > MAX_FILE_SIZE) {
     return NextResponse.json(
-      { ok: false, error: "Image must be smaller than 8MB." },
+      { ok: false, error: "L’image doit peser moins de 8 Mo." },
       { status: 400 },
     );
   }
 
   if (!ALLOWED_FOLDERS.has(folder)) {
     return NextResponse.json(
-      { ok: false, error: "Invalid upload folder." },
+      { ok: false, error: "Dossier d’importation invalide." },
       { status: 400 },
     );
   }
 
   if (folder !== "primepc/users" && session.user.role !== "admin") {
     return NextResponse.json(
-      { ok: false, error: "You do not have permission to upload here." },
+      {
+        ok: false,
+        error: "Vous n’avez pas l’autorisation d’importer une image ici.",
+      },
       { status: 403 },
     );
   }
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: data.error?.message || "Unable to upload image.",
+        error: data.error?.message || "Impossible d’importer l’image.",
       },
       { status: response.ok ? 502 : response.status },
     );

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { formatDZD } from "@/lib/utils";
 import { getProductAnalyticsSummary } from "@/lib/productAnalytics";
+import { getOrderStatusLabel } from "@/lib/orderStatus";
 
 const STATUS_STYLES: Record<string, string> = {
   pending_confirmation: "bg-amber-100 text-amber-700",
@@ -40,7 +41,7 @@ const TREND_DAYS = 30;
 const TREND_BUCKETS = 5;
 
 const formatRangeDate = (date: Date) =>
-  date.toLocaleDateString("en", { day: "numeric", month: "short" });
+  date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 
 export default async function page() {
   await startDbConnection();
@@ -190,20 +191,20 @@ export default async function page() {
     <div className="flex flex-col gap-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AdminStatCard
-          label="Total products"
+          label="Total des produits"
           value={totalProducts}
           tone="brand"
         />
-        <AdminStatCard label="In stock" value={inStock} tone="inventory" />
+        <AdminStatCard label="En stock" value={inStock} tone="inventory" />
         <AdminStatCard
-          label="Out of stock"
+          label="Rupture de stock"
           value={outOfStock}
           tone="attention"
         />
         <AdminStatCard
-          label="Total orders"
+          label="Total des commandes"
           value={totalOrders}
-          helper={`${pendingOrders} awaiting confirmation`}
+          helper={`${pendingOrders} en attente de confirmation`}
           tone="orders"
         />
       </div>
@@ -221,35 +222,35 @@ export default async function page() {
           <div className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <h2 className="text-foreground text-lg font-semibold">
-                Recent orders
+                Commandes récentes
               </h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Latest orders that need attention.
+                Dernières commandes nécessitant votre attention.
               </p>
             </div>
             <Link
               href="/admin/orders"
               className="text-primary text-sm font-semibold"
             >
-              View all
+              Tout voir
             </Link>
           </div>
 
           <Table>
             <TableHeader className="bg-muted/40">
               <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead className="hidden md:table-cell">Customer</TableHead>
+                <TableHead>Commande</TableHead>
+                <TableHead className="hidden md:table-cell">Client</TableHead>
                 <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Placed</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {recentOrders.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-muted-foreground">
-                    No orders yet.
+                    Aucune commande pour le moment.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -269,12 +270,12 @@ export default async function page() {
                         <div className="flex flex-col gap-1">
                           <span>{label}</span>
                           <span className="text-muted-foreground text-xs md:hidden">
-                            {`${name || "Guest"} - ${placedDate}`}
+                            {`${name || "Invité"} - ${placedDate}`}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        {name || "Guest"}
+                        {name || "Invité"}
                       </TableCell>
                       <TableCell className="font-semibold">
                         {formatDZD(order.total ?? 0)}
@@ -286,7 +287,7 @@ export default async function page() {
                             "bg-muted text-foreground"
                           }
                         >
-                          {order.status?.replace(/_/g, " ") ?? "unknown"}
+                          {getOrderStatusLabel(order.status)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground hidden text-xs md:table-cell">
@@ -302,16 +303,16 @@ export default async function page() {
 
         <div className="rounded-2xl border bg-white p-4 shadow-xs sm:p-6">
           <h2 className="text-foreground text-lg font-semibold">
-            Revenue snapshot
+            Aperçu du chiffre d’affaires
           </h2>
           <p className="text-muted-foreground mt-2 text-sm">
-            Delivered orders revenue to date.
+            Chiffre d’affaires cumulé des commandes livrées.
           </p>
 
           <div className="mt-6 flex flex-col gap-4">
             <div>
               <p className="text-muted-foreground text-xs uppercase">
-                Delivered revenue
+                Chiffre d’affaires livré
               </p>
               <p className="text-foreground mt-2 text-2xl font-semibold">
                 {formatDZD(totalRevenue)}
@@ -319,7 +320,7 @@ export default async function page() {
             </div>
             <div>
               <p className="text-muted-foreground text-xs uppercase">
-                Delivered orders
+                Commandes livrées
               </p>
               <p className="text-foreground mt-2 text-2xl font-semibold">
                 {deliveredOrders}
@@ -329,7 +330,7 @@ export default async function page() {
               href="/admin/products"
               className="text-foreground hover:bg-accent-100 w-full rounded-full border px-4 py-2 text-center text-sm font-semibold transition sm:w-auto"
             >
-              Manage products
+              Gérer les produits
             </Link>
           </div>
         </div>

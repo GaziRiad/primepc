@@ -15,19 +15,19 @@ export const DEFAULT_MARKETING_SETTINGS: MarketingSettingsData = {
   heroSlides: [
     {
       image: "/images/marketing1.jpg",
-      alt: "Featured PRIMEPC setup deal",
+      alt: "Offre PRIMEPC mise en avant",
       href: "/products",
       isActive: true,
     },
     {
       image: "/images/marketing2.jpg",
-      alt: "PRIMEPC laptop and accessories promotion",
+      alt: "Promotion PRIMEPC sur les ordinateurs portables et accessoires",
       href: "/products",
       isActive: true,
     },
     {
       image: "/images/marketing3.jpg",
-      alt: "PRIMEPC gaming and workspace promotion",
+      alt: "Promotion PRIMEPC gaming et espace de travail",
       href: "/products",
       isActive: true,
     },
@@ -35,34 +35,53 @@ export const DEFAULT_MARKETING_SETTINGS: MarketingSettingsData = {
   sideBanners: [
     {
       image: "/images/marketing2.jpg",
-      alt: "PRIMEPC laptop and accessories promotion",
+      alt: "Promotion PRIMEPC sur les ordinateurs portables et accessoires",
       href: "/products",
       isActive: true,
     },
     {
       image: "/images/marketing3.jpg",
-      alt: "PRIMEPC gaming and workspace promotion",
+      alt: "Promotion PRIMEPC gaming et espace de travail",
       href: "/products",
       isActive: true,
     },
   ],
   specialDeal: {
     enabled: true,
-    eyebrow: "Don't Miss!!",
-    title: "Enhance Your Work Experience",
-    subtitle: "Work and gaming setup deals",
+    eyebrow: "À ne pas manquer !",
+    title: "Améliorez votre espace de travail",
+    subtitle: "Offres sur les configurations de travail et gaming",
     image: "/images/sutdy.png",
     href: "/products?sort=-discount",
-    ctaLabel: "Check it out!",
+    ctaLabel: "Découvrir l’offre",
     endsAt: "2026-12-31T22:59:59Z",
   },
 };
+
+const LEGACY_MARKETING_TRANSLATIONS: Record<string, string> = {
+  "Featured PRIMEPC setup deal": "Offre PRIMEPC mise en avant",
+  "PRIMEPC laptop and accessories promotion":
+    "Promotion PRIMEPC sur les ordinateurs portables et accessoires",
+  "PRIMEPC gaming and workspace promotion":
+    "Promotion PRIMEPC gaming et espace de travail",
+  "PRIMEPC marketing banner": "Bannière marketing PRIMEPC",
+  "Don't Miss!!": "À ne pas manquer !",
+  "Enhance Your Work Experience": "Améliorez votre espace de travail",
+  "Work and gaming setup deals":
+    "Offres sur les configurations de travail et gaming",
+  "Check it out!": "Découvrir l’offre",
+};
+
+const translateLegacyMarketingText = (value: string) =>
+  LEGACY_MARKETING_TRANSLATIONS[value] ?? value;
 
 const normalizeBanner = (
   banner: Partial<MarketingBanner>,
 ): MarketingBanner => ({
   image: String(banner.image ?? "").trim(),
-  alt: String(banner.alt ?? "").trim() || "PRIMEPC marketing banner",
+  alt: translateLegacyMarketingText(
+    String(banner.alt ?? "").trim() || "Bannière marketing PRIMEPC",
+  ),
   href: String(banner.href ?? "").trim(),
   isActive: banner.isActive !== false,
 });
@@ -77,15 +96,20 @@ const normalizeDeal = (
 
   return {
     enabled: deal?.enabled !== false,
-    eyebrow:
+    eyebrow: translateLegacyMarketingText(
       String(deal?.eyebrow ?? fallback.eyebrow).trim() || fallback.eyebrow,
-    title: String(deal?.title ?? fallback.title).trim() || fallback.title,
-    subtitle:
+    ),
+    title: translateLegacyMarketingText(
+      String(deal?.title ?? fallback.title).trim() || fallback.title,
+    ),
+    subtitle: translateLegacyMarketingText(
       String(deal?.subtitle ?? fallback.subtitle).trim() || fallback.subtitle,
+    ),
     image: String(deal?.image ?? fallback.image).trim() || fallback.image,
     href: String(deal?.href ?? fallback.href).trim() || fallback.href,
-    ctaLabel:
+    ctaLabel: translateLegacyMarketingText(
       String(deal?.ctaLabel ?? fallback.ctaLabel).trim() || fallback.ctaLabel,
+    ),
     endsAt: Number.isNaN(rawDate.getTime())
       ? fallback.endsAt
       : rawDate.toISOString(),

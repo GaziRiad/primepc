@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const bannerSchema = new mongoose.Schema(
   {
     image: { type: String, required: true },
-    alt: { type: String, default: "PRIMEPC marketing banner" },
+    alt: { type: String, default: "Bannière marketing PRIMEPC" },
     href: { type: String, default: "" },
     isActive: { type: Boolean, default: true },
   },
@@ -13,12 +13,15 @@ const bannerSchema = new mongoose.Schema(
 const specialDealSchema = new mongoose.Schema(
   {
     enabled: { type: Boolean, default: true },
-    eyebrow: { type: String, default: "Don't Miss!!" },
-    title: { type: String, default: "Enhance Your Work Experience" },
-    subtitle: { type: String, default: "Work and gaming setup deals" },
+    eyebrow: { type: String, default: "À ne pas manquer !" },
+    title: { type: String, default: "Améliorez votre espace de travail" },
+    subtitle: {
+      type: String,
+      default: "Offres sur les configurations de travail et gaming",
+    },
     image: { type: String, default: "/images/sutdy.png" },
     href: { type: String, default: "/products?sort=-discount" },
-    ctaLabel: { type: String, default: "Check it out!" },
+    ctaLabel: { type: String, default: "Découvrir l’offre" },
     endsAt: { type: Date, default: () => new Date("2026-12-31T22:59:59Z") },
   },
   { _id: false },

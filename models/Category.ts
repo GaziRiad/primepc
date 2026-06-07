@@ -4,18 +4,18 @@ const CategorySchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Category name is required"],
+      required: [true, "Le nom de la catégorie est obligatoire"],
       unique: true,
     },
     slug: {
       type: String,
-      required: [true, "Category slug is required"],
+      required: [true, "Le slug de la catégorie est obligatoire"],
     },
 
     image: {
       type: String,
       default: "",
-      required: [true, "Category image is required"],
+      required: [true, "L’image de la catégorie est obligatoire"],
     },
 
     isActive: { type: Boolean, default: true },

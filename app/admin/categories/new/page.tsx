@@ -5,10 +5,10 @@ export default async function page() {
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-foreground text-xl font-semibold">
-          Create category
+          Créer la catégorie
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Add a new category for products and filters.
+          Ajoutez une nouvelle catégorie pour organiser et filtrer les produits.
         </p>
       </div>
 

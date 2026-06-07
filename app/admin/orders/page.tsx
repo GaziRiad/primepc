@@ -41,10 +41,10 @@ export default async function page({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-foreground text-xl font-semibold">
-          Orders dashboard
+          Tableau de bord des commandes
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Showing {start}-{end} of {total} orders.
+          Affichage {start}-{end} sur {total} commandes.
         </p>
       </div>
 

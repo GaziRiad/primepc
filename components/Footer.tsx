@@ -5,20 +5,20 @@ import { SOCIAL_LINKS } from "@/lib/utils";
 import LogoFooter from "./LogoFooter";
 
 const shopLinks = [
-  { label: "All Products", href: "/products" },
-  { label: "New Arrivals", href: "/products?sort=newest" },
-  { label: "Wishlist", href: "/wishlist" },
+  { label: "Tous les produits", href: "/products" },
+  { label: "Nouveautés", href: "/products?sort=newest" },
+  { label: "Favoris", href: "/wishlist" },
 ];
 
 const companyLinks = [
-  { label: "About Us", href: "/about" },
+  { label: "À propos", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
 const supportLinks = [
-  { label: "Delivery & Returns", href: "/delivery-returns" },
-  { label: "Warranty", href: "/warranty" },
-  { label: "Order Tracking", href: "/my-account/orders" },
+  { label: "Livraison et retours", href: "/delivery-returns" },
+  { label: "Garantie", href: "/warranty" },
+  { label: "Suivi de commande", href: "/my-account/orders" },
 ];
 
 type FooterLinkGroupProps = {
@@ -57,26 +57,26 @@ export default function Footer() {
           <div className="flex flex-col gap-8 border-b border-white/15 pb-10 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
             <div className="max-w-xl">
               <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium tracking-[0.18em] uppercase">
-                Stay connected
+                Restez informé
               </span>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Get the latest PC deals and product drops first.
+                Recevez en premier nos meilleures offres et nouveautés PC.
               </h2>
               <p className="mt-3 max-w-lg text-sm leading-6 text-white/75 sm:text-base">
-                Subscribe for exclusive hardware offers, fresh arrivals, and
-                smart setup inspiration from PRIMEPC.
+                Abonnez-vous pour recevoir les offres exclusives, les nouveautés
+                et les conseils PRIMEPC.
               </p>
             </div>
 
             <form className="flex w-full max-w-xl flex-col gap-3 sm:flex-row">
               <label htmlFor="footer-email" className="sr-only">
-                Enter your email
+                Saisissez votre e-mail
               </label>
               <div className="flex-1">
                 <input
                   id="footer-email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Saisissez votre e-mail"
                   className="h-12 w-full rounded-xl border border-white/20 bg-white px-4 text-sm text-slate-900 transition outline-none placeholder:text-slate-500 focus:border-white focus:ring-4 focus:ring-white/20"
                 />
               </div>
@@ -84,7 +84,7 @@ export default function Footer() {
                 type="submit"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-900"
               >
-                Subscribe
+                S’abonner
                 <ArrowRight className="size-4" />
               </button>
             </form>
@@ -97,8 +97,9 @@ export default function Footer() {
               </div>
 
               <p className="mt-5 text-sm leading-7 text-white/78 sm:text-base">
-                Premium laptops, gaming gear, and accessories curated for
-                creators, professionals, and everyday setups across Algeria.
+                Ordinateurs portables, équipements gaming et accessoires
+                sélectionnés pour les créateurs, les professionnels et tous les
+                usages en Algérie.
               </p>
 
               <ul className="mt-6 space-y-3 text-sm text-white/80">
@@ -122,19 +123,19 @@ export default function Footer() {
                 </li>
                 <li className="flex items-center gap-3">
                   <MapPin className="size-4 shrink-0" />
-                  <span>Algiers, Algeria</span>
+                  <span>Alger, Algérie</span>
                 </li>
               </ul>
             </div>
 
-            <FooterLinkGroup title="Shop" links={shopLinks} />
-            <FooterLinkGroup title="Company" links={companyLinks} />
-            <FooterLinkGroup title="Support" links={supportLinks} />
+            <FooterLinkGroup title="Boutique" links={shopLinks} />
+            <FooterLinkGroup title="Entreprise" links={companyLinks} />
+            <FooterLinkGroup title="Assistance" links={supportLinks} />
           </div>
 
           <div className="flex flex-col gap-5 border-t border-white/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-white/70">
-              © {new Date().getFullYear()} PRIMEPC. All rights reserved.
+              © {new Date().getFullYear()} PRIMEPC. Tous droits réservés.
             </p>
 
             <div className="flex items-center gap-2">

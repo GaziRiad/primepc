@@ -14,23 +14,23 @@ type Feature = {
 const Features: Feature[] = [
   {
     icon: <Rocket size={32} className="stroke-primary" />,
-    title: "Free Shipping",
-    description: "For all orders 40,000DA or more",
+    title: "Livraison offerte",
+    description: "Pour toute commande de 40 000 DA ou plus",
   },
   {
     icon: <BadgeCheck size={32} className="stroke-primary" />,
-    title: "100% Payment on delivery",
-    description: "Check your product before paying",
+    title: "Paiement à la livraison",
+    description: "Vérifiez votre produit avant de payer",
   },
   {
     icon: <ShieldCheck size={32} className="stroke-primary" />,
-    title: "6 months warranty",
-    description: "For all PCs and laptops",
+    title: "Garantie de 6 mois",
+    description: "Pour tous les PC et ordinateurs portables",
   },
   {
     icon: <MessageCircleMore size={32} className="stroke-primary" />,
-    title: "24/7 Dedicated Support",
-    description: "Anywhere & anytime",
+    title: "Assistance dédiée 24h/24 et 7j/7",
+    description: "Partout et à tout moment",
   },
 ] as const;
 

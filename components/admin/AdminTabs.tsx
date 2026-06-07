@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { label: "Overview", href: "/admin" },
-  { label: "Orders", href: "/admin/orders" },
-  { label: "Products", href: "/admin/products" },
-  { label: "Categories", href: "/admin/categories" },
+  { label: "Vue d’ensemble", href: "/admin" },
+  { label: "Commandes", href: "/admin/orders" },
+  { label: "Produits", href: "/admin/products" },
+  { label: "Catégories", href: "/admin/categories" },
   { label: "Marketing", href: "/admin/marketing" },
 ];
 

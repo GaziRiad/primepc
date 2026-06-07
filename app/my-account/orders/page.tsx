@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { getOrdersForUser } from "@/lib/orders";
 import { Badge } from "@/components/ui/badge";
 import { formatDZD } from "@/lib/utils";
+import { getOrderStatusLabel } from "@/lib/orderStatus";
 
 const STATUS_STYLES: Record<string, string> = {
   pending_confirmation: "bg-amber-100 text-amber-700",
@@ -22,15 +23,15 @@ export default async function page() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h3 className="text-foreground text-lg font-semibold">Your Orders</h3>
+        <h3 className="text-foreground text-lg font-semibold">Vos commandes</h3>
         <p className="text-muted-foreground text-sm">
-          Track your latest purchases and delivery status.
+          Suivez vos derniers achats et leur statut de livraison.
         </p>
       </div>
 
       {orders.length === 0 ? (
         <div className="text-muted-foreground rounded-xl border border-dashed px-6 py-10 text-center text-sm">
-          You have no orders yet.
+          Vous n’avez encore aucune commande.
         </div>
       ) : (
         <>
@@ -43,7 +44,7 @@ export default async function page() {
                   0,
                 );
                 const orderId = String(order._id);
-                const statusLabel = String(order.status).replace(/_/g, " ");
+                const statusLabel = getOrderStatusLabel(order.status);
 
                 return (
                   <div
@@ -53,10 +54,10 @@ export default async function page() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-foreground text-sm font-semibold">
-                          Order #{orderId.slice(-6)}
+                          Commande nº {orderId.slice(-6)}
                         </p>
                         <p className="text-muted-foreground mt-1 text-xs">
-                          {new Date(order.createdAt).toLocaleString()}
+                          {new Date(order.createdAt).toLocaleString("fr-FR")}
                         </p>
                       </div>
                       <Badge
@@ -71,9 +72,11 @@ export default async function page() {
 
                     <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-muted-foreground text-xs">Items</p>
+                        <p className="text-muted-foreground text-xs">
+                          Articles
+                        </p>
                         <p className="text-foreground font-medium">
-                          {itemsCount} item{itemsCount === 1 ? "" : "s"}
+                          {itemsCount} article{itemsCount === 1 ? "" : "s"}
                         </p>
                       </div>
                       <div>

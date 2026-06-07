@@ -27,7 +27,7 @@ export default function WhatsAppButton() {
       href={whatsappHref}
       target="_blank"
       rel="noreferrer"
-      aria-label="Chat on WhatsApp"
+      aria-label="Discuter sur WhatsApp"
       className="fixed right-4 bottom-4 z-50 inline-flex items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#20BC5A] focus-visible:ring-4 focus-visible:ring-[#25D366]/40 focus-visible:outline-none sm:right-6 sm:bottom-6"
     >
       <WhatsAppIcon />

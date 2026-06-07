@@ -37,9 +37,11 @@ export default async function page({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-foreground text-xl font-semibold">Edit category</h2>
+        <h2 className="text-foreground text-xl font-semibold">
+          Modifier la catégorie
+        </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Update category details and visibility.
+          Modifiez les informations et la visibilité de la catégorie.
         </p>
       </div>
 

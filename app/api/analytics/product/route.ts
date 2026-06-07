@@ -11,9 +11,7 @@ type AnalyticsPayload = {
 };
 
 const isValidEventType = (value: unknown) =>
-  value === "view" ||
-  value === "add_to_cart" ||
-  value === "checkout_start";
+  value === "view" || value === "add_to_cart" || value === "checkout_start";
 
 export async function POST(request: Request) {
   try {

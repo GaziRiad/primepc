@@ -8,14 +8,14 @@ export default async function NewArrivals() {
     <section className="py-16 sm:py-20">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-foreground text-2xl font-semibold capitalize">
-          New Arrivals
+          Nouveautés
         </h2>
 
         <Link
           href="/products"
           className="hover:bg-primary cursor-pointer rounded-full border bg-zinc-100 px-4 py-2 text-sm text-black transition-all hover:text-white"
         >
-          view all
+          tout voir
         </Link>
       </div>
       <Suspense

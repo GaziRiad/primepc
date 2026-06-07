@@ -26,14 +26,18 @@ export default function FiltersDrawer({ categories }: FiltersDrawerProps) {
       <DrawerTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <SlidersHorizontal className="size-4" />
-          Filters
+          Filtres
         </Button>
       </DrawerTrigger>
       <DrawerContent className="p-0">
         <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
-          <DrawerTitle>Filters</DrawerTitle>
+          <DrawerTitle>Filtres</DrawerTitle>
           <DrawerClose asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Close filters">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Fermer les filtres"
+            >
               <X className="size-4" />
             </Button>
           </DrawerClose>

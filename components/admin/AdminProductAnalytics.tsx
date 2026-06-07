@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MousePointerClick, ShoppingCart, Store, TrendingUp } from "lucide-react";
+import {
+  MousePointerClick,
+  ShoppingCart,
+  Store,
+  TrendingUp,
+} from "lucide-react";
 
 import { formatDZD } from "@/lib/utils";
 import type { ProductAnalyticsSummary } from "@/lib/productAnalytics";
@@ -58,7 +63,7 @@ function MetricList({
                   <span className="text-muted-foreground mt-0.5 block text-xs">
                     {product.finalPrice > 0
                       ? formatDZD(product.finalPrice)
-                      : "No price snapshot"}
+                      : "Aucun prix enregistré"}
                   </span>
                 </span>
                 <span className="text-foreground shrink-0 text-sm font-semibold">
@@ -102,15 +107,15 @@ export default function AdminProductAnalytics({
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-foreground text-lg font-semibold">
-            Conversion signals
+            Indicateurs de conversion
           </h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Product activity tracked as daily rollups for the last {summary.days}{" "}
-            days.
+            Activité produit regroupée quotidiennement sur les {summary.days}{" "}
+            derniers jours.
           </p>
         </div>
         <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-          Product analytics
+          Analyse des produits
         </p>
       </div>
 
@@ -118,7 +123,7 @@ export default function AdminProductAnalytics({
         <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
           <MousePointerClick className="text-primary size-5" />
           <p className="text-muted-foreground mt-3 text-xs uppercase">
-            Product views
+            Consultations des produits
           </p>
           <p className="text-foreground mt-1 text-xl font-semibold">
             {summary.totals.views}
@@ -127,7 +132,7 @@ export default function AdminProductAnalytics({
         <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
           <ShoppingCart className="size-5 text-indigo-600" />
           <p className="text-muted-foreground mt-3 text-xs uppercase">
-            Add to carts
+            Ajouts au panier
           </p>
           <p className="text-foreground mt-1 text-xl font-semibold">
             {summary.totals.addToCarts}
@@ -136,7 +141,7 @@ export default function AdminProductAnalytics({
         <div className="rounded-xl border border-amber-100 bg-amber-50 p-3">
           <Store className="size-5 text-amber-600" />
           <p className="text-muted-foreground mt-3 text-xs uppercase">
-            Checkout starts
+            Débuts de commande
           </p>
           <p className="text-foreground mt-1 text-xl font-semibold">
             {summary.totals.checkoutStarts}
@@ -145,7 +150,7 @@ export default function AdminProductAnalytics({
         <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
           <TrendingUp className="size-5 text-emerald-600" />
           <p className="text-muted-foreground mt-3 text-xs uppercase">
-            Ordered revenue
+            Chiffre d’affaires commandé
           </p>
           <p className="text-foreground mt-1 text-xl font-semibold">
             {formatDZD(summary.totals.orderedRevenue)}
@@ -155,28 +160,28 @@ export default function AdminProductAnalytics({
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <MetricList
-          title="Top viewed products"
+          title="Produits les plus consultés"
           products={summary.topViewed}
           metric="views"
-          emptyText="No product views tracked yet."
+          emptyText="Aucune consultation de produit enregistrée."
         />
         <MetricList
-          title="Top added to cart"
+          title="Produits les plus ajoutés au panier"
           products={summary.topAddedToCart}
           metric="addToCarts"
-          emptyText="No add-to-cart activity tracked yet."
+          emptyText="Aucun ajout au panier enregistré."
         />
         <MetricList
-          title="Top checkout starts"
+          title="Produits générant le plus de commandes"
           products={summary.topCheckoutStarted}
           metric="checkoutStarts"
-          emptyText="No checkout-start activity tracked yet."
+          emptyText="Aucun début de commande enregistré."
         />
         <MetricList
-          title="Top ordered products"
+          title="Produits les plus commandés"
           products={summary.topOrdered}
           metric="orderedRevenue"
-          emptyText="No ordered products tracked yet."
+          emptyText="Aucun produit commandé enregistré."
           valueFormatter={(product) => formatDZD(product.orderedRevenue)}
         />
       </div>

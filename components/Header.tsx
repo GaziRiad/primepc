@@ -54,19 +54,20 @@ export default function Header() {
       badge: favoritesCount > 0 ? String(favoritesCount) : undefined,
     },
     { label: "Panier", href: "/cart", icon: ShoppingCart },
-    { label: "A propos", href: "/about", icon: Info },
+    { label: "À propos", href: "/about", icon: Info },
     { label: "Contact", href: "/contact", icon: Mail },
     { label: "Blog", href: "/blogs", icon: BookOpen },
   ];
 
   const accountLink = session?.user
-    ? { label: "My Account", href: "/my-account" }
-    : { label: "Sign in / Register", href: "/signin" };
+    ? { label: "Mon compte", href: "/my-account" }
+    : { label: "Se connecter / S’inscrire", href: "/signin" };
 
   const isAdmin = session?.user?.role === "admin";
-  const userName = session?.user?.name || "Guest";
+  const userName = session?.user?.name || "Invité";
   const userEmail =
-    session?.user?.email || "Sign in to save orders and favorites.";
+    session?.user?.email ||
+    "Connectez-vous pour enregistrer vos commandes et favoris.";
   const initials = userName
     .split(" ")
     .map((part) => part[0])
@@ -87,7 +88,7 @@ export default function Header() {
               <DrawerTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Open navigation"
+                  aria-label="Ouvrir la navigation"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-white"
                 >
                   <Menu className="size-5" />
@@ -108,7 +109,7 @@ export default function Header() {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Close navigation"
+                        aria-label="Fermer la navigation"
                         className="absolute top-4 right-4 bg-slate-100 text-slate-700 hover:bg-slate-200"
                       >
                         <X className="size-4" />
@@ -149,7 +150,7 @@ export default function Header() {
                             onClick={() => void signOut({ callbackUrl: "/" })}
                           >
                             <LogOut className="size-4" />
-                            Logout
+                            Se déconnecter
                           </Button>
                         </DrawerClose>
                       ) : (
@@ -160,7 +161,7 @@ export default function Header() {
                           >
                             <Link href="/signin">
                               <LogIn className="size-4" />
-                              Sign in / Register
+                              Se connecter / S’inscrire
                             </Link>
                           </Button>
                         </DrawerClose>
@@ -203,7 +204,7 @@ export default function Header() {
                             className="bg-primary-600 hover:bg-primary-700 group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition"
                           >
                             <ArrowUpRight className="size-4" />
-                            Admin dashboard
+                            Tableau de bord administrateur
                           </Link>
                         </DrawerClose>
                       )}
@@ -252,7 +253,10 @@ export default function Header() {
                     size="sm"
                     className="bg-primary-600 hover:bg-primary-700 border-0 text-white shadow-sm"
                   >
-                    <Link href="/admin" aria-label="Open admin dashboard">
+                    <Link
+                      href="/admin"
+                      aria-label="Ouvrir le tableau de bord administrateur"
+                    >
                       <ArrowUpRight className="size-4" />
                       Admin
                     </Link>

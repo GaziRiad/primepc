@@ -1,12 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  Cpu,
-  ShieldCheck,
-  Wrench,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Cpu, ShieldCheck, Wrench } from "lucide-react";
 
 const upcomingTopics = [
   {
@@ -86,7 +80,9 @@ export default function BlogsPage() {
                 <Icon className="size-5" />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-slate-950">{title}</h2>
+                <h2 className="text-sm font-semibold text-slate-950">
+                  {title}
+                </h2>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
                   {description}
                 </p>

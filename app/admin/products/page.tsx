@@ -56,10 +56,10 @@ export default async function page({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-foreground text-xl font-semibold">
-          Products catalog
+          Catalogue des produits
         </h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Showing {start}-{end} of {total} products.
+          Affichage {start}-{end} sur {total} produits.
         </p>
       </div>
 

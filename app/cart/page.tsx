@@ -43,10 +43,10 @@ export default function CartPage() {
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3">
           <Breadcrumbs
-            items={[{ label: "Home", href: "/" }, { label: "Cart" }]}
+            items={[{ label: "Accueil", href: "/" }, { label: "Panier" }]}
           />
           <h2 className="text-accent text-xl font-semibold sm:text-2xl">
-            Your Cart
+            Votre panier
           </h2>
         </div>
         {hasItems && (
@@ -55,7 +55,7 @@ export default function CartPage() {
             className="h-auto border-0 p-0 text-xs font-normal no-underline! sm:text-sm"
             onClick={handleClearCart}
           >
-            Clear Shopping Cart
+            Vider le panier
           </Button>
         )}
       </div>
@@ -66,7 +66,7 @@ export default function CartPage() {
             <div className="flex min-h-40 items-center justify-center rounded-xl border-[0.5px] bg-white shadow-xs">
               <div className="text-muted-foreground flex items-center gap-3 text-sm">
                 <Spinner className="size-5" />
-                Loading your cart...
+                Chargement de votre panier...
               </div>
             </div>
           )}
@@ -74,13 +74,13 @@ export default function CartPage() {
           {!isLoading && !hasItems && (
             <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-xl border-[0.5px] bg-white shadow-xs">
               <p className="text-muted-foreground text-lg">
-                Your cart is empty.
+                Votre panier est vide.
               </p>
               <Button
                 asChild
                 className="bg-primary-800 hover:bg-primary-700 h-11 rounded-full text-white"
               >
-                <Link href="/products">Browse products</Link>
+                <Link href="/products">Parcourir les produits</Link>
               </Button>
             </div>
           )}
@@ -115,7 +115,7 @@ export default function CartPage() {
                               item.product.coverImage ??
                               "/images/accessories.png"
                             }
-                            alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
+                            alt={`Image de ${item.product.name ?? "l’article du panier"} sur PRIMEPC Algérie.`}
                             className="object-cover"
                             unoptimized={/^https?:\/\//i.test(
                               item.product.coverImage ?? "",
@@ -124,7 +124,7 @@ export default function CartPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-primary-700 line-clamp-2 text-sm font-medium">
-                            {item.product.name ?? "Unknown product"}
+                            {item.product.name ?? "Produit inconnu"}
                           </p>
                           <p className="text-muted-foreground mt-1 text-xs">
                             {formatDZD(price)}
@@ -137,7 +137,7 @@ export default function CartPage() {
                         </div>
                         <Button
                           type="button"
-                          aria-label="Remove item from cart"
+                          aria-label="Retirer l’article du panier"
                           onClick={() =>
                             canInteract && removeFromCart(productId, variantId)
                           }
@@ -153,7 +153,7 @@ export default function CartPage() {
                         <div className="flex items-center gap-2">
                           <Button
                             type="button"
-                            aria-label="Decrease quantity"
+                            aria-label="Diminuer la quantité"
                             onClick={() =>
                               canInteract &&
                               decrementFromCart(productId, variantId)
@@ -169,7 +169,7 @@ export default function CartPage() {
                           </span>
                           <Button
                             type="button"
-                            aria-label="Increase quantity"
+                            aria-label="Augmenter la quantité"
                             onClick={() =>
                               canInteract &&
                               addToCart(
@@ -211,29 +211,29 @@ export default function CartPage() {
             <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
               <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
                 <h3 className="text-accent text-lg font-semibold">
-                  Have a discount code?
+                  Vous avez un code promo ?
                 </h3>
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <Input
-                    placeholder="Enter coupon code"
+                    placeholder="Saisissez un code promo"
                     className="h-11 rounded-full"
                   />
                   <Button
                     className="bg-primary-400 hover:bg-primary-500 h-11 rounded-full px-6 text-white"
                     type="button"
                   >
-                    Apply
+                    Appliquer
                   </Button>
                 </div>
               </div>
 
               <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
                 <h3 className="text-accent text-lg font-semibold">
-                  Order Summary
+                  Récapitulatif de la commande
                 </h3>
                 <div className="mt-4 border-y border-dashed py-4">
                   <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold tracking-wide uppercase">
-                    <span>Product</span>
+                    <span>Produit</span>
                     <span>Total</span>
                   </div>
                   <ul className="mt-3 flex flex-col gap-3 text-sm">
@@ -250,7 +250,7 @@ export default function CartPage() {
                         >
                           <div className="min-w-0">
                             <p className="text-primary-700 line-clamp-1 font-medium">
-                              {item.product.name ?? "Unknown product"}
+                              {item.product.name ?? "Produit inconnu"}
                             </p>
                             <p className="text-muted-foreground text-xs">
                               x{item.quantity}
@@ -266,12 +266,14 @@ export default function CartPage() {
                 </div>
                 <div className="mt-5 flex flex-col gap-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span>Subtotal</span>
+                    <span>Sous-total</span>
                     <span className="font-semibold">{formatDZD(subtotal)}</span>
                   </div>
                   <div className="text-muted-foreground flex items-center justify-between">
-                    <span>Shipping</span>
-                    <span>{shipping === 0 ? "Free" : formatDZD(shipping)}</span>
+                    <span>Livraison</span>
+                    <span>
+                      {shipping === 0 ? "Gratuit" : formatDZD(shipping)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between border-t pt-4 text-base">
                     <span className="font-semibold">Total</span>
@@ -285,7 +287,7 @@ export default function CartPage() {
                   asChild
                   className="bg-primary-800 hover:bg-primary-700 mt-6 h-12 w-full rounded-full text-white"
                 >
-                  <Link href="/checkout">Proceed to Checkout</Link>
+                  <Link href="/checkout">Passer la commande</Link>
                 </Button>
               </div>
             </div>

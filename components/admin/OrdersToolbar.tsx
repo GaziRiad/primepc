@@ -15,32 +15,32 @@ import {
 } from "@/components/ui/select";
 
 const STATUS_OPTIONS = [
-  { value: "all", label: "All statuses" },
-  { value: "pending_confirmation", label: "Pending confirmation" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "failed", label: "Failed" },
+  { value: "all", label: "Tous les statuts" },
+  { value: "pending_confirmation", label: "En attente de confirmation" },
+  { value: "confirmed", label: "Confirmée" },
+  { value: "shipped", label: "Expédiée" },
+  { value: "delivered", label: "Livrée" },
+  { value: "cancelled", label: "Annulée" },
+  { value: "failed", label: "Échouée" },
 ];
 
 const SORT_OPTIONS = [
-  { value: "newest", label: "Newest first" },
-  { value: "oldest", label: "Oldest first" },
-  { value: "status", label: "Delivery status" },
+  { value: "newest", label: "Plus récentes d’abord" },
+  { value: "oldest", label: "Plus anciennes d’abord" },
+  { value: "status", label: "Statut de livraison" },
 ];
 
 const ARCHIVE_OPTIONS = [
-  { value: "active", label: "Active orders" },
-  { value: "archived", label: "Archived" },
-  { value: "all", label: "All orders" },
+  { value: "active", label: "Commandes actives" },
+  { value: "archived", label: "Archivée" },
+  { value: "all", label: "Toutes les commandes" },
 ];
 
 const DATE_PRESETS = [
-  { label: "Today", days: 1 },
-  { label: "Last 7 days", days: 7 },
-  { label: "Last 30 days", days: 30 },
-  { label: "Last 90 days", days: 90 },
+  { label: "Aujourd’hui", days: 1 },
+  { label: "7 derniers jours", days: 7 },
+  { label: "30 derniers jours", days: 30 },
+  { label: "90 derniers jours", days: 90 },
 ];
 
 type OrdersToolbarProps = {
@@ -153,14 +153,14 @@ export default function OrdersToolbar({
       <div className="flex w-full min-w-0 flex-col gap-4 lg:flex-1">
         <div className="space-y-2">
           <label className="text-muted-foreground text-xs font-semibold uppercase">
-            Search orders
+            Rechercher des commandes
           </label>
           <div className="relative">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Order id, customer, phone, email, address, product..."
+              placeholder="Commande, client, téléphone, e-mail, adresse, produit..."
               className="pl-9"
             />
           </div>
@@ -169,7 +169,7 @@ export default function OrdersToolbar({
         <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-[200px_200px_220px_220px_200px]">
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
-              Status
+              Statut
             </label>
             <Select
               value={status}
@@ -179,7 +179,7 @@ export default function OrdersToolbar({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((option) => (
@@ -193,7 +193,7 @@ export default function OrdersToolbar({
 
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
-              Visibility
+              Visibilité
             </label>
             <Select
               value={archived}
@@ -203,7 +203,7 @@ export default function OrdersToolbar({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Visibility" />
+                <SelectValue placeholder="Visibilité" />
               </SelectTrigger>
               <SelectContent>
                 {ARCHIVE_OPTIONS.map((option) => (
@@ -217,7 +217,7 @@ export default function OrdersToolbar({
 
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
-              From date
+              Date de début
             </label>
             <Input
               type="date"
@@ -228,7 +228,7 @@ export default function OrdersToolbar({
 
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
-              To date
+              Date de fin
             </label>
             <Input
               type="date"
@@ -239,7 +239,7 @@ export default function OrdersToolbar({
 
           <div className="space-y-2">
             <label className="text-muted-foreground text-xs font-semibold uppercase">
-              Sort
+              Tri
             </label>
             <Select
               value={sort}
@@ -249,7 +249,7 @@ export default function OrdersToolbar({
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sort" />
+                <SelectValue placeholder="Tri" />
               </SelectTrigger>
               <SelectContent>
                 {SORT_OPTIONS.map((option) => (
@@ -264,7 +264,7 @@ export default function OrdersToolbar({
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-muted-foreground text-xs font-semibold uppercase">
-            Quick ranges
+            Périodes rapides
           </span>
           {DATE_PRESETS.map((preset) => (
             <Button
@@ -282,15 +282,15 @@ export default function OrdersToolbar({
 
       <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
         <Button type="submit" variant="outline">
-          Apply filters
+          Appliquer les filtres
         </Button>
         <Button type="button" variant="ghost" onClick={handleClear}>
-          Clear
+          Effacer
         </Button>
         <Button asChild variant="outline" className="gap-1.5">
           <a href={exportUrl} download>
             <Download className="size-4" />
-            Export CSV
+            Exporter en CSV
           </a>
         </Button>
       </div>

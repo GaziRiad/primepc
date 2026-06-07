@@ -8,12 +8,12 @@ export default function LoggedOutProfile() {
         <UserRound size={16} />
       </div>
       <div className="flex flex-col">
-        <span className="text-[10px] text-zinc-500 uppercase">Account</span>
+        <span className="text-[10px] text-zinc-500 uppercase">Compte</span>
         <Link
           href="signin"
           className="hover:text-primary text-xs transition-all"
         >
-          Sign in / Register
+          Se connecter / S’inscrire
         </Link>
       </div>
     </div>

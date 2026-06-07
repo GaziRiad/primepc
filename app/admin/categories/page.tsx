@@ -39,9 +39,9 @@ export default async function page({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-foreground text-xl font-semibold">Categories</h2>
+        <h2 className="text-foreground text-xl font-semibold">Catégories</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Create and manage storefront categories.
+          Créez et gérez les catégories affichées dans la boutique.
         </p>
       </div>
 

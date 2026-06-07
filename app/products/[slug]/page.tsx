@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductPurchasePanel from "@/components/ProductPurchasePanel";
+import ProductRecommendationCarousel from "@/components/ProductRecommendationCarousel";
 import ProductGallery from "@/components/ProductGallery";
 import { ProductVariationImageProvider } from "@/components/ProductVariationImageContext";
 import ProductInfoTabs from "@/components/ProductInfoTabs";
@@ -23,6 +24,7 @@ import {
   sanitizeProductDescription,
 } from "@/lib/productDescription";
 import type { ProductVariant } from "@/lib/productVariants";
+import { getProductRecommendations } from "@/lib/productRecommendations";
 
 export const revalidate = 60;
 
@@ -36,9 +38,9 @@ type ProductCategory = {
 };
 
 const PERKS = [
-  { icon: Truck, label: "Free delivery on orders 40,000DA+" },
-  { icon: Wallet, label: "Payment on delivery available" },
-  { icon: ShieldCheck, label: "6 months warranty from PRIMEPC" },
+  { icon: Truck, label: "Livraison offerte dès 40 000 DA" },
+  { icon: Wallet, label: "Paiement à la livraison disponible" },
+  { icon: ShieldCheck, label: "Garantie PRIMEPC de 6 mois" },
 ];
 
 export default async function page({
@@ -54,6 +56,7 @@ export default async function page({
   }
 
   const productId = String(product._id);
+  const recommendations = await getProductRecommendations(productId);
   const stockCount = Number(product.stock ?? 0);
   const inStock = stockCount > 0;
   const displayBrand = product.brand || "PRIMEPC";
@@ -64,21 +67,21 @@ export default async function page({
   const isLowStock = inStock && stockCount <= 3;
   const availabilityLabel = inStock
     ? isLowStock
-      ? "Almost sold out"
-      : "Limited stock available"
-    : "Currently unavailable";
+      ? "Presque épuisé"
+      : "Stock limité disponible"
+    : "Actuellement indisponible";
   const stockLabel = inStock
     ? isLowStock
-      ? "Low stock - order soon"
-      : "Available for delivery"
-    : "Out of stock";
+      ? "Stock faible - commandez rapidement"
+      : "Disponible pour livraison"
+    : "Rupture de stock";
   const additionalStockLabel = inStock
     ? isLowStock
-      ? "Low stock"
-      : "Available"
-    : "Out of stock";
+      ? "Stock faible"
+      : "Disponible"
+    : "Rupture de stock";
   const fallbackDescription =
-    "Built for performance, crafted for reliability, and ready for your next upgrade.";
+    "Pensé pour la performance, conçu pour durer et prêt pour votre prochaine évolution.";
   const descriptionHtml = sanitizeProductDescription(
     product.description || fallbackDescription,
   );
@@ -186,8 +189,8 @@ export default async function page({
         <Breadcrumbs
           className="mb-6"
           items={[
-            { label: "Home", href: "/" },
-            { label: "Products", href: "/products" },
+            { label: "Accueil", href: "/" },
+            { label: "Produits", href: "/products" },
             { label: product.name },
           ]}
         />
@@ -215,7 +218,7 @@ export default async function page({
                         : "bg-rose-50 text-rose-700"
                     }
                   >
-                    {inStock ? "In stock" : "Out of stock"}
+                    {inStock ? "En stock" : "Rupture de stock"}
                   </Badge>
                 </div>
 
@@ -228,7 +231,7 @@ export default async function page({
                       />
                     ))}
                   </div>
-                  <span>0 reviews</span>
+                  <span>0 avis</span>
                   <span className="text-accent-300">-</span>
                   <span
                     className={inStock ? "text-emerald-600" : "text-rose-600"}
@@ -242,7 +245,7 @@ export default async function page({
                 <div className="bg-primary-50/70 rounded-2xl px-4 py-4">
                   <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
                     <span className="text-primary-800 text-3xl font-semibold sm:text-4xl">
-                      {variants.length > 0 ? "From " : ""}
+                      {variants.length > 0 ? "À partir de " : ""}
                       {formatDZD(startingPrice)}
                     </span>
                     {product.discount > 0 && (
@@ -252,18 +255,18 @@ export default async function page({
                     )}
                     {product.discount > 0 && (
                       <Badge className="text-primary-700 bg-white">
-                        {product.discount}% off
+                        {product.discount}% de remise
                       </Badge>
                     )}
                   </div>
                   {savings > 0 && (
                     <p className="text-primary-700 mt-2 text-sm font-medium">
-                      You save {formatDZD(savings)} on this product.
+                      Vous économisez {formatDZD(savings)} sur ce produit.
                     </p>
                   )}
                 </div>
 
-                <div className="mt-5">
+                {/* <div className="mt-5">
                   <p className="text-accent-500 line-clamp-3 text-sm leading-6">
                     {productSummary}
                   </p>
@@ -271,9 +274,9 @@ export default async function page({
                     href="#description"
                     className="text-primary mt-2 inline-flex text-sm font-semibold hover:underline"
                   >
-                    Full product details below
+                    Tous les détails du produit ci-dessous
                   </Link>
-                </div>
+                </div> */}
 
                 <div className="mt-6 border-y py-5">
                   <div className="flex items-start gap-3">
@@ -295,7 +298,8 @@ export default async function page({
                         {stockLabel}
                       </p>
                       <p className="text-muted-foreground mt-1 text-xs">
-                        Orders are confirmed by our team before delivery.
+                        Les commandes sont confirmées par notre équipe avant la
+                        livraison.
                       </p>
                     </div>
                   </div>
@@ -330,7 +334,7 @@ export default async function page({
                 {categories.length > 0 && (
                   <div className="mt-6">
                     <p className="text-accent-400 mb-2 text-xs font-semibold tracking-wide uppercase">
-                      Categories
+                      Catégories
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
                       {categories
@@ -347,7 +351,7 @@ export default async function page({
                                 category.slug ?? "",
                               )}`}
                             >
-                              {category.name ?? "Category"}
+                              {category.name ?? "Catégorie"}
                             </Link>
                           </Badge>
                         ))}
@@ -367,6 +371,12 @@ export default async function page({
           stockLabel={additionalStockLabel}
         />
       </div>
+
+      <ProductRecommendationCarousel
+        title="Produits recommandés"
+        description="Découvrez des produits sélectionnés pour compléter cet article ou vous offrir une excellente alternative."
+        products={recommendations.recommended}
+      />
     </div>
   );
 }

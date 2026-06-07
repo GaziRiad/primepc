@@ -93,7 +93,7 @@ export default function ProductGallery({
                 >
                   <button
                     type="button"
-                    aria-label={`View image ${index + 1} for ${productName}`}
+                    aria-label={`Voir l’image ${index + 1} de ${productName}`}
                     aria-pressed={isActive}
                     onClick={() => selectImage(index)}
                     className={`relative aspect-square w-full overflow-hidden rounded-xl border bg-white transition ${
@@ -105,7 +105,7 @@ export default function ProductGallery({
                     <Image
                       fill
                       src={thumb}
-                      alt={`Thumbnail ${index + 1} of ${productName}`}
+                      alt={`Miniature ${index + 1} de ${productName}`}
                       className="object-cover"
                       unoptimized={isRemoteImage(thumb)}
                       onError={() => markImageFailed(thumb)}
@@ -121,14 +121,14 @@ export default function ProductGallery({
         <button
           type="button"
           onClick={() => openPreview(safeIndex)}
-          aria-label={`Preview image of ${productName}`}
+          aria-label={`Aperçu de l’image de ${productName}`}
           className="group relative order-1 aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-xl bg-zinc-100 lg:order-2 lg:aspect-auto lg:h-[clamp(23rem,38vw,34rem)]"
         >
           <Image
             fill
             priority
             src={activeImage}
-            alt={`Image of ${productName} from PRIMEPC algeria.`}
+            alt={`Image de ${productName} sur PRIMEPC Algérie.`}
             className="object-cover transition-transform duration-300 group-hover:scale-[1.015]"
             unoptimized={isRemoteImage(activeImage)}
             onError={() => markImageFailed(activeImage)}
@@ -142,14 +142,14 @@ export default function ProductGallery({
 
       <div className="text-accent-400 mt-4 flex flex-wrap items-center justify-between gap-2 px-1 text-xs">
         <span>
-          {gallery.length} product image{gallery.length === 1 ? "" : "s"}
+          {gallery.length} image{gallery.length === 1 ? "" : "s"} du produit
         </span>
         <button
           type="button"
           onClick={() => openPreview(safeIndex)}
           className="text-primary font-medium underline-offset-4 hover:underline"
         >
-          View all photos ({safeIndex + 1} of {gallery.length})
+          Voir toutes les photos ({safeIndex + 1} sur {gallery.length})
         </button>
       </div>
 

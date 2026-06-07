@@ -89,10 +89,11 @@ export default function ProductPurchasePanel({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-foreground text-sm font-semibold">
-                Choose your options
+                Choisissez vos options
               </p>
               <p className="text-muted-foreground mt-1 text-xs">
-                Select one value from each group before adding to cart.
+                Sélectionnez une valeur dans chaque groupe avant d’ajouter au
+                panier.
               </p>
             </div>
             {selectedVariant && (
@@ -106,7 +107,7 @@ export default function ProductPurchasePanel({
                     : ""
                 }
               >
-                {selectedVariant.stock > 0 ? "Available" : "Out of stock"}
+                {selectedVariant.stock > 0 ? "Disponible" : "Rupture de stock"}
               </Badge>
             )}
           </div>
@@ -158,7 +159,7 @@ export default function ProductPurchasePanel({
             <p className="text-muted-foreground text-xs">
               {selectedVariant
                 ? selectedVariant.label
-                : "Complete your selection to see availability."}
+                : "Complétez votre sélection pour connaître la disponibilité."}
             </p>
             <p className="text-primary-800 mt-1 text-xl font-semibold">
               {formatDZD(displayPrice)}

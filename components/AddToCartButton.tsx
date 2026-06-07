@@ -50,12 +50,12 @@ export default function AddToCartButton({
   const missingVariant = requiresVariant && !variantId;
   const isDisabled = isPending || missingVariant || isOutOfStock || isMaxed;
   const label = missingVariant
-    ? "Choose options"
+    ? "Choisir les options"
     : isOutOfStock
-    ? "Out of stock"
-    : isMaxed
-      ? "Max in cart"
-      : "Add to cart";
+      ? "Rupture de stock"
+      : isMaxed
+        ? "Maximum dans le panier"
+        : "Ajouter au panier";
 
   return (
     <Button

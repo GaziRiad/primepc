@@ -97,7 +97,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
       <DrawerContent className="flex h-dvh flex-col px-4 py-5 sm:px-8 sm:py-8">
         <DrawerHeader className="mb-5 grid grid-cols-[1fr_auto] items-center justify-between border-b px-0 pb-4 sm:mb-10">
           <DrawerTitle className="text-accent text-xl font-semibold whitespace-nowrap sm:text-2xl">
-            Cart View
+            Aperçu du panier
           </DrawerTitle>
           <DrawerClose className="text-foreground w-fit justify-self-end bg-transparent hover:bg-transparent focus:ring-0">
             <X className="size-6" />
@@ -110,7 +110,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
               <div className="relative flex aspect-square h-32 max-w-32 items-center justify-center overflow-hidden rounded-full bg-zinc-100">
                 <ShoppingCart className="stroke-[1.5px]" size={32} />
               </div>
-              <span className="text-lg">Your cart is empty.</span>
+              <span className="text-lg">Votre panier est vide.</span>
             </div>
           ) : (
             <ul className="flex flex-col gap-8 pb-4">
@@ -133,7 +133,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                           src={
                             item.product.coverImage ?? "/images/accessories.png"
                           }
-                          alt={`Image of ${item.product.name ?? "cart product"} from PRIMEPC algeria.`}
+                          alt={`Image de ${item.product.name ?? "l’article du panier"} sur PRIMEPC Algérie.`}
                           className="object-cover"
                           unoptimized={/^https?:\/\//i.test(
                             item.product.coverImage ?? "",
@@ -142,7 +142,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                       </div>
                       <div className="flex min-w-0 flex-col gap-1">
                         <p className="text-primary-700 truncate text-base capitalize">
-                          {item.product.name ?? "Unknown product"}
+                          {item.product.name ?? "Produit inconnu"}
                         </p>
                         <p className="text-primary-700 text-sm">
                           {formatDZD(item.product.finalPrice ?? 0)}
@@ -155,7 +155,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                         <div className="flex items-center gap-2">
                           <Button
                             type="button"
-                            aria-label="Decrease quantity"
+                            aria-label="Diminuer la quantité"
                             onClick={() =>
                               decrementFromCart(productId, variantId)
                             }
@@ -169,7 +169,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                           </span>
                           <Button
                             type="button"
-                            aria-label="Increase quantity"
+                            aria-label="Augmenter la quantité"
                             onClick={() =>
                               addToCart(
                                 productId,
@@ -199,7 +199,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
 
                       <Button
                         type="button"
-                        aria-label="Remove item from cart"
+                        aria-label="Retirer l’article du panier"
                         onClick={() => removeFromCart(productId, variantId)}
                         variant="secondary"
                         className="hover:bg-destructive/5 hover:text-destructive/60 flex h-11 w-11 items-center justify-center rounded-full"
@@ -230,7 +230,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                 asChild
                 className="bg-primary-400 hover:bg-primary-500 h-11 rounded-full px-3 text-xs whitespace-nowrap text-white sm:h-12 sm:px-4 sm:text-sm"
               >
-                <Link href="/cart">View Cart</Link>
+                <Link href="/cart">Voir le panier</Link>
               </Button>
             </DrawerClose>
 
@@ -239,7 +239,7 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                 asChild
                 className="bg-primary-800 hover:bg-primary-700 h-11 rounded-full px-3 text-xs whitespace-nowrap text-white sm:h-12 sm:px-4 sm:text-sm"
               >
-                <Link href="/checkout">Checkout</Link>
+                <Link href="/checkout">Commander</Link>
               </Button>
             </DrawerClose>
           </div>

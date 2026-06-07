@@ -12,7 +12,38 @@ import { getDiscountedPrice } from "@/lib/utils";
 import { sanitizeProductDescription } from "@/lib/productDescription";
 import { parseProductVariants } from "@/lib/productVariants";
 
-const parseProductPayload = async (request: Request) => {
+const parseProductIds = (value: unknown, excludedIds = new Set<string>()) => {
+  if (!Array.isArray(value)) return [];
+
+  return Array.from(
+    new Set(
+      value
+        .map((item) => String(item ?? "").trim())
+        .filter(
+          (item) => Types.ObjectId.isValid(item) && !excludedIds.has(item),
+        ),
+    ),
+  ).slice(0, 12);
+};
+
+const removeMissingRelationships = async (payload: {
+  recommendedProducts: string[];
+}) => {
+  if (payload.recommendedProducts.length === 0) return;
+
+  const existingIds = new Set(
+    (
+      await Product.find({
+        _id: { $in: payload.recommendedProducts },
+      }).distinct("_id")
+    ).map(String),
+  );
+  payload.recommendedProducts = payload.recommendedProducts.filter((id) =>
+    existingIds.has(id),
+  );
+};
+
+const parseProductPayload = async (request: Request, productId: string) => {
   let body: Record<string, unknown> = {};
   try {
     body = (await request.json()) as Record<string, unknown>;
@@ -32,6 +63,15 @@ const parseProductPayload = async (request: Request) => {
   const safePrice = Number.isFinite(price) ? price : 0;
   const safeDiscount = Number.isFinite(discount) ? discount : 0;
   const variants = parseProductVariants(body.variants, safePrice, safeDiscount);
+  const priorityRaw = Math.floor(Number(body.recommendationPriority ?? 0));
+  const recommendationPriority = Number.isFinite(priorityRaw)
+    ? Math.min(100, Math.max(0, priorityRaw))
+    : 0;
+  const excludedIds = new Set([productId]);
+  const recommendedProducts = parseProductIds(
+    body.recommendedProducts,
+    excludedIds,
+  );
   const totalStock =
     variants.length > 0
       ? variants.reduce(
@@ -95,6 +135,10 @@ const parseProductPayload = async (request: Request) => {
       categories,
       specs,
       variants,
+      recommendedProducts,
+      similarProducts: [],
+      accessoryProducts: [],
+      recommendationPriority,
       finalPrice: getDiscountedPrice(safePrice, safeDiscount),
     },
   };
@@ -149,7 +193,7 @@ export async function PATCH(
     );
   }
 
-  const parsed = await parseProductPayload(request);
+  const parsed = await parseProductPayload(request, id);
   if (!parsed.ok) {
     return NextResponse.json(
       { ok: false, error: parsed.error },
@@ -158,6 +202,7 @@ export async function PATCH(
   }
 
   await startDbConnection();
+  await removeMissingRelationships(parsed.payload);
 
   const product = await Product.findById(id);
   if (!product) {
@@ -223,6 +268,22 @@ export async function DELETE(
     Cart.updateMany(
       { "items.product": id },
       { $pull: { items: { product: id } } },
+    ),
+    Product.updateMany(
+      {
+        $or: [
+          { recommendedProducts: id },
+          { similarProducts: id },
+          { accessoryProducts: id },
+        ],
+      },
+      {
+        $pull: {
+          recommendedProducts: id,
+          similarProducts: id,
+          accessoryProducts: id,
+        },
+      },
     ),
   ]);
 

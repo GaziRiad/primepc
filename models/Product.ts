@@ -24,20 +24,20 @@ const ProductSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Product name is required"],
+      required: [true, "Le nom du produit est obligatoire"],
       trim: true, // removes white space at beginning and end of phrase
       maxLength: [
         40,
-        "A Product name must have less or equal than 40 characters.",
+        "Le nom du produit doit contenir au maximum 40 caractères.",
       ],
       minLength: [
         10,
-        "A Product name must have more or equal than 10 characters.",
+        "Le nom du produit doit contenir au moins 10 caractères.",
       ],
     },
     slug: {
       type: String,
-      required: [true, "Product slug is required"],
+      required: [true, "Le slug du produit est obligatoire"],
       unique: true,
     },
     brand: {
@@ -48,19 +48,19 @@ const ProductSchema = new Schema(
     description: { type: String, default: "" },
     price: {
       type: Number,
-      required: [true, "Product price is required"],
-      min: [100, "A Product price must be equal to 100DA or more."],
+      required: [true, "Le prix du produit est obligatoire"],
+      min: [100, "Le prix du produit doit être supérieur ou égal à 100 DA."],
     },
     stock: {
       type: Number,
       default: 0,
-      min: [0, "Stock must be 0 or greater."],
+      min: [0, "Le stock doit être supérieur ou égal à 0."],
     },
     discount: {
       type: Number,
       default: 0,
-      min: [0, "discount must be between 0 and 100."],
-      max: [100, "discount must be between 0 and 100."],
+      min: [0, "La remise doit être comprise entre 0 et 100."],
+      max: [100, "La remise doit être comprise entre 0 et 100."],
     },
     finalPrice: {
       type: Number,
@@ -71,7 +71,7 @@ const ProductSchema = new Schema(
     coverImage: {
       type: String,
       default: "",
-      required: [true, "Product coverimage is required"],
+      required: [true, "L’image principale du produit est obligatoire"],
     },
     images: [String],
     specs: {
@@ -80,8 +80,17 @@ const ProductSchema = new Schema(
       default: {},
     },
     variants: { type: [productVariantSchema], default: [] },
-
     categories: [{ type: Schema.Types.ObjectId, ref: "Category" }],
+    recommendedProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    // Retained so existing products can be migrated when next saved.
+    similarProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    accessoryProducts: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    recommendationPriority: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
   },
   {
     timestamps: true,
@@ -119,13 +128,27 @@ ProductSchema.index({ price: 1 });
 ProductSchema.index({ finalPrice: 1 });
 ProductSchema.index({ stock: 1, updatedAt: -1 });
 ProductSchema.index({ updatedAt: -1 });
+ProductSchema.index({ recommendationPriority: -1, stock: -1 });
+ProductSchema.index({
+  categories: 1,
+  stock: 1,
+  recommendationPriority: -1,
+  updatedAt: -1,
+});
+ProductSchema.index({ recommendedProducts: 1 });
+ProductSchema.index({ similarProducts: 1 });
+ProductSchema.index({ accessoryProducts: 1 });
 
 const existingModel = models.Product;
 
 if (
   existingModel &&
   (!existingModel.schema.path("variants") ||
-    !existingModel.schema.path("variants.active"))
+    !existingModel.schema.path("variants.active") ||
+    !existingModel.schema.path("recommendedProducts") ||
+    !existingModel.schema.path("similarProducts") ||
+    !existingModel.schema.path("accessoryProducts") ||
+    !existingModel.schema.path("recommendationPriority"))
 ) {
   delete models.Product;
 }

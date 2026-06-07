@@ -17,16 +17,16 @@ export default function WishlistPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3">
           <Breadcrumbs
-            items={[{ label: "Home", href: "/" }, { label: "Wishlist" }]}
+            items={[{ label: "Accueil", href: "/" }, { label: "Favoris" }]}
           />
-          <h2 className="text-accent text-2xl font-semibold">My Wishlist</h2>
+          <h2 className="text-accent text-2xl font-semibold">Mes favoris</h2>
         </div>
       </div>
 
       <section className="bg-accent-50 px-4 py-14 sm:px-6 lg:px-8">
         {favProducts.length === 0 && (
           <p className="mx-auto min-h-80 max-w-7xl text-center text-xl">
-            Your Wishlist is empty!
+            Votre liste de favoris est vide !
           </p>
         )}
         {favProducts.length > 0 && (
@@ -47,14 +47,14 @@ export default function WishlistPage() {
                     <div className="flex items-start gap-4">
                       <Link
                         href={productHref}
-                        className="group flex min-w-0 flex-1 items-start gap-4 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
-                        aria-label={`View ${item.product.name}`}
+                        className="group focus-visible:ring-primary flex min-w-0 flex-1 items-start gap-4 rounded-lg focus-visible:ring-2 focus-visible:outline-hidden"
+                        aria-label={`Voir ${item.product.name}`}
                       >
                         <div className="relative flex aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg">
                           <Image
                             fill
                             src={item.product.coverImage}
-                            alt={`Image of ${item.product.name} from PRIMEPC algeria.`}
+                            alt={`Image de ${item.product.name} sur PRIMEPC Algérie.`}
                             className="object-cover transition-transform duration-200 group-hover:scale-105"
                           />
                         </div>
@@ -75,14 +75,16 @@ export default function WishlistPage() {
                             ) : (
                               <CircleX className="size-4 stroke-1" />
                             )}
-                            <span>{inStock ? "In Stock" : "Out of Stock"}</span>
+                            <span>
+                              {inStock ? "En stock" : "Rupture de stock"}
+                            </span>
                           </div>
                         </div>
                       </Link>
                       <Button
                         onClick={() => removeFavorite(productId)}
                         variant="secondary"
-                        aria-label={`Remove ${item.product.name} from wishlist`}
+                        aria-label={`Retirer ${item.product.name} des favoris`}
                         className="hover:bg-destructive/5 hover:text-destructive/60 h-8 w-8 rounded-full"
                       >
                         <CircleX className="size-4 stroke-[1.5px]" />

@@ -10,19 +10,19 @@ type BreadcrumbItem = {
 };
 
 const routeLabels: Array<[RegExp, string]> = [
-  [/^\/admin\/orders(?:\/.*)?$/, "Orders"],
-  [/^\/admin\/products\/new$/, "New product"],
-  [/^\/admin\/products\/[^/]+$/, "Edit product"],
-  [/^\/admin\/products(?:\/.*)?$/, "Products"],
-  [/^\/admin\/categories\/new$/, "New category"],
-  [/^\/admin\/categories\/[^/]+$/, "Edit category"],
-  [/^\/admin\/categories(?:\/.*)?$/, "Categories"],
+  [/^\/admin\/orders(?:\/.*)?$/, "Commandes"],
+  [/^\/admin\/products\/new$/, "Nouveau produit"],
+  [/^\/admin\/products\/[^/]+$/, "Modifier le produit"],
+  [/^\/admin\/products(?:\/.*)?$/, "Produits"],
+  [/^\/admin\/categories\/new$/, "Nouvelle catégorie"],
+  [/^\/admin\/categories\/[^/]+$/, "Modifier la catégorie"],
+  [/^\/admin\/categories(?:\/.*)?$/, "Catégories"],
   [/^\/admin\/marketing(?:\/.*)?$/, "Marketing"],
 ];
 
 const getAdminItems = (pathname: string) => {
   const items: BreadcrumbItem[] = [
-    { label: "Home", href: "/" },
+    { label: "Accueil", href: "/" },
     { label: "Admin", href: "/admin" },
   ];
 
@@ -31,11 +31,11 @@ const getAdminItems = (pathname: string) => {
   const section = pathname.split("/")[2];
 
   if (section === "products") {
-    items.push({ label: "Products", href: "/admin/products" });
+    items.push({ label: "Produits", href: "/admin/products" });
   }
 
   if (section === "categories") {
-    items.push({ label: "Categories", href: "/admin/categories" });
+    items.push({ label: "Catégories", href: "/admin/categories" });
   }
 
   const current = routeLabels.find(([pattern]) => pattern.test(pathname));
@@ -44,17 +44,20 @@ const getAdminItems = (pathname: string) => {
   if (
     currentLabel &&
     currentLabel !== items[items.length - 1]?.label &&
-    currentLabel !== "Products" &&
-    currentLabel !== "Categories"
+    currentLabel !== "Produits" &&
+    currentLabel !== "Catégories"
   ) {
     items.push({ label: currentLabel });
   }
 
   if (
     currentLabel &&
-    !["New product", "Edit product", "New category", "Edit category"].includes(
-      currentLabel,
-    ) &&
+    ![
+      "Nouveau produit",
+      "Modifier le produit",
+      "Nouvelle catégorie",
+      "Modifier la catégorie",
+    ].includes(currentLabel) &&
     currentLabel !== items[items.length - 1]?.label
   ) {
     items.push({ label: currentLabel });

@@ -52,41 +52,41 @@ const validateForm = (form: CheckoutFormState): CheckoutErrors => {
   const phoneDigits = phone.replace(/\D/g, "");
 
   if (!firstName) {
-    errors.firstName = "First name is required.";
+    errors.firstName = "Le prénom est obligatoire.";
   } else if (firstName.length < 2) {
-    errors.firstName = "First name is too short.";
+    errors.firstName = "Le prénom est trop court.";
   }
 
   if (!lastName) {
-    errors.lastName = "Last name is required.";
+    errors.lastName = "Le nom est obligatoire.";
   } else if (lastName.length < 2) {
-    errors.lastName = "Last name is too short.";
+    errors.lastName = "Le nom est trop court.";
   }
 
   if (!phoneDigits) {
-    errors.phone = "Phone number is required.";
+    errors.phone = "Le numéro de téléphone est obligatoire.";
   } else if (phoneDigits.length < 8) {
-    errors.phone = "Enter a valid phone number.";
+    errors.phone = "Saisissez un numéro de téléphone valide.";
   }
 
   if (!email) {
-    errors.email = "Email address is required.";
+    errors.email = "L’adresse e-mail est obligatoire.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = "Enter a valid email address.";
+    errors.email = "Saisissez une adresse e-mail valide.";
   }
 
   if (!street) {
-    errors.street = "Street address is required.";
+    errors.street = "L’adresse est obligatoire.";
   } else if (street.length < 4) {
-    errors.street = "Street address is too short.";
+    errors.street = "L’adresse est trop courte.";
   }
 
   if (!form.city) {
-    errors.city = "City is required.";
+    errors.city = "La ville est obligatoire.";
   }
 
   if (!form.commune) {
-    errors.commune = "Commune is required.";
+    errors.commune = "La commune est obligatoire.";
   }
 
   return errors;
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
     city: "",
     commune: "",
     notes: "",
-    country: "Algeria",
+    country: "Algérie",
   });
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitted, setSubmitted] = useState(false);
@@ -262,7 +262,7 @@ export default function CheckoutPage() {
     if (Object.keys(errors).length > 0) return;
 
     if (!hasItems) {
-      toast.error("Your cart is empty.");
+      toast.error("Votre panier est vide.");
       return;
     }
 
@@ -294,17 +294,19 @@ export default function CheckoutPage() {
         toast.error(
           result?.error === "rate_limited" && result.message
             ? result.message
-            : "Unable to place order. Please try again.",
+            : "Impossible de passer la commande. Veuillez réessayer.",
         );
         return;
       }
 
       setOrderId(result.orderId);
-      toast.success("Order placed successfully.");
+      toast.success("Commande passée avec succès.");
       await clearCart();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Unable to place order";
+        error instanceof Error
+          ? error.message
+          : "Impossible de passer la commande";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -316,10 +318,10 @@ export default function CheckoutPage() {
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-8 sm:px-6 lg:px-8">
         <div>
           <h2 className="text-accent text-xl font-semibold sm:text-2xl">
-            Checkout
+            Commander
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm">
-            Home / Checkout
+            Accueil / Commander
           </p>
         </div>
         <Button
@@ -327,7 +329,7 @@ export default function CheckoutPage() {
           variant="link"
           className="h-auto border-0 p-0 text-xs font-normal no-underline! sm:text-sm"
         >
-          <Link href="/cart">Back to cart</Link>
+          <Link href="/cart">Retour au panier</Link>
         </Button>
       </div>
 
@@ -336,10 +338,10 @@ export default function CheckoutPage() {
           <div className="mx-auto mb-6 max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-4 text-sm shadow-xs">
               <p className="text-accent font-semibold">
-                Order placed successfully.
+                Commande passée avec succès.
               </p>
               <p className="text-muted-foreground mt-1">
-                Your order id:{" "}
+                Numéro de votre commande :{" "}
                 <span className="text-foreground">{orderId}</span>
               </p>
             </div>
@@ -352,31 +354,31 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-6">
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
               <h3 className="text-accent text-lg font-semibold">
-                Have a coupon code?
+                Vous avez un code promo ?
               </h3>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Input
-                  placeholder="Enter coupon code"
+                  placeholder="Saisissez un code promo"
                   className="h-11 rounded-full"
                 />
                 <Button
                   className="bg-primary-400 hover:bg-primary-500 h-11 rounded-full px-6 text-white"
                   type="button"
                 >
-                  Apply
+                  Appliquer
                 </Button>
               </div>
             </div>
 
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
               <h3 className="text-accent text-lg font-semibold">
-                Shipping details
+                Informations de livraison
               </h3>
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium" htmlFor="first-name">
-                    First name
+                    Prénom
                   </label>
                   <Input
                     id="first-name"
@@ -402,7 +404,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium" htmlFor="last-name">
-                    Last name
+                    Nom
                   </label>
                   <Input
                     id="last-name"
@@ -453,7 +455,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium" htmlFor="email">
-                    Email address
+                    Adresse e-mail
                   </label>
                   <Input
                     id="email"
@@ -477,11 +479,11 @@ export default function CheckoutPage() {
 
               <div className="mt-4 flex flex-col gap-2">
                 <label className="text-sm font-medium" htmlFor="street">
-                  Street address
+                  Adresse
                 </label>
                 <Input
                   id="street"
-                  placeholder="Street name and number"
+                  placeholder="Nom et numéro de rue"
                   value={form.street}
                   onChange={(event) =>
                     updateField("street", event.target.value)
@@ -499,11 +501,11 @@ export default function CheckoutPage() {
 
               <div className="mt-4 flex flex-col gap-2">
                 <label className="text-sm font-medium" htmlFor="apartment">
-                  Apartment, suite, unit (optional)
+                  Appartement, bâtiment ou étage (facultatif)
                 </label>
                 <Input
                   id="apartment"
-                  placeholder="Apartment, suite, unit"
+                  placeholder="Appartement, suite, unité"
                   value={form.apartment}
                   onChange={(event) =>
                     updateField("apartment", event.target.value)
@@ -514,7 +516,7 @@ export default function CheckoutPage() {
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium" htmlFor="city">
-                    City
+                    Ville
                   </label>
                   <Select
                     value={form.city}
@@ -532,7 +534,7 @@ export default function CheckoutPage() {
                       className="w-full"
                       aria-invalid={Boolean(cityError)}
                     >
-                      <SelectValue placeholder="Select city" />
+                      <SelectValue placeholder="Sélectionnez une ville" />
                     </SelectTrigger>
                     <SelectContent>
                       {ALGERIA_LOCATIONS.map((location) => (
@@ -565,7 +567,9 @@ export default function CheckoutPage() {
                     >
                       <SelectValue
                         placeholder={
-                          form.city ? "Select commune" : "Select city first"
+                          form.city
+                            ? "Sélectionnez une commune"
+                            : "Sélectionnez d’abord une ville"
                         }
                       />
                     </SelectTrigger>
@@ -585,7 +589,7 @@ export default function CheckoutPage() {
 
               <div className="mt-4 flex flex-col gap-2">
                 <label className="text-sm font-medium" htmlFor="country">
-                  Country
+                  Pays
                 </label>
                 <Input id="country" value={form.country} disabled />
               </div>
@@ -593,11 +597,11 @@ export default function CheckoutPage() {
 
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
               <h3 className="text-accent text-lg font-semibold">
-                Order notes (optional)
+                Notes de commande (facultatif)
               </h3>
               <Textarea
                 className="mt-4 min-h-28"
-                placeholder="Notes about your order, delivery instructions, etc."
+                placeholder="Notes concernant votre commande, instructions de livraison, etc."
                 value={form.notes}
                 onChange={(event) => updateField("notes", event.target.value)}
               />
@@ -607,18 +611,18 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-6">
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
               <h3 className="text-accent text-lg font-semibold">
-                Order Summary
+                Récapitulatif de la commande
               </h3>
 
               {isLoading ? (
                 <div className="text-muted-foreground mt-4 flex items-center gap-3 text-sm">
                   <Spinner className="size-4" />
-                  Loading your order...
+                  Chargement de votre commande...
                 </div>
               ) : (
                 <div className="mt-4 border-y border-dashed py-4">
                   <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold tracking-wide uppercase">
-                    <span>Product</span>
+                    <span>Produit</span>
                     <span>Total</span>
                   </div>
                   {hasItems ? (
@@ -636,7 +640,7 @@ export default function CheckoutPage() {
                           >
                             <div className="min-w-0">
                               <p className="text-primary-700 line-clamp-1 font-medium">
-                                {item.product.name ?? "Unknown product"}
+                                {item.product.name ?? "Produit inconnu"}
                               </p>
                               <p className="text-muted-foreground text-xs">
                                 x{item.quantity}
@@ -656,7 +660,7 @@ export default function CheckoutPage() {
                     </ul>
                   ) : (
                     <p className="text-muted-foreground mt-3 text-sm">
-                      Your cart is empty.
+                      Votre panier est vide.
                     </p>
                   )}
                 </div>
@@ -664,12 +668,14 @@ export default function CheckoutPage() {
 
               <div className="mt-5 flex flex-col gap-4 text-sm">
                 <div className="flex items-center justify-between">
-                  <span>Subtotal</span>
+                  <span>Sous-total</span>
                   <span className="font-semibold">{formatDZD(subtotal)}</span>
                 </div>
                 <div className="text-muted-foreground flex items-center justify-between">
-                  <span>Shipping</span>
-                  <span>{shipping === 0 ? "Free" : formatDZD(shipping)}</span>
+                  <span>Livraison</span>
+                  <span>
+                    {shipping === 0 ? "Gratuit" : formatDZD(shipping)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between border-t pt-4 text-base">
                   <span className="font-semibold">Total</span>
@@ -682,7 +688,7 @@ export default function CheckoutPage() {
 
             <div className="rounded-xl border-[0.5px] bg-white px-6 py-6 shadow-xs">
               <h3 className="text-accent text-lg font-semibold">
-                Payment method
+                Mode de paiement
               </h3>
               <div className="border-primary-100 bg-primary-50/60 mt-4 rounded-xl border px-4 py-4">
                 <div className="flex items-start gap-3">
@@ -691,17 +697,17 @@ export default function CheckoutPage() {
                   </div>
                   <div>
                     <p className="text-primary-800 text-sm font-semibold">
-                      Cash on delivery
+                      Paiement à la livraison
                     </p>
                     <p className="text-muted-foreground text-sm">
-                      Pay when your order arrives at your doorstep.
+                      Payez lorsque votre commande arrive chez vous.
                     </p>
                   </div>
                 </div>
               </div>
               <p className="text-muted-foreground mt-3 text-xs">
-                Cash on delivery is the only available option for Algerian
-                addresses.
+                Le paiement à la livraison est la seule option disponible pour
+                les adresses en Algérie.
               </p>
 
               <Button
@@ -709,7 +715,9 @@ export default function CheckoutPage() {
                 type="submit"
                 disabled={!hasItems || isLoading || isSubmitting}
               >
-                {isSubmitting ? "Placing order..." : "Place Order"}
+                {isSubmitting
+                  ? "Validation de la commande..."
+                  : "Passer la commande"}
               </Button>
             </div>
           </div>

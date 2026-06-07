@@ -128,12 +128,12 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
       .slice(0, 2);
 
     if (cleanHeroSlides.length === 0) {
-      toast.error("Add at least one main carousel slide.");
+      toast.error("Ajoutez au moins une diapositive au carrousel principal.");
       return;
     }
 
     if (!specialDeal.image.trim()) {
-      toast.error("Special deal image is required.");
+      toast.error("L’image de l’offre spéciale est obligatoire.");
       return;
     }
 
@@ -141,7 +141,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
       !specialDeal.endsAt ||
       Number.isNaN(new Date(specialDeal.endsAt).getTime())
     ) {
-      toast.error("Choose a valid deal end date.");
+      toast.error("Choisissez une date de fin valide.");
       return;
     }
 
@@ -165,7 +165,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
       };
 
       if (!response.ok || !data.ok || !data.settings) {
-        toast.error(data.error || "Unable to save marketing settings.");
+        toast.error(
+          data.error || "Impossible d’enregistrer les paramètres marketing.",
+        );
         return;
       }
 
@@ -176,7 +178,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         return next;
       });
       setSpecialDeal(data.settings.specialDeal);
-      toast.success("Marketing settings saved.");
+      toast.success("Paramètres marketing enregistrés.");
       router.refresh();
     } finally {
       setIsSaving(false);
@@ -189,10 +191,11 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-foreground text-lg font-semibold">
-              Main carousel
+              Carrousel principal
             </h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              Upload multiple slides for the large homepage carousel.
+              Importez plusieurs diapositives pour le grand carrousel de la page
+              d’accueil.
             </p>
           </div>
           <Button
@@ -204,7 +207,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             }
           >
             <Plus className="size-4" />
-            Add slide
+            Ajouter une diapositive
           </Button>
         </div>
 
@@ -218,7 +221,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 <Image
                   fill
                   src={slide.image || FALLBACK_HERO}
-                  alt={slide.alt || `Carousel slide ${index + 1}`}
+                  alt={slide.alt || `Diapositive ${index + 1} du carrousel`}
                   className="object-cover"
                   sizes="(min-width: 1024px) 288px, 100vw"
                 />
@@ -226,7 +229,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium">Slide image URL</label>
+                  <label className="text-sm font-medium">
+                    URL de l’image de la diapositive
+                  </label>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
                       value={slide.image}
@@ -236,7 +241,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                       placeholder="/images/marketing1.jpg"
                     />
                     <ImageUploadButton
-                      label="Upload slide"
+                      label="Importer la diapositive"
                       folder="primepc/marketing"
                       onUpload={(url) => updateHeroSlide(index, "image", url)}
                     />
@@ -244,18 +249,20 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Alt text</label>
+                  <label className="text-sm font-medium">
+                    Texte alternatif
+                  </label>
                   <Input
                     value={slide.alt}
                     onChange={(event) =>
                       updateHeroSlide(index, "alt", event.target.value)
                     }
-                    placeholder="Short image description"
+                    placeholder="Courte description de l’image"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Click link</label>
+                  <label className="text-sm font-medium">Lien au clic</label>
                   <Input
                     value={slide.href}
                     onChange={(event) =>
@@ -282,7 +289,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                     onClick={() => removeHeroSlide(index)}
                   >
                     <Trash2 className="size-4" />
-                    Remove
+                    Retirer
                   </Button>
                 </div>
               </div>
@@ -291,18 +298,19 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         </div>
 
         <p className="text-muted-foreground mt-4 text-xs">
-          {activeHeroCount} active slide
-          {activeHeroCount === 1 ? "" : "s"} will rotate in the large carousel.
+          {activeHeroCount} diapositive{activeHeroCount === 1 ? "" : "s"} active
+          {activeHeroCount === 1 ? "" : "s"} dans le grand carrousel.
         </p>
       </section>
 
       <section className="rounded-2xl border bg-white p-6 shadow-xs">
         <div>
           <h2 className="text-foreground text-lg font-semibold">
-            Static side banners
+            Bannières latérales statiques
           </h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            These two smaller homepage blocks are static images, not a carousel.
+            Ces deux petits blocs de la page d’accueil sont des images
+            statiques, pas un carrousel.
           </p>
         </div>
 
@@ -313,7 +321,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 <Image
                   fill
                   src={banner.image || FALLBACK_SIDE}
-                  alt={banner.alt || `Side banner ${index + 1}`}
+                  alt={banner.alt || `Bannière latérale ${index + 1}`}
                   className="object-cover"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
@@ -322,7 +330,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
               <div className="mt-4 space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Side banner {index + 1} image URL
+                    URL de l’image de la bannière latérale {index + 1}
                   </label>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Input
@@ -333,7 +341,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                       placeholder="/images/marketing2.jpg"
                     />
                     <ImageUploadButton
-                      label="Upload"
+                      label="Importer"
                       folder="primepc/marketing"
                       onUpload={(url) => updateSideBanner(index, "image", url)}
                     />
@@ -342,7 +350,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Alt text</label>
+                    <label className="text-sm font-medium">
+                      Texte alternatif
+                    </label>
                     <Input
                       value={banner.alt}
                       onChange={(event) =>
@@ -351,7 +361,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Click link</label>
+                    <label className="text-sm font-medium">Lien au clic</label>
                     <Input
                       value={banner.href}
                       onChange={(event) =>
@@ -376,9 +386,9 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         </div>
 
         <p className="text-muted-foreground mt-4 text-xs">
-          {activeSideCount} static side banner
-          {activeSideCount === 1 ? "" : "s"} will appear beside the carousel on
-          desktop.
+          {activeSideCount} bannière{activeSideCount === 1 ? "" : "s"} latérale
+          {activeSideCount === 1 ? " apparaîtra" : "s apparaîtront"} à côté du
+          carrousel sur ordinateur.
         </p>
       </section>
 
@@ -386,10 +396,10 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-foreground text-lg font-semibold">
-              Special deal timer
+              Minuteur de l’offre spéciale
             </h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              Control the promotional block near the bottom of the homepage.
+              Gérez le bloc promotionnel situé vers le bas de la page d’accueil.
             </p>
           </div>
           <label className="flex items-center gap-2 text-sm font-medium">
@@ -399,14 +409,14 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
                 updateDeal("enabled", Boolean(checked))
               }
             />
-            Enabled
+            Activée
           </label>
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Eyebrow</label>
+              <label className="text-sm font-medium">Surtitre</label>
               <Input
                 value={specialDeal.eyebrow}
                 onChange={(event) => updateDeal("eyebrow", event.target.value)}
@@ -414,7 +424,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">CTA label</label>
+              <label className="text-sm font-medium">Libellé du bouton</label>
               <Input
                 value={specialDeal.ctaLabel}
                 onChange={(event) => updateDeal("ctaLabel", event.target.value)}
@@ -422,7 +432,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Title</label>
+              <label className="text-sm font-medium">Titre</label>
               <Input
                 value={specialDeal.title}
                 onChange={(event) => updateDeal("title", event.target.value)}
@@ -430,7 +440,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Subtitle</label>
+              <label className="text-sm font-medium">Sous-titre</label>
               <Input
                 value={specialDeal.subtitle}
                 onChange={(event) => updateDeal("subtitle", event.target.value)}
@@ -438,7 +448,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">CTA link</label>
+              <label className="text-sm font-medium">Lien du bouton</label>
               <Input
                 value={specialDeal.href}
                 onChange={(event) => updateDeal("href", event.target.value)}
@@ -446,7 +456,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Ends at</label>
+              <label className="text-sm font-medium">Date de fin</label>
               <Input
                 type="datetime-local"
                 value={toDateTimeLocal(specialDeal.endsAt)}
@@ -457,14 +467,14 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Image URL</label>
+              <label className="text-sm font-medium">URL de l’image</label>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input
                   value={specialDeal.image}
                   onChange={(event) => updateDeal("image", event.target.value)}
                 />
                 <ImageUploadButton
-                  label="Upload deal image"
+                  label="Importer l’image de l’offre"
                   folder="primepc/marketing"
                   onUpload={(url) => updateDeal("image", url)}
                 />
@@ -476,7 +486,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
             <Image
               fill
               src={specialDeal.image || FALLBACK_DEAL_IMAGE}
-              alt={specialDeal.subtitle || "Special deal preview"}
+              alt={specialDeal.subtitle || "Aperçu de l’offre spéciale"}
               className="object-contain"
               sizes="(min-width: 1024px) 288px, 100vw"
             />
@@ -486,7 +496,7 @@ export default function MarketingForm({ settings }: MarketingFormProps) {
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save marketing"}
+          {isSaving ? "Enregistrement..." : "Enregistrer le marketing"}
         </Button>
       </div>
     </form>

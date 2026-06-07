@@ -135,15 +135,16 @@ export default function ProductCardClient({
                   <CarouselItem key={`mobile-image-${index}`}>
                     <Link
                       href={`/products/${slug}`}
-                      aria-label={`View ${name}`}
+                      aria-label={`Voir ${name}`}
                       className="relative block aspect-square w-full overflow-hidden rounded-lg bg-zinc-100"
                     >
                       <Image
                         fill
                         src={image}
-                        alt={`Image of ${name} from PRIMEPC algeria.`}
+                        alt={`Image de ${name} sur PRIMEPC Algérie.`}
                         className="object-cover"
                         sizes="(max-width: 639px) 50vw, 33vw"
+                        unoptimized={image.startsWith("http")}
                       />
                     </Link>
                   </CarouselItem>
@@ -174,14 +175,15 @@ export default function ProductCardClient({
           >
             <Link
               href={`/products/${slug}`}
-              aria-label={`View ${name}`}
+              aria-label={`Voir ${name}`}
               className="absolute inset-0"
             >
               <Image
                 fill
                 src={activeImage}
-                alt={`Image of ${name} from PRIMEPC algeria.`}
+                alt={`Image de ${name} sur PRIMEPC Algérie.`}
                 className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
+                unoptimized={activeImage.startsWith("http")}
                 sizes={
                   large
                     ? "(min-width: 1536px) 25vw, (min-width: 768px) 33vw, 50vw"
@@ -221,7 +223,7 @@ export default function ProductCardClient({
 
         {badge && (
           <Badge className="mb-2 bg-green-500" variant="default">
-            Latest & Greatest
+            Nouveauté
           </Badge>
         )}
 
@@ -246,13 +248,13 @@ export default function ProductCardClient({
             inStock ? "text-emerald-600" : "text-rose-600"
           }`}
         >
-          {inStock ? "IN STOCK" : "OUT OF STOCK"}
+          {inStock ? "EN STOCK" : "RUPTURE DE STOCK"}
         </p>
 
         <div className="mt-auto flex items-center gap-2">
           {hasVariants ? (
             <Button asChild size={large ? "default" : "sm"}>
-              <Link href={`/products/${slug}`}>Choose options</Link>
+              <Link href={`/products/${slug}`}>Choisir les options</Link>
             </Button>
           ) : (
             <AddToCartButton

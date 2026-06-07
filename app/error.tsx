@@ -28,8 +28,8 @@ export default function ErrorPage({
           Cette page n&apos;a pas pu se charger.
         </h1>
         <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-slate-600">
-          Vos informations sont en securite. Vous pouvez reessayer maintenant
-          ou revenir a l&apos;accueil.
+          Vos informations sont en securite. Vous pouvez reessayer maintenant ou
+          revenir a l&apos;accueil.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <button

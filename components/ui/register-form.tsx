@@ -41,12 +41,12 @@ export function RegisterForm({
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail || !password) {
-      toast.error("Please enter your email and password.");
+      toast.error("Veuillez saisir votre e-mail et votre mot de passe.");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Les mots de passe ne correspondent pas.");
       return;
     }
 
@@ -67,15 +67,17 @@ export function RegisterForm({
 
       if (!response.ok || !data?.ok) {
         if (data?.error === "account_exists") {
-          toast.error("An account already exists. Please sign in.");
+          toast.error("Un compte existe déjà. Veuillez vous connecter.");
         } else if (data?.error === "weak_password") {
-          toast.error("Password must be at least 8 characters.");
+          toast.error("Le mot de passe doit contenir au moins 8 caractères.");
         } else if (data?.error === "invalid_email") {
-          toast.error("Please enter a valid email.");
+          toast.error("Veuillez saisir une adresse e-mail valide.");
         } else if (data?.error === "rate_limited") {
-          toast.error(data.message || "Too many attempts. Please try later.");
+          toast.error(
+            data.message || "Trop de tentatives. Veuillez réessayer plus tard.",
+          );
         } else {
-          toast.error("Unable to create account.");
+          toast.error("Impossible de créer le compte.");
         }
         return;
       }
@@ -87,7 +89,7 @@ export function RegisterForm({
       });
 
       if (result?.error) {
-        toast.success("Account created. Please sign in.");
+        toast.success("Compte créé. Veuillez vous connecter.");
         await signOut({ redirect: false });
         router.push("/signin");
         return;
@@ -96,7 +98,7 @@ export function RegisterForm({
       router.push("/my-account");
       router.refresh();
     } catch {
-      toast.error("Unable to create account. Please try again.");
+      toast.error("Impossible de créer le compte. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
@@ -106,20 +108,20 @@ export function RegisterForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create your account</CardTitle>
+          <CardTitle className="text-xl">Créer votre compte</CardTitle>
           <CardDescription>
-            Sign up to save orders and favorites.
+            Inscrivez-vous pour enregistrer vos commandes et vos favoris.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="name">Full name</FieldLabel>
+                <FieldLabel htmlFor="name">Nom complet</FieldLabel>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Your name"
+                  placeholder="Votre nom"
                   autoComplete="name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
@@ -138,7 +140,7 @@ export function RegisterForm({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
                 <Input
                   id="password"
                   type="password"
@@ -150,7 +152,7 @@ export function RegisterForm({
               </Field>
               <Field>
                 <FieldLabel htmlFor="confirm-password">
-                  Confirm password
+                  Confirmer le mot de passe
                 </FieldLabel>
                 <Input
                   id="confirm-password"
@@ -162,7 +164,7 @@ export function RegisterForm({
                 />
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or continue with
+                Ou continuer avec
               </FieldSeparator>
               <Field>
                 <Button
@@ -185,7 +187,7 @@ export function RegisterForm({
                       fill="currentColor"
                     />
                   </svg>
-                  Continue with Google
+                  Continuer avec Google
                 </Button>
               </Field>
               <Field>
@@ -194,12 +196,12 @@ export function RegisterForm({
                   type="submit"
                   disabled={isSubmitting}
                 >
-                  Create account
+                  Créer un compte
                 </Button>
                 <FieldDescription className="text-center">
-                  Already have an account?{" "}
+                  Vous avez déjà un compte ?{" "}
                   <Link href="/signin" className="underline">
-                    Sign in
+                    Se connecter
                   </Link>
                 </FieldDescription>
               </Field>

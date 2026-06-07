@@ -69,7 +69,12 @@ const loadCloudinaryWidgetScript = () =>
       existingScript.addEventListener("load", () => resolve(), { once: true });
       existingScript.addEventListener(
         "error",
-        () => reject(new Error("Unable to load Cloudinary upload window.")),
+        () =>
+          reject(
+            new Error(
+              "Impossible de charger la fenêtre d’importation Cloudinary.",
+            ),
+          ),
         { once: true },
       );
       return;
@@ -81,13 +86,15 @@ const loadCloudinaryWidgetScript = () =>
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () =>
-      reject(new Error("Unable to load Cloudinary upload window."));
+      reject(
+        new Error("Impossible de charger la fenêtre d’importation Cloudinary."),
+      );
     document.body.appendChild(script);
   });
 
 export default function ImageUploadButton({
   onUpload,
-  label = "Upload",
+  label = "Importer",
   folder = "primepc/products",
 }: ImageUploadButtonProps) {
   if (cloudName && uploadPreset) {
@@ -107,7 +114,7 @@ export default function ImageUploadButton({
 
 function CloudinaryWidgetButton({
   onUpload,
-  label = "Upload",
+  label = "Importer",
   folder = "primepc/products",
 }: ImageUploadButtonProps) {
   const widgetRef = useRef<CloudinaryUploadWidget | null>(null);
@@ -130,7 +137,7 @@ function CloudinaryWidgetButton({
 
       const cloudinaryWindow = window as CloudinaryWindow;
       if (!cloudinaryWindow.cloudinary?.createUploadWidget) {
-        toast.error("Unable to open Cloudinary upload window.");
+        toast.error("Impossible d’ouvrir la fenêtre d’importation Cloudinary.");
         return;
       }
 
@@ -153,7 +160,7 @@ function CloudinaryWidgetButton({
           (error, result) => {
             if (error) {
               const message = typeof error === "string" ? error : error.message;
-              toast.error(message || "Unable to upload image.");
+              toast.error(message || "Impossible d’importer l’image.");
               return;
             }
 
@@ -162,12 +169,14 @@ function CloudinaryWidgetButton({
 
             const url = getUploadedUrl(uploadResult);
             if (!url) {
-              toast.error("Upload finished, but no image URL was returned.");
+              toast.error(
+                "L’importation est terminée, mais aucune URL d’image n’a été retournée.",
+              );
               return;
             }
 
             onUpload(url);
-            toast.success("Image uploaded.");
+            toast.success("Image importée.");
           },
         );
       }
@@ -177,7 +186,7 @@ function CloudinaryWidgetButton({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Unable to open Cloudinary upload window.",
+          : "Impossible d’ouvrir la fenêtre d’importation Cloudinary.",
       );
     } finally {
       setIsOpening(false);
@@ -199,14 +208,14 @@ function CloudinaryWidgetButton({
       ) : (
         <Upload className="size-4" />
       )}
-      {isOpening ? "Opening..." : label}
+      {isOpening ? "Ouverture..." : label}
     </button>
   );
 }
 
 function FallbackUploadButton({
   onUpload,
-  label = "Upload",
+  label = "Importer",
   folder = "primepc/products",
 }: ImageUploadButtonProps) {
   const inputId = useId();
@@ -220,7 +229,7 @@ function FallbackUploadButton({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please choose an image file.");
+      toast.error("Veuillez choisir un fichier image.");
       return;
     }
 
@@ -243,14 +252,14 @@ function FallbackUploadButton({
       };
 
       if (!response.ok || !data.ok || !data.url) {
-        toast.error(data.error || "Unable to upload image.");
+        toast.error(data.error || "Impossible d’importer l’image.");
         return;
       }
 
       onUpload(data.url);
-      toast.success("Image uploaded.");
+      toast.success("Image importée.");
     } catch {
-      toast.error("Unable to upload image.");
+      toast.error("Impossible d’importer l’image.");
     } finally {
       setIsUploading(false);
     }
@@ -279,7 +288,7 @@ function FallbackUploadButton({
       ) : (
         <Upload className="size-4" />
       )}
-      {isUploading ? "Uploading..." : label}
+      {isUploading ? "Importation..." : label}
     </label>
   );
 }

@@ -22,13 +22,13 @@ type Tab = {
 
 const Tabs: Tab[] = [
   {
-    label: "Dashboard",
+    label: "Tableau de bord",
     id: "my-account",
     href: "/my-account",
     icon: LayoutDashboard,
   },
   {
-    label: "Orders",
+    label: "Commandes",
     id: "ordres",
     href: "/my-account/orders",
     icon: Store,
@@ -40,7 +40,7 @@ const Tabs: Tab[] = [
     icon: Birdhouse,
   },
   {
-    label: "Account Details",
+    label: "Détails du compte",
     id: "account-details",
     href: "/my-account/account-details",
     icon: User,
@@ -84,7 +84,9 @@ export default function TabList() {
           }}
         >
           <LogOut className="stroke-accent-500 stroke-[1.5px] transition-all group-hover:stroke-white" />
-          <span className="transition-all group-hover:text-white">Logout</span>
+          <span className="transition-all group-hover:text-white">
+            Se déconnecter
+          </span>
         </button>
       </li>
     </ul>
