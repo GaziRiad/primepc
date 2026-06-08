@@ -121,7 +121,7 @@ export default function ProductCardClient({
   return (
     <Card
       size={!large ? "sm" : "default"}
-      className={`h-full min-w-0 py-4 transition-all ${
+      className={`h-full min-w-0 py-3 transition-all ${
         large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"
       } `}
     >
@@ -171,7 +171,7 @@ export default function ProductCardClient({
 
           <div
             ref={imageContainerRef}
-            className="group/image relative hidden aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 sm:flex"
+            className="group/image relative hidden aspect-4/3 w-full overflow-hidden rounded-lg bg-zinc-100 sm:flex xl:aspect-5/4"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
