@@ -75,9 +75,13 @@ const OrderSchema = new mongoose.Schema(
       index: true,
     },
     statusHistory: { type: [statusHistorySchema], default: [] },
+    idempotencyKey: { type: String },
+    idempotencyFingerprint: { type: String },
     paymentMethod: { type: String, default: "cod" },
     source: { type: String, enum: ["user", "guest"], default: "user" },
     notes: { type: String, default: "" },
+    stockRestoredAt: { type: Date },
+    stockRestoredReason: { type: String, enum: ["cancelled", "failed"] },
     archived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date },
     archivedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -92,13 +96,27 @@ const OrderSchema = new mongoose.Schema(
 OrderSchema.index({ user: 1, createdAt: -1 });
 OrderSchema.index({ status: 1, createdAt: -1 });
 OrderSchema.index({ archived: 1, createdAt: -1 });
+OrderSchema.index(
+  { idempotencyKey: 1 },
+  {
+    partialFilterExpression: { idempotencyKey: { $type: "string" } },
+    unique: true,
+  },
+);
 
 const existingModel = mongoose.models.Order;
 
 if (existingModel) {
   const hasArchived = existingModel.schema.path("archived");
   const hasVariantLabel = existingModel.schema.path("items.variantLabel");
-  if (!hasArchived || !hasVariantLabel) {
+  const hasIdempotencyKey = existingModel.schema.path("idempotencyKey");
+  const hasStockRestoredAt = existingModel.schema.path("stockRestoredAt");
+  if (
+    !hasArchived ||
+    !hasVariantLabel ||
+    !hasIdempotencyKey ||
+    !hasStockRestoredAt
+  ) {
     delete mongoose.models.Order;
   }
 }

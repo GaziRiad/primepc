@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 
+import { recordEmailAttempt } from "@/lib/emailDelivery";
 import { formatDZD, SOCIAL_LINKS } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 
@@ -36,6 +37,8 @@ type OrderEmailPayload = {
 };
 
 type EmailPayload = {
+  category?: string;
+  relatedId?: string;
   to: string | string[];
   subject: string;
   text: string;
@@ -155,11 +158,23 @@ const sendEmail = async ({
   replyTo,
   headers,
   scheduledAt,
+  category,
+  relatedId,
 }: EmailPayload) => {
-  if (!isResendConfigured())
-    return { ok: false as const, skipped: true as const };
-
   const recipients = parseRecipients(to);
+
+  if (!isResendConfigured()) {
+    await recordEmailAttempt({
+      category,
+      recipients,
+      relatedId,
+      status: "skipped",
+      subject,
+      error: "Resend is not configured",
+    });
+    return { ok: false as const, skipped: true as const };
+  }
+
   if (!recipients.length) return { ok: false as const, skipped: true as const };
 
   try {
@@ -176,12 +191,36 @@ const sendEmail = async ({
 
     if (result.error || !result.data?.id) {
       console.error("Resend email request failed:", result.error);
+      await recordEmailAttempt({
+        category,
+        recipients,
+        relatedId,
+        status: "failed",
+        subject,
+        error: result.error?.message,
+      });
       return { ok: false as const };
     }
 
+    await recordEmailAttempt({
+      category,
+      providerId: result.data.id,
+      recipients,
+      relatedId,
+      status: scheduledAt ? "scheduled" : "accepted",
+      subject,
+    });
     return { ok: true as const, id: result.data.id };
   } catch (error) {
     console.error("Resend email request threw:", error);
+    await recordEmailAttempt({
+      category,
+      recipients,
+      relatedId,
+      status: "failed",
+      subject,
+      error,
+    });
     return { ok: false as const };
   }
 };
@@ -196,6 +235,15 @@ export const cancelScheduledEmail = async (emailId: string) => {
         "Resend scheduled email cancellation failed:",
         result.error,
       );
+    }
+    if (!result.error) {
+      await recordEmailAttempt({
+        category: "abandoned_cart",
+        providerId: emailId,
+        recipients: [],
+        status: "cancelled",
+        subject: "",
+      });
     }
     return !result.error;
   } catch (error) {
@@ -668,6 +716,8 @@ export const sendAdminOrderNotification = async (
     sendTelegram(text),
     adminRecipients.length
       ? sendEmail({
+          category: "order_admin",
+          relatedId: payload.orderId,
           to: adminRecipients,
           subject: `Nouvelle commande n°${payload.orderId}`,
           text,
@@ -686,7 +736,14 @@ export const sendCustomerOrderConfirmation = async (
   const text = buildCustomerText(payload);
   const html = buildCustomerHtml(payload);
 
-  await sendEmail({ to: payload.customer.email, subject, text, html });
+  await sendEmail({
+    category: "order_customer",
+    relatedId: payload.orderId,
+    to: payload.customer.email,
+    subject,
+    text,
+    html,
+  });
 };
 
 export const sendWelcomeEmail = async (payload: {
@@ -731,7 +788,7 @@ export const sendWelcomeEmail = async (payload: {
 
   const html = buildEmailShell(content, `Bienvenue chez ${APP_NAME}`);
 
-  await sendEmail({ to: email, subject, text, html });
+  await sendEmail({ category: "welcome", to: email, subject, text, html });
 };
 
 export const sendPasswordResetEmail = async (payload: {
@@ -767,7 +824,13 @@ export const sendPasswordResetEmail = async (payload: {
 
   const html = buildEmailShell(content, "Réinitialisez votre mot de passe");
 
-  return sendEmail({ to: email, subject, text, html });
+  return sendEmail({
+    category: "password_reset",
+    to: email,
+    subject,
+    text,
+    html,
+  });
 };
 
 export const scheduleAbandonedCartReminder = async (
@@ -787,6 +850,7 @@ export const scheduleAbandonedCartReminder = async (
     : undefined;
 
   return sendEmail({
+    category: "abandoned_cart",
     to: email,
     subject: copy.subject,
     text,
@@ -809,6 +873,7 @@ export const sendContactMessage = async (payload: ContactMessagePayload) => {
   const html = buildContactHtml(payload);
 
   return sendEmail({
+    category: "contact",
     to: recipients,
     subject,
     text,

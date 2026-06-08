@@ -11,6 +11,7 @@ const TABS = [
   { label: "Produits", href: "/admin/products" },
   { label: "Catégories", href: "/admin/categories" },
   { label: "Marketing", href: "/admin/marketing" },
+  { label: "E-mails", href: "/admin/email" },
 ];
 
 export default function AdminTabs() {

@@ -5,6 +5,7 @@ import { Types } from "mongoose";
 import startDbConnection from "@/lib/db";
 import Category from "@/models/Category";
 import CategoryForm from "@/components/admin/CategoryForm";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Modifier la catégorie - Administration",
@@ -15,6 +16,7 @@ export default async function page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
 
   if (!Types.ObjectId.isValid(id)) {

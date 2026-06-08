@@ -184,8 +184,8 @@ export function LoginForm({
       </Card>
       <FieldDescription className="px-6 text-center">
         En continuant, vous acceptez nos{" "}
-        <a href="#">Conditions d’utilisation</a> et{" "}
-        <a href="#">Politique de confidentialité</a>.
+        <Link href="/terms">Conditions d&apos;utilisation</Link> et{" "}
+        <Link href="/privacy">Politique de confidentialite</Link>.
       </FieldDescription>
     </div>
   );

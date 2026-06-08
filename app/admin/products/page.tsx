@@ -6,6 +6,7 @@ import Product from "@/models/Product";
 import ProductsToolbar from "@/components/admin/ProductsToolbar";
 import ProductsTable from "@/components/admin/ProductsTable";
 import PaginationTable from "@/components/PaginationTable";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Produits - Administration",
@@ -16,6 +17,7 @@ export default async function page({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  await requireAdmin();
   const query = await searchParams;
   const search = typeof query.q === "string" ? query.q.trim() : "";
   const stockFilter = typeof query.stock === "string" ? query.stock : "";

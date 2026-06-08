@@ -19,6 +19,8 @@ const supportLinks = [
   { label: "Livraison et retours", href: "/delivery-returns" },
   { label: "Garantie", href: "/warranty" },
   { label: "Suivi de commande", href: "/my-account/orders" },
+  { label: "Conditions d'utilisation", href: "/terms" },
+  { label: "Confidentialite", href: "/privacy" },
 ];
 
 type FooterLinkGroupProps = {

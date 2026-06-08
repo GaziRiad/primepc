@@ -3,6 +3,7 @@ import Category from "@/models/Category";
 import CategoriesToolbar from "@/components/admin/CategoriesToolbar";
 import CategoriesTable from "@/components/admin/CategoriesTable";
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Catégories - Administration",
@@ -13,6 +14,7 @@ export default async function page({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  await requireAdmin();
   const query = await searchParams;
   const search = typeof query.q === "string" ? query.q.trim() : "";
 

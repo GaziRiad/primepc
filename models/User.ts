@@ -32,6 +32,10 @@ const UserSchema = new Schema(
       enum: ["google", "credentials"],
       default: "google",
     },
+    providers: {
+      type: [{ type: String, enum: ["google", "credentials"] }],
+      default: [],
+    },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     sessionVersion: { type: Number, default: 0 },
     lastLoginAt: { type: Date, default: Date.now },
@@ -54,12 +58,14 @@ if (existingModel) {
     "abandonedCartEmailsEnabled",
   );
   const hasSessionVersion = existingModel.schema.path("sessionVersion");
+  const hasProviders = existingModel.schema.path("providers");
 
   if (
     !hasPasswordHash ||
     !hasShippingAddress ||
     !hasAbandonedCartEmails ||
-    !hasSessionVersion
+    !hasSessionVersion ||
+    !hasProviders
   ) {
     delete models.User;
   }

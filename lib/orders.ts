@@ -1,9 +1,14 @@
-import { Types, type SortOrder } from "mongoose";
+import mongoose, { Types, type ClientSession, type SortOrder } from "mongoose";
 
 import startDbConnection from "@/lib/db";
 import { getDiscountedPrice } from "@/lib/utils";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import {
+  reserveOrderStock,
+  restoreOrderStock,
+  type InventoryItem,
+} from "@/lib/orderInventory";
 
 export const ORDER_STATUSES = [
   "pending_confirmation",
@@ -157,7 +162,10 @@ const buildAdminOrdersFilter = (query?: OrdersQuery) => {
   return { filter, sort };
 };
 
-export const buildOrderItems = async (items: OrderItemInput[]) => {
+export const buildOrderItems = async (
+  items: OrderItemInput[],
+  session?: ClientSession,
+) => {
   await startDbConnection();
 
   const normalized = normalizeItems(items);
@@ -166,9 +174,11 @@ export const buildOrderItems = async (items: OrderItemInput[]) => {
   }
 
   const ids = normalized.map((item) => item.productId);
-  const products = await Product.find({ _id: { $in: ids } })
+  const productQuery = Product.find({ _id: { $in: ids } })
     .select("name slug price discount finalPrice coverImage stock variants")
     .lean();
+  if (session) productQuery.session(session);
+  const products = await productQuery;
 
   const productMap = new Map(
     products.map((product) => [String(product._id), product]),
@@ -362,6 +372,7 @@ export const updateOrderStatus = async (
   changedBy?: string,
 ) => {
   await startDbConnection();
+  const session = await mongoose.startSession();
 
   const historyEntry: {
     status: OrderStatus;
@@ -378,16 +389,44 @@ export const updateOrderStatus = async (
     historyEntry.changedBy = new Types.ObjectId(changedBy);
   }
 
-  return Order.findByIdAndUpdate(
-    orderId,
-    {
-      $set: { status },
-      $push: {
-        statusHistory: historyEntry,
-      },
-    },
-    { returnDocument: "after" },
-  ).lean();
+  let updatedOrder = null;
+
+  try {
+    await session.withTransaction(async () => {
+      const order = await Order.findById(orderId).session(session);
+      if (!order) return;
+
+      const terminalStatuses: OrderStatus[] = ["cancelled", "failed"];
+      const wasTerminal = terminalStatuses.includes(order.status as OrderStatus);
+      const willBeTerminal = terminalStatuses.includes(status);
+      const inventoryItems = order.items.map(
+        (item: { product: unknown; quantity: number; variantId?: string }) => ({
+          product: item.product,
+          quantity: item.quantity,
+          variantId: item.variantId,
+        }),
+      ) satisfies InventoryItem[];
+
+      if (willBeTerminal && !wasTerminal && !order.stockRestoredAt) {
+        await restoreOrderStock(inventoryItems, session);
+        order.stockRestoredAt = new Date();
+        order.stockRestoredReason = status;
+      } else if (!willBeTerminal && wasTerminal && order.stockRestoredAt) {
+        await reserveOrderStock(inventoryItems, session);
+        order.stockRestoredAt = undefined;
+        order.stockRestoredReason = undefined;
+      }
+
+      order.status = status;
+      order.statusHistory.push(historyEntry);
+      await order.save({ session });
+      updatedOrder = order.toObject();
+    });
+
+    return updatedOrder;
+  } finally {
+    await session.endSession();
+  }
 };
 
 export const updateOrderArchive = async (

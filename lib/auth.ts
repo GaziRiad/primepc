@@ -69,7 +69,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await startDbConnection();
         const user = await User.findOne({
           email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
-          provider: "credentials",
           passwordHash: { $exists: true, $ne: "" },
         })
           .select(
@@ -84,7 +83,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         await User.updateOne(
           { _id: user._id },
-          { $set: { lastLoginAt: new Date() } },
+          {
+            $addToSet: { providers: "credentials" },
+            $set: { lastLoginAt: new Date() },
+          },
         );
 
         return {
@@ -123,6 +125,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email,
               image: user.image,
               provider: "google",
+              providers: ["google"],
             });
           } catch (error) {
             if (
@@ -153,28 +156,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             console.error("Google welcome email failed:", error);
           });
         } else {
-          if (userExists.provider !== "google") {
-            const conversion = await User.updateOne(
-              { _id: userExists._id },
-              {
-                $inc: { sessionVersion: 1 },
-                $set: {
-                  email,
-                  lastLoginAt: new Date(),
-                  provider: "google",
-                },
-                $unset: { passwordHash: 1 },
-              },
-            );
-            if (conversion.matchedCount !== 1) return false;
-            user.id = userExists._id.toString();
-            return true;
-          }
-
           if (userExists.email !== email) {
             userExists.email = email;
           }
 
+          if (user.image) userExists.image = user.image;
+          userExists.addToSet("providers", "google");
           userExists.lastLoginAt = new Date();
           await userExists.save();
           user.id = userExists._id.toString();

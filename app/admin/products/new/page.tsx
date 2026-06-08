@@ -2,12 +2,14 @@ import Category from "@/models/Category";
 import startDbConnection from "@/lib/db";
 import ProductForm from "@/components/admin/ProductForm";
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Nouveau produit - Administration",
 };
 
 export default async function page() {
+  await requireAdmin();
   await startDbConnection();
 
   const categories = await Category.find()

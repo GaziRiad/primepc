@@ -67,8 +67,9 @@ const handlePasswordReset = async (request: Request) => {
 
   const passwordHash = await hash(password, 10);
   const result = await User.updateOne(
-    { _id: resetToken.user, provider: "credentials" },
+    { _id: resetToken.user },
     {
+      $addToSet: { providers: "credentials" },
       $inc: { sessionVersion: 1 },
       $set: { passwordHash },
     },

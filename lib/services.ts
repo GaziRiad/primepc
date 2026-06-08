@@ -12,8 +12,12 @@ import Cart from "@/models/Cart";
 import { auth } from "./auth";
 import { CACHE_TAGS, PUBLIC_PAGE_REVALIDATE_SECONDS } from "@/lib/cache";
 import { syncAbandonedCartReminder } from "@/lib/cartRecovery";
+import {
+  sanitizeProductQuery,
+  type ProductQueryParams,
+} from "@/lib/productQuery";
 
-type QueryParams = { [key: string]: string | string[] | undefined };
+type QueryParams = ProductQueryParams;
 
 const stableQueryKey = (query?: QueryParams) => {
   const entries = Object.entries(query ?? {})
@@ -52,6 +56,7 @@ const queryFromStableKey = (key: string): QueryParams => {
 const getAllProductsUncached = async (query?: QueryParams) => {
   try {
     await startDbConnection();
+    query = sanitizeProductQuery(query);
 
     // await new Promise((resolve) => setTimeout(resolve, 4000));
 
@@ -166,6 +171,7 @@ const getAllProductsUncached = async (query?: QueryParams) => {
 const getProductsPageUncached = async (query?: QueryParams) => {
   try {
     await startDbConnection();
+    query = sanitizeProductQuery(query);
 
     const toSingle = (value: string | string[] | undefined) =>
       Array.isArray(value) ? value[0] : value;
@@ -358,10 +364,10 @@ const getAllCategoriesCached = unstable_cache(
 );
 
 export const getAllProducts = async (query?: QueryParams) =>
-  getAllProductsCached(stableQueryKey(query));
+  getAllProductsCached(stableQueryKey(sanitizeProductQuery(query)));
 
 export const getProductsPage = async (query?: QueryParams) =>
-  getProductsPageCached(stableQueryKey(query));
+  getProductsPageCached(stableQueryKey(sanitizeProductQuery(query)));
 
 export const getProduct = async (slug: string) => getProductCached(slug);
 

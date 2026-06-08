@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/adminAuth";
 import { Types } from "mongoose";
 
 import Category from "@/models/Category";
@@ -16,6 +17,7 @@ export default async function page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
 
   if (!Types.ObjectId.isValid(id)) {

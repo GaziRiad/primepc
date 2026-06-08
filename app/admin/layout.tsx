@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/adminAuth";
 import AdminBreadcrumbs from "@/components/admin/AdminBreadcrumbs";
 import AdminTabs from "@/components/admin/AdminTabs";
 
@@ -17,11 +16,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-
-  if (!session?.user?.id || session.user.role !== "admin") {
-    redirect("/");
-  }
+  await requireAdmin();
 
   return (
     <section className="bg-accent-50 min-h-screen">

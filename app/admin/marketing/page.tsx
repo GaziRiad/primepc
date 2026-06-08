@@ -1,12 +1,14 @@
 import MarketingForm from "@/components/admin/MarketingForm";
 import { getOrCreateMarketingSettings } from "@/lib/marketing";
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Marketing - Administration",
 };
 
 export default async function page() {
+  await requireAdmin();
   const settings = await getOrCreateMarketingSettings();
 
   return (

@@ -125,6 +125,7 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const addressPrefilledRef = useRef(false);
   const checkoutStartTrackedRef = useRef("");
+  const idempotencyKeyRef = useRef("");
 
   const errors = useMemo(() => validateForm(form), [form]);
 
@@ -270,6 +271,10 @@ export default function CheckoutPage() {
     setOrderId(null);
 
     try {
+      if (!idempotencyKeyRef.current) {
+        idempotencyKeyRef.current = crypto.randomUUID();
+      }
+
       const { notes, ...customer } = form;
       const items = cartItems.map((item) => ({
         productId: String(item.product?._id ?? item.product?.id ?? ""),
@@ -279,7 +284,10 @@ export default function CheckoutPage() {
 
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKeyRef.current,
+        },
         body: JSON.stringify({ customer, notes, items }),
       });
 
@@ -300,6 +308,7 @@ export default function CheckoutPage() {
       }
 
       setOrderId(result.orderId);
+      idempotencyKeyRef.current = "";
       toast.success("Commande passée avec succès.");
       await clearCart();
     } catch (error) {

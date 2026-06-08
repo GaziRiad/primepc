@@ -65,7 +65,7 @@ const handleForgotPassword = async (request: Request) => {
   await startDbConnection();
   const user = await User.findOne({
     email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
-    provider: "credentials",
+    passwordHash: { $exists: true, $ne: "" },
   })
     .select("_id name email")
     .lean();

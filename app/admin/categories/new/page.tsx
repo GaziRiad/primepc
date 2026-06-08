@@ -1,11 +1,13 @@
 import CategoryForm from "@/components/admin/CategoryForm";
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/adminAuth";
 
 export const metadata: Metadata = {
   title: "Nouvelle catégorie - Administration",
 };
 
 export default async function page() {
+  await requireAdmin();
   return (
     <div className="flex flex-col gap-6">
       <div>

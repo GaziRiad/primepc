@@ -1,8 +1,19 @@
+import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-import startDbConnection from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { revalidateProductCache } from "@/lib/cache";
+import { cancelAbandonedCartReminder } from "@/lib/cartRecovery";
+import startDbConnection from "@/lib/db";
+import {
+  sendAdminOrderNotification,
+  sendCustomerOrderConfirmation,
+} from "@/lib/notifications";
+import {
+  createOrderFingerprint,
+  normalizeIdempotencyKey,
+} from "@/lib/orderIdempotency";
+import { reserveOrderStock } from "@/lib/orderInventory";
 import {
   buildOrderItems,
   SHIPPING_FEE,
@@ -10,16 +21,10 @@ import {
   type CustomerDetails,
   type OrderItemInput,
 } from "@/lib/orders";
-import {
-  sendAdminOrderNotification,
-  sendCustomerOrderConfirmation,
-} from "@/lib/notifications";
 import { recordProductAnalyticsEvents } from "@/lib/productAnalytics";
-import { cancelAbandonedCartReminder } from "@/lib/cartRecovery";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import Cart from "@/models/Cart";
 import Order from "@/models/Order";
-import Product from "@/models/Product";
 
 const REQUIRED_FIELDS: Array<keyof CustomerDetails> = [
   "firstName",
@@ -39,6 +44,21 @@ type CreateOrderBody = {
   items?: OrderItemInput[];
   notes?: string;
 };
+
+type SuccessfulBuild = Extract<
+  Awaited<ReturnType<typeof buildOrderItems>>,
+  { ok: true }
+>;
+
+class OrderFlowError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly details?: Record<string, unknown>,
+  ) {
+    super(message);
+  }
+}
 
 const normalizeText = (value: unknown, maxLength: number) =>
   String(value ?? "")
@@ -73,83 +93,16 @@ const validateCustomer = (customer?: Partial<CustomerDetails>) => {
   });
   const phoneDigits = normalized.phone.replace(/\D/g, "");
 
-  if (!hasRequiredFields) return null;
-  if (phoneDigits.length < 8) return null;
+  if (!hasRequiredFields || phoneDigits.length < 8) return null;
   if (!EMAIL_REGEX.test(normalized.email)) return null;
-
   return normalized;
 };
 
-const rollbackReservedStock = async (
-  items: Array<{ product: unknown; quantity: number; variantId?: string }>,
-) => {
-  if (items.length === 0) return;
-
-  for (const item of items) {
-    if (item.variantId) {
-      await Product.updateOne(
-        { _id: item.product, "variants._id": item.variantId },
-        {
-          $inc: {
-            stock: item.quantity,
-            "variants.$.stock": item.quantity,
-          },
-        },
-      );
-    } else {
-      await Product.updateOne(
-        { _id: item.product },
-        { $inc: { stock: item.quantity } },
-      );
-    }
-  }
-};
-
-const reserveStock = async (
-  items: Array<{ product: unknown; quantity: number; variantId?: string }>,
-) => {
-  const reserved: Array<{
-    product: unknown;
-    quantity: number;
-    variantId?: string;
-  }> = [];
-
-  for (const item of items) {
-    const result = item.variantId
-      ? await Product.updateOne(
-          {
-            _id: item.product,
-            stock: { $gte: item.quantity },
-            variants: {
-              $elemMatch: {
-                _id: item.variantId,
-                active: { $ne: false },
-                stock: { $gte: item.quantity },
-              },
-            },
-          },
-          {
-            $inc: {
-              stock: -item.quantity,
-              "variants.$.stock": -item.quantity,
-            },
-          },
-        )
-      : await Product.updateOne(
-          { _id: item.product, stock: { $gte: item.quantity } },
-          { $inc: { stock: -item.quantity } },
-        );
-
-    if (result.modifiedCount !== 1) {
-      await rollbackReservedStock(reserved);
-      return false;
-    }
-
-    reserved.push(item);
-  }
-
-  return true;
-};
+const isDuplicateKeyError = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  "code" in error &&
+  error.code === 11000;
 
 export async function POST(request: Request) {
   try {
@@ -166,8 +119,15 @@ export async function POST(request: Request) {
       );
     }
 
-    await startDbConnection();
-    const session = await auth();
+    const idempotencyKey = normalizeIdempotencyKey(
+      request.headers.get("idempotency-key"),
+    );
+    if (!idempotencyKey) {
+      return NextResponse.json(
+        { ok: false, error: "invalid_idempotency_key" },
+        { status: 400 },
+      );
+    }
 
     let body: CreateOrderBody;
     try {
@@ -201,105 +161,172 @@ export async function POST(request: Request) {
       );
     }
 
-    let items: OrderItemInput[] = [];
-
-    if (session?.user?.id) {
-      const cart = await Cart.findOne({ user: session.user.id })
-        .select("items")
-        .lean();
-
-      const cartItems = Array.isArray(cart?.items) ? cart.items : [];
-
-      items = cartItems.map(
-        (item: {
-          product?: unknown;
-          quantity?: unknown;
-          variantId?: unknown;
-        }) => ({
-          productId: String(item.product ?? ""),
-          quantity: Number(item.quantity ?? 0),
-          variantId: String(item.variantId ?? ""),
-        }),
-      );
-    } else {
-      items = Array.isArray(body.items) ? body.items : [];
-    }
-
-    if (items.length === 0) {
-      return NextResponse.json(
-        { ok: false, error: "empty_cart" },
-        { status: 400 },
-      );
-    }
-
-    const build = await buildOrderItems(items);
-
-    if (!build.ok) {
-      return NextResponse.json(
-        { ok: false, error: "invalid_items", issues: build.issues },
-        { status: 409 },
-      );
-    }
-
-    const shippingFee =
-      build.subtotal >= SHIPPING_THRESHOLD
-        ? 0
-        : build.subtotal > 0
-          ? SHIPPING_FEE
-          : 0;
-
-    const total = build.subtotal + shippingFee;
+    await startDbConnection();
+    const authSession = await auth();
+    const userId = authSession?.user?.id;
     const notes = normalizeText(body.notes, MAX_NOTES_LENGTH);
+    const requestedItems = (Array.isArray(body.items) ? body.items : []).map(
+      (item) => ({
+        productId: String(item.productId ?? "").trim(),
+        quantity: Math.floor(Number(item.quantity ?? 0)),
+        variantId: String(item.variantId ?? "").trim(),
+      }),
+    );
+    const fingerprint = createOrderFingerprint({
+      customer,
+      items: requestedItems,
+      notes,
+      userId: userId ?? "",
+    });
+    const dbSession = await mongoose.startSession();
 
-    const stockReserved = await reserveStock(build.items);
+    let orderId = "";
+    let orderCreatedAt: Date | null = null;
+    let committedBuild: SuccessfulBuild | null = null;
+    let replayed = false;
 
-    if (!stockReserved) {
-      return NextResponse.json(
-        { ok: false, error: "stock_changed" },
-        { status: 409 },
-      );
-    }
-
-    let order;
     try {
-      order = await Order.create({
-        user: session?.user?.id ?? undefined,
-        customer,
-        items: build.items,
-        subtotal: build.subtotal,
-        shippingFee,
-        total,
-        status: "pending_confirmation",
-        statusHistory: [
-          {
-            status: "pending_confirmation",
-            note: "Commande passée",
-            changedAt: new Date(),
-            changedBy: session?.user?.id ?? null,
-          },
-        ],
-        paymentMethod: "cod",
-        source: session?.user?.id ? "user" : "guest",
-        notes,
+      await dbSession.withTransaction(async () => {
+        const existing = await Order.findOne({ idempotencyKey }).session(
+          dbSession,
+        );
+        if (existing) {
+          if (existing.idempotencyFingerprint !== fingerprint) {
+            throw new OrderFlowError("idempotency_conflict", 409);
+          }
+          orderId = String(existing._id);
+          replayed = true;
+          return;
+        }
+
+        let items: OrderItemInput[];
+
+        if (userId) {
+          const cart = await Cart.findOne({ user: userId })
+            .select("items")
+            .session(dbSession)
+            .lean();
+
+          items = (Array.isArray(cart?.items) ? cart.items : []).map(
+            (item: {
+              product?: unknown;
+              quantity?: unknown;
+              variantId?: unknown;
+            }) => ({
+              productId: String(item.product ?? ""),
+              quantity: Number(item.quantity ?? 0),
+              variantId: String(item.variantId ?? ""),
+            }),
+          );
+        } else {
+          items = requestedItems;
+        }
+
+        if (items.length === 0) {
+          throw new OrderFlowError("empty_cart", 400);
+        }
+
+        const build = await buildOrderItems(items, dbSession);
+        if (!build.ok) {
+          throw new OrderFlowError("invalid_items", 409, {
+            issues: build.issues,
+          });
+        }
+
+        await reserveOrderStock(build.items, dbSession);
+
+        const shippingFee =
+          build.subtotal >= SHIPPING_THRESHOLD
+            ? 0
+            : build.subtotal > 0
+              ? SHIPPING_FEE
+              : 0;
+        const total = build.subtotal + shippingFee;
+
+        const [order] = await Order.create(
+          [
+            {
+              user: userId ?? undefined,
+              customer,
+              items: build.items,
+              subtotal: build.subtotal,
+              shippingFee,
+              total,
+              status: "pending_confirmation",
+              statusHistory: [
+                {
+                  status: "pending_confirmation",
+                  note: "Commande passee",
+                  changedAt: new Date(),
+                  changedBy: userId ?? null,
+                },
+              ],
+              idempotencyKey,
+              idempotencyFingerprint: fingerprint,
+              paymentMethod: "cod",
+              source: userId ? "user" : "guest",
+              notes,
+            },
+          ],
+          { session: dbSession },
+        );
+
+        if (userId) {
+          await Cart.findOneAndUpdate(
+            { user: userId },
+            { $set: { items: [] } },
+            { session: dbSession },
+          );
+        }
+
+        orderId = String(order._id);
+        orderCreatedAt = order.createdAt;
+        committedBuild = build;
       });
     } catch (error) {
-      await rollbackReservedStock(build.items);
+      if (isDuplicateKeyError(error)) {
+        const existing = await Order.findOne({ idempotencyKey }).lean();
+        if (existing?.idempotencyFingerprint === fingerprint) {
+          return NextResponse.json({
+            ok: true,
+            orderId: String(existing._id),
+            replayed: true,
+          });
+        }
+        throw new OrderFlowError("idempotency_conflict", 409);
+      }
       throw error;
+    } finally {
+      await dbSession.endSession();
     }
 
-    if (session?.user?.id) {
-      await cancelAbandonedCartReminder(session.user.id).catch(() => null);
-      await Cart.findOneAndUpdate(
-        { user: session.user.id },
-        { $set: { items: [] } },
-      ).catch(() => null);
+    if (replayed) {
+      return NextResponse.json({ ok: true, orderId, replayed: true });
     }
 
-    revalidateProductCache(build.productSlugs);
+    const finalBuild = committedBuild as SuccessfulBuild | null;
+    const finalCreatedAt = orderCreatedAt as Date | null;
 
+    if (!finalBuild || !finalCreatedAt) {
+      throw new Error("order_creation_failed");
+    }
+
+    if (userId) {
+      await cancelAbandonedCartReminder(userId).catch(() => null);
+    }
+
+    revalidateProductCache(finalBuild.productSlugs);
+
+    const shippingFee =
+      finalBuild.subtotal >= SHIPPING_THRESHOLD
+        ? 0
+        : finalBuild.subtotal > 0
+          ? SHIPPING_FEE
+          : 0;
+    const total = finalBuild.subtotal + shippingFee;
     const emailPayload = {
-      orderId: String(order._id),
-      items: build.items.map((item) => ({
+      orderId,
+      items: finalBuild.items.map((item) => ({
         name: item.name,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
@@ -308,7 +335,7 @@ export async function POST(request: Request) {
         variantLabel: item.variantLabel,
         variantOptions: item.variantOptions,
       })),
-      subtotal: build.subtotal,
+      subtotal: finalBuild.subtotal,
       shippingFee,
       total,
       customer: {
@@ -322,12 +349,12 @@ export async function POST(request: Request) {
         country: customer.country ?? "Algeria",
       },
       notes,
-      createdAt: order.createdAt,
+      createdAt: finalCreatedAt,
     };
 
     await Promise.allSettled([
       recordProductAnalyticsEvents(
-        build.items.map((item) => ({
+        finalBuild.items.map((item) => ({
           product: {
             coverImage: item.coverImage,
             finalPrice: item.finalPrice,
@@ -343,8 +370,21 @@ export async function POST(request: Request) {
       sendCustomerOrderConfirmation(emailPayload),
     ]);
 
-    return NextResponse.json({ ok: true, orderId: String(order._id) });
+    return NextResponse.json({ ok: true, orderId, replayed: false });
   } catch (error) {
+    if (error instanceof OrderFlowError) {
+      return NextResponse.json(
+        { ok: false, error: error.message, ...error.details },
+        { status: error.status },
+      );
+    }
+    if (error instanceof Error && error.message === "stock_changed") {
+      return NextResponse.json(
+        { ok: false, error: "stock_changed" },
+        { status: 409 },
+      );
+    }
+
     console.error("Order creation failed:", error);
     return NextResponse.json(
       { ok: false, error: "order_creation_failed" },

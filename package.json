@@ -2,11 +2,21 @@
   "name": "yourpc",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.11.1",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "launch:check": "tsx scripts/launch-check.ts",
+    "db:reconcile-order-stock": "tsx scripts/reconcile-order-stock.ts",
+    "assets:optimize": "node scripts/optimize-public-images.mjs",
     "prod": "npm run build && npm run start",
     "db:seed:products": "tsx lib/seed-products.ts",
     "db:seed:products:reset": "tsx lib/seed-products.ts --reset"

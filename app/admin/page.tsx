@@ -18,6 +18,7 @@ import {
 import { formatDZD } from "@/lib/utils";
 import { getProductAnalyticsSummary } from "@/lib/productAnalytics";
 import { getOrderStatusLabel } from "@/lib/orderStatus";
+import { requireAdmin } from "@/lib/adminAuth";
 
 const STATUS_STYLES: Record<string, string> = {
   pending_confirmation: "bg-amber-100 text-amber-700",
@@ -44,6 +45,7 @@ const formatRangeDate = (date: Date) =>
   date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 
 export default async function page() {
+  await requireAdmin();
   await startDbConnection();
 
   const trendStart = new Date();

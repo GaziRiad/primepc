@@ -109,6 +109,12 @@ export async function PATCH(
           { status: 400 },
         );
       }
+      if (message === "stock_changed" || message === "stock_restore_failed") {
+        return NextResponse.json(
+          { ok: false, error: message },
+          { status: 409 },
+        );
+      }
       throw error;
     }
 

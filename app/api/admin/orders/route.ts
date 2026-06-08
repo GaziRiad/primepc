@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { toCsvValue } from "@/lib/csv";
 import {
   getOrdersForAdminExportCursor,
   getOrdersForAdminPage,
@@ -29,11 +30,6 @@ type ExportOrder = {
     quantity?: number;
     variantLabel?: string;
   }>;
-};
-
-const toCsvValue = (value: string | number | null | undefined) => {
-  const raw = value === null || value === undefined ? "" : String(value);
-  return `"${raw.replace(/"/g, '""')}"`;
 };
 
 export async function GET(request: Request) {

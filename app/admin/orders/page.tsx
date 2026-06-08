@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
-import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/adminAuth";
 import { getOrdersForAdminPage } from "@/lib/orders";
 import OrdersTable from "@/components/admin/OrdersTable";
 import OrdersToolbar from "@/components/admin/OrdersToolbar";
@@ -16,11 +15,7 @@ export default async function page({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const session = await auth();
-
-  if (!session?.user?.id || session.user.role !== "admin") {
-    redirect("/");
-  }
+  await requireAdmin();
 
   const query = await searchParams;
   const statusFilter = typeof query.status === "string" ? query.status : "all";

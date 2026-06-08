@@ -111,6 +111,7 @@ export async function POST(request: Request) {
         email,
         passwordHash,
         provider: "credentials",
+        providers: ["credentials"],
       });
     } catch (error) {
       if (
