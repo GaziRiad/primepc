@@ -3,7 +3,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const ABANDONED_CART_PREFERENCE = "abandoned-cart";
 
 const getSecret = () =>
-  process.env.EMAIL_UNSUBSCRIBE_SECRET || process.env.NEXTAUTH_SECRET || "";
+  process.env.EMAIL_UNSUBSCRIBE_SECRET ||
+  process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  "";
 
 const signPreference = (userId: string) => {
   const secret = getSecret();

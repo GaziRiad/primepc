@@ -4,7 +4,7 @@ import { BadgeCheck, FileCheck2, ShieldCheck, Wrench } from "lucide-react";
 import PolicyPage from "@/components/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Garantie 6 mois | PRIMEPC",
+  title: "Garantie 6 mois",
   description:
     "Consultez les conditions de garantie PRIMEPC pour les laptops et PC vendus en Algerie.",
 };

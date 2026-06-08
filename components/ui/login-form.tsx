@@ -22,11 +22,20 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  AUTH_EMAIL_MAX_LENGTH,
+  AUTH_PASSWORD_MAX_LENGTH,
+} from "@/lib/authValidation";
 
 export function LoginForm({
+  authError,
+  callbackUrl = "/my-account",
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  authError?: string;
+  callbackUrl?: string;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,7 +72,7 @@ export function LoginForm({
         return;
       }
 
-      router.push("/my-account");
+      router.push(callbackUrl);
       router.refresh();
     } catch {
       toast.error("Impossible de vous connecter. Veuillez réessayer.");
@@ -82,6 +91,16 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {authError && (
+            <p
+              role="alert"
+              className="mb-5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
+            >
+              {authError === "OAuthAccountNotLinked"
+                ? "Ce compte utilise une autre méthode de connexion."
+                : "Impossible de vous connecter. Veuillez réessayer."}
+            </p>
+          )}
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
@@ -92,7 +111,7 @@ export function LoginForm({
                   onClick={() =>
                     signIn(
                       "google",
-                      { redirectTo: "/" },
+                      { redirectTo: callbackUrl },
                       {
                         prompt: "select_account",
                       },
@@ -118,6 +137,7 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  maxLength={AUTH_EMAIL_MAX_LENGTH}
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -127,7 +147,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
                   <Link
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
                   >
                     Mot de passe oublié ?
@@ -137,6 +157,7 @@ export function LoginForm({
                   id="password"
                   type="password"
                   required
+                  maxLength={AUTH_PASSWORD_MAX_LENGTH}
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}

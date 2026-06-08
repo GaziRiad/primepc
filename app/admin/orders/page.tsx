@@ -1,10 +1,15 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 import { auth } from "@/lib/auth";
 import { getOrdersForAdminPage } from "@/lib/orders";
 import OrdersTable from "@/components/admin/OrdersTable";
 import OrdersToolbar from "@/components/admin/OrdersToolbar";
 import PaginationTable from "@/components/PaginationTable";
+
+export const metadata: Metadata = {
+  title: "Commandes - Administration",
+};
 
 export default async function page({
   searchParams,

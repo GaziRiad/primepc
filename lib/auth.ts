@@ -6,16 +6,26 @@ import startDbConnection from "./db";
 import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/notifications";
 import { consumeRateLimit } from "@/lib/rateLimit";
-
-const escapeRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+import {
+  escapeAuthRegex,
+  isValidAuthEmail,
+  isValidAuthPassword,
+  normalizeAuthEmail,
+} from "@/lib/authValidation";
 
 class RateLimitedSignin extends CredentialsSignin {
   code = "rate_limited";
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: { strategy: "jwt" },
+  pages: {
+    error: "/auth-error",
+    signIn: "/signin",
+  },
+  session: {
+    maxAge: 30 * 24 * 60 * 60,
+    strategy: "jwt",
+  },
   providers: [
     Google({
       authorization: {
@@ -31,12 +41,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, request) {
-        const email = String(credentials?.email ?? "")
-          .trim()
-          .toLowerCase();
+        const email = normalizeAuthEmail(credentials?.email);
         const password = String(credentials?.password ?? "");
 
-        if (!email || !password) return null;
+        if (!isValidAuthEmail(email) || !isValidAuthPassword(password)) {
+          return null;
+        }
 
         const [ipLimit, emailLimit] = await Promise.all([
           consumeRateLimit(request, {
@@ -58,16 +68,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         await startDbConnection();
         const user = await User.findOne({
-          email: new RegExp(`^${escapeRegex(email)}$`, "i"),
+          email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
+          provider: "credentials",
           passwordHash: { $exists: true, $ne: "" },
         })
-          .select("_id name email image passwordHash role createdAt")
+          .select(
+            "_id name email image +passwordHash role createdAt sessionVersion",
+          )
           .lean();
 
         if (!user?.passwordHash) return null;
 
         const isValid = await compare(password, user.passwordHash);
         if (!isValid) return null;
+
+        await User.updateOne(
+          { _id: user._id },
+          { $set: { lastLoginAt: new Date() } },
+        );
 
         return {
           id: String(user._id),
@@ -76,43 +94,89 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           image: user.image,
           role: user.role,
           createdAt: user.createdAt,
+          sessionVersion: Number(user.sessionVersion ?? 0),
         };
       },
     }),
   ],
-  trustHost: true, // Add this line
+  trustHost: true,
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         await startDbConnection();
 
-        const email = String(user.email ?? "")
-          .trim()
-          .toLowerCase();
-        if (!email) return false;
+        const email = normalizeAuthEmail(user.email);
+        if (!isValidAuthEmail(email) || profile?.email_verified !== true) {
+          return false;
+        }
 
         const userExists = await User.findOne({
-          email: new RegExp(`^${escapeRegex(email)}$`, "i"),
+          email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
         });
 
         if (!userExists) {
-          const newUser = await User.create({
-            name: user.name,
-            email,
-            image: user.image,
-          });
+          let newUser;
+
+          try {
+            newUser = await User.create({
+              name: user.name,
+              email,
+              image: user.image,
+              provider: "google",
+            });
+          } catch (error) {
+            if (
+              typeof error !== "object" ||
+              error === null ||
+              !("code" in error) ||
+              error.code !== 11000
+            ) {
+              throw error;
+            }
+
+            const racedUser = await User.findOne({
+              email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
+              provider: "google",
+            });
+
+            if (!racedUser) return false;
+            user.id = racedUser._id.toString();
+            return true;
+          }
 
           user.id = newUser._id.toString();
 
-          void sendWelcomeEmail({
+          await sendWelcomeEmail({
             email: newUser.email,
             name: newUser.name,
+          }).catch((error) => {
+            console.error("Google welcome email failed:", error);
           });
         } else {
+          if (userExists.provider !== "google") {
+            const conversion = await User.updateOne(
+              { _id: userExists._id },
+              {
+                $inc: { sessionVersion: 1 },
+                $set: {
+                  email,
+                  lastLoginAt: new Date(),
+                  provider: "google",
+                },
+                $unset: { passwordHash: 1 },
+              },
+            );
+            if (conversion.matchedCount !== 1) return false;
+            user.id = userExists._id.toString();
+            return true;
+          }
+
           if (userExists.email !== email) {
             userExists.email = email;
-            await userExists.save();
           }
+
+          userExists.lastLoginAt = new Date();
+          await userExists.save();
           user.id = userExists._id.toString();
         }
       }
@@ -128,22 +192,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user?.id) token.id = String(user.id);
       if (user?.role) token.role = user.role;
       if (user?.createdAt) token.createdAt = user.createdAt;
-
-      if (user?.email) {
-        const email = String(user.email ?? "")
-          .trim()
-          .toLowerCase();
-        if (!email) return token;
-
-        const dbUser = await User.findOne({
-          email: new RegExp(`^${escapeRegex(email)}$`, "i"),
-        }).select("_id role createdAt");
-        if (dbUser) {
-          token.id = dbUser._id.toString();
-          token.role = dbUser.role;
-          token.createdAt = dbUser.createdAt;
-        }
+      if (typeof user?.sessionVersion === "number") {
+        token.sessionVersion = user.sessionVersion;
       }
+
+      const userId = typeof token.id === "string" ? token.id : "";
+      if (!userId) return token;
+
+      await startDbConnection();
+      const dbUser = await User.findById(userId)
+        .select("name email image role createdAt sessionVersion")
+        .lean();
+      const sessionVersion = Number(dbUser?.sessionVersion ?? 0);
+
+      if (
+        !dbUser ||
+        (typeof token.sessionVersion === "number" &&
+          token.sessionVersion !== sessionVersion)
+      ) {
+        delete token.id;
+        delete token.role;
+        delete token.createdAt;
+        delete token.sessionVersion;
+        token.name = null;
+        token.email = null;
+        token.picture = null;
+        return token;
+      }
+
+      token.id = dbUser._id.toString();
+      token.role = dbUser.role;
+      token.createdAt = dbUser.createdAt;
+      token.sessionVersion = sessionVersion;
+      token.name = dbUser.name || null;
+      token.email = dbUser.email || null;
+      token.picture = dbUser.image || null;
       return token;
     },
 
@@ -151,30 +234,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!session.user) return session;
 
       const userId = typeof token.id === "string" ? token.id : "";
-      if (!userId) return session;
-
-      await startDbConnection();
-      const user = await User.findById(userId)
-        .select("name email image")
-        .lean();
-      if (!user) {
+      if (!userId) {
         session.user.id = "";
         session.user.role = undefined;
         session.user.createdAt = undefined;
+        session.user.name = null;
+        session.user.email = "";
+        session.user.image = null;
         return session;
       }
 
       session.user.id = userId;
       session.user.role = token.role as string;
-      if (typeof user.name === "string" && user.name.length > 0) {
-        session.user.name = user.name;
-      }
-      if (typeof user.email === "string" && user.email.length > 0) {
-        session.user.email = user.email;
-      }
-      if (typeof user.image === "string") {
-        session.user.image = user.image;
-      }
+      session.user.name = token.name;
+      session.user.email = token.email ?? "";
+      session.user.image = token.picture;
       const createdAt =
         token.createdAt instanceof Date
           ? token.createdAt

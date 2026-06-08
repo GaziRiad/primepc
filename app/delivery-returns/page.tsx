@@ -10,7 +10,7 @@ import {
 import PolicyPage from "@/components/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Livraison et retours | PRIMEPC",
+  title: "Livraison et retours",
   description:
     "Livraison PRIMEPC avec Yalidine, paiement a la reception, verification avant paiement, retours sous 3 jours et giveaway mensuel.",
 };

@@ -1,10 +1,15 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { Types } from "mongoose";
 
 import Category from "@/models/Category";
 import Product from "@/models/Product";
 import startDbConnection from "@/lib/db";
 import ProductForm from "@/components/admin/ProductForm";
+
+export const metadata: Metadata = {
+  title: "Modifier le produit - Administration",
+};
 
 export default async function page({
   params,

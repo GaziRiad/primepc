@@ -121,7 +121,7 @@ export default function ProductCardClient({
   return (
     <Card
       size={!large ? "sm" : "default"}
-      className={`h-full py-10 transition-all ${
+      className={`h-full min-w-0 py-10 transition-all ${
         large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"
       } `}
     >
@@ -264,13 +264,18 @@ export default function ProductCardClient({
           {inStock ? "EN STOCK" : "RUPTURE DE STOCK"}
         </p>
 
-        <div className="mt-auto flex items-center gap-2">
+        <div className="mt-auto flex w-full min-w-0 items-center gap-1.5 sm:gap-2">
           {hasVariants ? (
-            <Button asChild size={large ? "default" : "sm"}>
+            <Button
+              asChild
+              size={large ? "default" : "sm"}
+              className="h-auto min-h-8 min-w-0 flex-1 px-2 py-1.5 text-center text-xs leading-tight whitespace-normal sm:flex-none sm:px-3 sm:text-sm sm:whitespace-nowrap"
+            >
               <Link href={`/products/${slug}`}>Choisir les options</Link>
             </Button>
           ) : (
             <AddToCartButton
+              className="h-auto min-h-8 min-w-0 flex-1 px-2 py-1.5 text-center text-xs leading-tight whitespace-normal sm:flex-none sm:px-3 sm:text-sm sm:whitespace-nowrap"
               productId={productId}
               product={{
                 name,
@@ -282,7 +287,11 @@ export default function ProductCardClient({
               large={large}
             />
           )}
-          <FavoriteButton productId={productId} large={large} />
+          <FavoriteButton
+            className="shrink-0"
+            productId={productId}
+            large={large}
+          />
         </div>
       </CardFooter>
     </Card>

@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "À propos",
+  description:
+    "Découvrez PRIMEPC, notre vision et notre engagement pour proposer du matériel informatique fiable en Algérie.",
+};
 
 export default function AboutPage() {
   return (

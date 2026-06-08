@@ -1,6 +1,11 @@
 import Category from "@/models/Category";
 import startDbConnection from "@/lib/db";
 import ProductForm from "@/components/admin/ProductForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Nouveau produit - Administration",
+};
 
 export default async function page() {
   await startDbConnection();

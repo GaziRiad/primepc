@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Cpu, ShieldCheck, Wrench } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description:
+    "Retrouvez prochainement les guides, conseils pratiques et recommandations PRIMEPC.",
+};
 
 const upcomingTopics = [
   {

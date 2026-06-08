@@ -5,10 +5,14 @@ import startDbConnection from "@/lib/db";
 import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/notifications";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
-const escapeRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+import {
+  escapeAuthRegex,
+  isValidAuthEmail,
+  isValidAuthName,
+  isValidAuthPassword,
+  normalizeAuthEmail,
+  normalizeAuthName,
+} from "@/lib/authValidation";
 
 export async function POST(request: Request) {
   try {
@@ -39,27 +43,32 @@ export async function POST(request: Request) {
       );
     }
 
-    const name = String(body?.name ?? "").trim();
-    const email = String(body?.email ?? "")
-      .trim()
-      .toLowerCase();
+    const name = normalizeAuthName(body?.name);
+    const email = normalizeAuthEmail(body?.email);
     const password = String(body?.password ?? "");
 
-    if (!email || !password) {
+    if (!name || !email || !password) {
       return NextResponse.json(
         { ok: false, error: "missing_fields" },
         { status: 400 },
       );
     }
 
-    if (!EMAIL_REGEX.test(email)) {
+    if (!isValidAuthName(name)) {
+      return NextResponse.json(
+        { ok: false, error: "invalid_name" },
+        { status: 400 },
+      );
+    }
+
+    if (!isValidAuthEmail(email)) {
       return NextResponse.json(
         { ok: false, error: "invalid_email" },
         { status: 400 },
       );
     }
 
-    if (password.length < 8) {
+    if (!isValidAuthPassword(password)) {
       return NextResponse.json(
         { ok: false, error: "weak_password" },
         { status: 400 },
@@ -83,35 +92,47 @@ export async function POST(request: Request) {
     await startDbConnection();
 
     const existingUser = await User.findOne({
-      email: new RegExp(`^${escapeRegex(email)}$`, "i"),
+      email: new RegExp(`^${escapeAuthRegex(email)}$`, "i"),
     });
 
     if (existingUser) {
-      if (existingUser.passwordHash) {
+      return NextResponse.json(
+        { ok: false, error: "account_exists" },
+        { status: 409 },
+      );
+    }
+
+    const passwordHash = await hash(password, 10);
+    let newUser;
+
+    try {
+      newUser = await User.create({
+        name,
+        email,
+        passwordHash,
+        provider: "credentials",
+      });
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === 11000
+      ) {
         return NextResponse.json(
           { ok: false, error: "account_exists" },
           { status: 409 },
         );
       }
 
-      existingUser.passwordHash = await hash(password, 10);
-      if (!existingUser.name && name) existingUser.name = name;
-      await existingUser.save();
-
-      return NextResponse.json({ ok: true, linked: true });
+      throw error;
     }
 
-    const passwordHash = await hash(password, 10);
-    const newUser = await User.create({
-      name,
-      email,
-      passwordHash,
-      provider: "credentials",
-    });
-
-    void sendWelcomeEmail({
+    await sendWelcomeEmail({
       email: newUser.email,
       name: newUser.name,
+    }).catch((error) => {
+      console.error("Registration welcome email failed:", error);
     });
 
     return NextResponse.json({ ok: true });

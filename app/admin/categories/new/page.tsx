@@ -1,4 +1,9 @@
 import CategoryForm from "@/components/admin/CategoryForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Nouvelle catégorie - Administration",
+};
 
 export default async function page() {
   return (

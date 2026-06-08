@@ -23,6 +23,13 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  AUTH_EMAIL_MAX_LENGTH,
+  AUTH_NAME_MAX_LENGTH,
+  AUTH_NAME_MIN_LENGTH,
+  AUTH_PASSWORD_MAX_LENGTH,
+  AUTH_PASSWORD_MIN_LENGTH,
+} from "@/lib/authValidation";
 
 export function RegisterForm({
   className,
@@ -40,8 +47,8 @@ export function RegisterForm({
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!normalizedEmail || !password) {
-      toast.error("Veuillez saisir votre e-mail et votre mot de passe.");
+    if (!name.trim() || !normalizedEmail || !password) {
+      toast.error("Veuillez remplir tous les champs.");
       return;
     }
 
@@ -70,6 +77,8 @@ export function RegisterForm({
           toast.error("Un compte existe déjà. Veuillez vous connecter.");
         } else if (data?.error === "weak_password") {
           toast.error("Le mot de passe doit contenir au moins 8 caractères.");
+        } else if (data?.error === "invalid_name") {
+          toast.error("Veuillez saisir un nom complet valide.");
         } else if (data?.error === "invalid_email") {
           toast.error("Veuillez saisir une adresse e-mail valide.");
         } else if (data?.error === "rate_limited") {
@@ -122,6 +131,9 @@ export function RegisterForm({
                   id="name"
                   type="text"
                   placeholder="Votre nom"
+                  required
+                  minLength={AUTH_NAME_MIN_LENGTH}
+                  maxLength={AUTH_NAME_MAX_LENGTH}
                   autoComplete="name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
@@ -134,6 +146,7 @@ export function RegisterForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  maxLength={AUTH_EMAIL_MAX_LENGTH}
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -145,6 +158,8 @@ export function RegisterForm({
                   id="password"
                   type="password"
                   required
+                  minLength={AUTH_PASSWORD_MIN_LENGTH}
+                  maxLength={AUTH_PASSWORD_MAX_LENGTH}
                   autoComplete="new-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -158,6 +173,8 @@ export function RegisterForm({
                   id="confirm-password"
                   type="password"
                   required
+                  minLength={AUTH_PASSWORD_MIN_LENGTH}
+                  maxLength={AUTH_PASSWORD_MAX_LENGTH}
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
@@ -174,7 +191,7 @@ export function RegisterForm({
                   onClick={() =>
                     signIn(
                       "google",
-                      { redirectTo: "/" },
+                      { redirectTo: "/my-account" },
                       {
                         prompt: "select_account",
                       },

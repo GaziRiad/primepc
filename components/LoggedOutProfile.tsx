@@ -10,7 +10,7 @@ export default function LoggedOutProfile() {
       <div className="flex flex-col">
         <span className="text-[10px] text-zinc-500 uppercase">Compte</span>
         <Link
-          href="signin"
+          href="/signin"
           className="hover:text-primary text-xs transition-all"
         >
           Se connecter / S’inscrire

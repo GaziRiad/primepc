@@ -21,7 +21,9 @@ Copy `.env.example` to `.env.local` and fill in the required values:
 
 ```bash
 MONGODB_URI=
-NEXTAUTH_SECRET=
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
 AUTH_URL=https://primepcdz.com
 NEXTAUTH_URL=https://primepcdz.com
 ```
@@ -45,6 +47,8 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 ## Production Checklist
 
 - Configure real production secrets and remove development URLs.
+- Generate a strong `AUTH_SECRET` and configure `AUTH_GOOGLE_ID` and
+  `AUTH_GOOGLE_SECRET` in every environment where Google sign-in is enabled.
 - Point `primepcdz.com` and `www.primepcdz.com` to the production deployment,
   then redirect `www` to the canonical non-`www` domain.
 - Set `APP_URL`, `AUTH_URL`, and `NEXTAUTH_URL` to `https://primepcdz.com` in
@@ -61,7 +65,7 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 - Confirm MongoDB indexes are created in the production database.
 - Test the full cart, checkout, order notification, and admin order status flow.
 - `EMAIL_UNSUBSCRIBE_SECRET` is optional; unsubscribe links fall back to
-  `NEXTAUTH_SECRET` when it is not set.
+  `AUTH_SECRET` when it is not set.
 - Verify legal pages, return policy, shipping policy, analytics, and support links.
 
 TODOS:

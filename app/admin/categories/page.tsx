@@ -2,6 +2,11 @@ import startDbConnection from "@/lib/db";
 import Category from "@/models/Category";
 import CategoriesToolbar from "@/components/admin/CategoriesToolbar";
 import CategoriesTable from "@/components/admin/CategoriesTable";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Catégories - Administration",
+};
 
 export default async function page({
   searchParams,

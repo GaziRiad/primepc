@@ -1,10 +1,15 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 
 import startDbConnection from "@/lib/db";
 import Product from "@/models/Product";
 import ProductsToolbar from "@/components/admin/ProductsToolbar";
 import ProductsTable from "@/components/admin/ProductsTable";
 import PaginationTable from "@/components/PaginationTable";
+
+export const metadata: Metadata = {
+  title: "Produits - Administration",
+};
 
 export default async function page({
   searchParams,

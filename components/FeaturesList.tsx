@@ -29,7 +29,7 @@ const Features: Feature[] = [
   },
   {
     icon: <MessageCircleMore size={32} className="stroke-primary" />,
-    title: "Assistance dédiée 24h/24 et 7j/7",
+    title: "Assistance 24h/24 et 7j/7",
     description: "Partout et à tout moment",
   },
 ] as const;

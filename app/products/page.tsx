@@ -66,22 +66,24 @@ export default async function page({
             </Suspense>
           </div>
 
-          <div className="flex flex-col">
-            <div className="flex flex-col gap-3 rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap items-center gap-3">
+          <div className="flex min-w-0 flex-col">
+            <div className="flex min-w-0 flex-col gap-3 rounded-xl border-[0.5px] bg-white px-5 py-3 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
                 <div className="lg:hidden">
                   <FiltersDrawer categories={categories} />
                 </div>
-                <Suspense
-                  fallback={
-                    <div
-                      className="h-9 w-full rounded-lg bg-white sm:max-w-48"
-                      aria-hidden
-                    />
-                  }
-                >
-                  <SorterFilter />
-                </Suspense>
+                <div className="min-w-0 basis-full sm:basis-auto">
+                  <Suspense
+                    fallback={
+                      <div
+                        className="h-9 w-full rounded-lg bg-white sm:max-w-48"
+                        aria-hidden
+                      />
+                    }
+                  >
+                    <SorterFilter />
+                  </Suspense>
+                </div>
               </div>
               <p className="text-xs sm:text-sm">
                 Affichage {start}-{end} sur {total} Produits
@@ -95,9 +97,12 @@ export default async function page({
                   <p className="text-muted-foreground">Aucun produit trouvé.</p>
                 </div>
               ) : (
-                <ul className="grid flex-1 grid-cols-2 content-start gap-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">
+                <ul className="grid min-w-0 flex-1 grid-cols-2 content-start gap-2 sm:gap-6 md:grid-cols-3 xl:grid-cols-3">
                   {products.map((product, index) => (
-                    <li key={String(product._id ?? product.slug ?? index)}>
+                    <li
+                      className="min-w-0"
+                      key={String(product._id ?? product.slug ?? index)}
+                    >
                       <ProductCard product={product} />
                     </li>
                   ))}

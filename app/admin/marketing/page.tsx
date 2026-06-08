@@ -1,5 +1,10 @@
 import MarketingForm from "@/components/admin/MarketingForm";
 import { getOrCreateMarketingSettings } from "@/lib/marketing";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Marketing - Administration",
+};
 
 export default async function page() {
   const settings = await getOrCreateMarketingSettings();

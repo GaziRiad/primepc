@@ -8,6 +8,7 @@ import NewArrivals from "@/components/NewArrivals";
 
 export const revalidate = 60;
 export const metadata: Metadata = {
+  title: { absolute: "Accueil - PRIMEPC" },
   alternates: { canonical: "/" },
   openGraph: { url: "/" },
 };

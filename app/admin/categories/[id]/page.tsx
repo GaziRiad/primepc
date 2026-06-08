@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { Types } from "mongoose";
 
 import startDbConnection from "@/lib/db";
 import Category from "@/models/Category";
 import CategoryForm from "@/components/admin/CategoryForm";
+
+export const metadata: Metadata = {
+  title: "Modifier la catégorie - Administration",
+};
 
 export default async function page({
   params,

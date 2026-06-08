@@ -3,6 +3,11 @@ import { getOrdersForUser } from "@/lib/orders";
 import { Badge } from "@/components/ui/badge";
 import { formatDZD } from "@/lib/utils";
 import { getOrderStatusLabel } from "@/lib/orderStatus";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Commandes",
+};
 
 const STATUS_STYLES: Record<string, string> = {
   pending_confirmation: "bg-amber-100 text-amber-700",

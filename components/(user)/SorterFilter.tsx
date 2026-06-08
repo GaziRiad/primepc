@@ -34,7 +34,7 @@ export default function SorterFilter() {
 
   return (
     <Select value={currentSort} onValueChange={handleSorting}>
-      <SelectTrigger size="sm" className="w-full sm:max-w-48">
+      <SelectTrigger size="sm" className="w-full min-w-0 sm:max-w-48">
         <SelectValue placeholder="Trier par :" />
       </SelectTrigger>
       <SelectContent>

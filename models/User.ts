@@ -16,12 +16,24 @@ const shippingAddressSchema = new Schema(
 
 const UserSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, index: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+      lowercase: true,
+      trim: true,
+    },
     name: { type: String, default: "" },
     image: { type: String, default: "" },
-    passwordHash: { type: String, default: "" },
-    provider: { type: String, default: "google" },
-    role: { type: String, default: "user" },
+    passwordHash: { type: String, default: "", select: false },
+    provider: {
+      type: String,
+      enum: ["google", "credentials"],
+      default: "google",
+    },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    sessionVersion: { type: Number, default: 0 },
     lastLoginAt: { type: Date, default: Date.now },
     shippingAddress: { type: shippingAddressSchema, default: undefined },
     abandonedCartEmailsEnabled: { type: Boolean, default: true },
@@ -41,8 +53,14 @@ if (existingModel) {
   const hasAbandonedCartEmails = existingModel.schema.path(
     "abandonedCartEmailsEnabled",
   );
+  const hasSessionVersion = existingModel.schema.path("sessionVersion");
 
-  if (!hasPasswordHash || !hasShippingAddress || !hasAbandonedCartEmails) {
+  if (
+    !hasPasswordHash ||
+    !hasShippingAddress ||
+    !hasAbandonedCartEmails ||
+    !hasSessionVersion
+  ) {
     delete models.User;
   }
 }

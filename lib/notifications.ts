@@ -192,7 +192,10 @@ export const cancelScheduledEmail = async (emailId: string) => {
   try {
     const result = await resend.emails.cancel(emailId);
     if (result.error) {
-      console.error("Resend scheduled email cancellation failed:", result.error);
+      console.error(
+        "Resend scheduled email cancellation failed:",
+        result.error,
+      );
     }
     return !result.error;
   } catch (error) {
@@ -729,6 +732,42 @@ export const sendWelcomeEmail = async (payload: {
   const html = buildEmailShell(content, `Bienvenue chez ${APP_NAME}`);
 
   await sendEmail({ to: email, subject, text, html });
+};
+
+export const sendPasswordResetEmail = async (payload: {
+  email: string;
+  name?: string | null;
+  resetUrl: string;
+}) => {
+  const email = payload.email?.trim();
+  const resetUrl = payload.resetUrl?.trim();
+  if (!email || !resetUrl) {
+    return { ok: false as const, skipped: true as const };
+  }
+
+  const firstName = payload.name ? payload.name.trim().split(" ")[0] : "";
+  const greeting = firstName ? `Bonjour ${firstName},` : "Bonjour,";
+  const subject = `Réinitialisez votre mot de passe ${APP_NAME}`;
+  const text = [
+    greeting,
+    "",
+    "Nous avons reçu une demande de réinitialisation de votre mot de passe.",
+    `Choisissez un nouveau mot de passe : ${resetUrl}`,
+    "",
+    "Ce lien expire dans une heure. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.",
+  ].join("\n");
+
+  const content = `
+    <h1 style="margin:0 0 12px;font-size:28px;color:${BRAND_DARK};">Réinitialiser votre mot de passe</h1>
+    <p style="margin:0 0 10px;color:${BRAND_DARK};">${escapeHtml(greeting)}</p>
+    <p style="margin:0 0 14px;color:${BRAND_DARK};">Nous avons reçu une demande de réinitialisation de votre mot de passe.</p>
+    ${buildButton("Choisir un nouveau mot de passe", resetUrl)}
+    <p style="margin:18px 0 0;color:${BRAND_MUTED};font-size:13px;">Ce lien expire dans une heure. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.</p>
+  `;
+
+  const html = buildEmailShell(content, "Réinitialisez votre mot de passe");
+
+  return sendEmail({ to: email, subject, text, html });
 };
 
 export const scheduleAbandonedCartReminder = async (
