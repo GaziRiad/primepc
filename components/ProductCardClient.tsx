@@ -121,7 +121,7 @@ export default function ProductCardClient({
   return (
     <Card
       size={!large ? "sm" : "default"}
-      className={`h-full min-w-0 py-10 transition-all ${
+      className={`h-full min-w-0 py-4 transition-all ${
         large ? "hover:shadow-lg" : "rounded-sm hover:shadow-md"
       } `}
     >

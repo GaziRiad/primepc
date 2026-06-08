@@ -1,5 +1,21 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "form-action 'self'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' https:${isDev ? " 'unsafe-eval'" : ""}`,
+  `connect-src 'self' https:${isDev ? " ws: wss:" : ""}`,
+  "frame-src https://accounts.google.com",
+].join("; ");
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactCompiler: true,
@@ -14,8 +30,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data: blob: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https:; connect-src 'self' https:; frame-src https://accounts.google.com",
+            value: contentSecurityPolicy,
           },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
