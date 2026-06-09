@@ -160,8 +160,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             userExists.email = email;
           }
 
+          // if (user.image) userExists.image = user.image;
+          // userExists.addToSet("providers", "google");
+          // userExists.lastLoginAt = new Date();
+          // await userExists.save();
+          // user.id = userExists._id.toString();
+
           if (user.image) userExists.image = user.image;
-          userExists.addToSet("providers", "google");
+
+          const providers = Array.isArray(userExists.providers)
+            ? userExists.providers
+            : [];
+
+          if (!providers.includes("google")) {
+            userExists.providers = [...providers, "google"];
+          }
+
           userExists.lastLoginAt = new Date();
           await userExists.save();
           user.id = userExists._id.toString();
