@@ -4,7 +4,7 @@ import { BadgeCheck, FileCheck2, ShieldCheck, Wrench } from "lucide-react";
 import PolicyPage from "@/components/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "Garantie 6 mois",
+  title: "Garantie 3 mois",
   description:
     "Consultez les conditions de garantie PRIMEPC pour les laptops et PC vendus en Algerie.",
 };
@@ -13,12 +13,12 @@ export default function WarrantyPage() {
   return (
     <PolicyPage
       eyebrow="Garantie PRIMEPC"
-      title="Garantie 6 mois"
-      description="Chaque laptop vendu par PRIMEPC est couvert par une garantie de 6 mois contre les problemes materiels non causes par une mauvaise utilisation. Notre objectif est simple : vous vendre une machine fiable, testee, et rester disponibles si un vrai probleme apparait."
+      title="Garantie 3 mois"
+      description="Chaque laptop vendu par PRIMEPC est couvert par une garantie de 3 mois contre les problemes materiels non causes par une mauvaise utilisation. Notre objectif est simple : vous vendre une machine fiable, testee, et rester disponibles si un vrai probleme apparait."
       cards={[
         {
           icon: ShieldCheck,
-          title: "6 mois de couverture",
+          title: "3 mois de couverture",
           description:
             "La garantie commence a la date de livraison ou de recuperation du produit.",
         },

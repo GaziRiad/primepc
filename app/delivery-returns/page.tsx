@@ -115,7 +115,7 @@ export default function DeliveryReturnsPage() {
       relatedLinks={[
         {
           href: "/warranty",
-          label: "Garantie 6 mois",
+          label: "Garantie 3 mois",
           description:
             "Consultez les conditions de garantie appliquees aux laptops et PC PRIMEPC.",
         },

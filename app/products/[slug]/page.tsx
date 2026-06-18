@@ -72,7 +72,7 @@ type ProductCategory = {
 const PERKS = [
   { icon: Truck, label: "Livraison offerte dès 40 000 DA" },
   { icon: Wallet, label: "Paiement à la livraison disponible" },
-  { icon: ShieldCheck, label: "Garantie PRIMEPC de 6 mois" },
+  { icon: ShieldCheck, label: "Garantie PRIMEPC de 3 mois" },
 ];
 
 export default async function page({

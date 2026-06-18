@@ -24,7 +24,7 @@ const Features: Feature[] = [
   },
   {
     icon: <ShieldCheck size={32} className="stroke-primary" />,
-    title: "Garantie de 6 mois",
+    title: "Garantie de 3 mois",
     description: "Pour tous les PC et ordinateurs portables",
   },
   {

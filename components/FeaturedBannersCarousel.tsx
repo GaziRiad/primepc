@@ -99,7 +99,7 @@ export default function FeaturedBannersCarousel({
   }, [api, isPaused, visibleSlides.length]);
 
   return (
-    <section className="mb-8 grid grid-cols-1 gap-4 sm:mb-12 sm:gap-5 lg:grid-cols-[minmax(0,70fr)_minmax(0,30fr)] lg:items-start lg:gap-x-5">
+    <section className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,70fr)_minmax(0,30fr)] lg:items-start lg:gap-x-5">
       <Carousel
         opts={{ loop: visibleSlides.length > 1 }}
         setApi={setApi}

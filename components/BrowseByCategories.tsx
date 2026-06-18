@@ -15,7 +15,7 @@ export default async function BrowseByCategories() {
   const categories = (await getAllCategories()) as Category[];
 
   return (
-    <section className="pt-16 sm:pt-20">
+    <section>
       <h2 className="text-foreground mb-8 text-center text-xl font-semibold sm:text-2xl">
         Parcourir par catégorie
       </h2>
