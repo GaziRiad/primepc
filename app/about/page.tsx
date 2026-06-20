@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata } from "next";
 
+import { INSTAGRAM_URL } from "@/lib/utils";
+
 export const metadata: Metadata = {
   title: "À propos",
   description:
@@ -132,7 +134,7 @@ export default function AboutPage() {
                 performance accessible partout en Algerie.
               </p>
               <Link
-                href="https://www.instagram.com/riad_hallouch/"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white"

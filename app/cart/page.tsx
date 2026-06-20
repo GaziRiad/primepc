@@ -116,7 +116,7 @@ export default function CartPage() {
                               "/images/accessories.png"
                             }
                             alt={`Image de ${item.product.name ?? "l’article du panier"} sur PRIMEPC Algérie.`}
-                            className="object-cover"
+                            className="object-contain p-1.5"
                             unoptimized={/^https?:\/\//i.test(
                               item.product.coverImage ?? "",
                             )}

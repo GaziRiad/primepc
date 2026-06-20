@@ -50,12 +50,12 @@ export default function WishlistPage() {
                         className="group focus-visible:ring-primary flex min-w-0 flex-1 items-start gap-4 rounded-lg focus-visible:ring-2 focus-visible:outline-hidden"
                         aria-label={`Voir ${item.product.name}`}
                       >
-                        <div className="relative flex aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                        <div className="relative flex aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
                           <Image
                             fill
                             src={item.product.coverImage}
                             alt={`Image de ${item.product.name} sur PRIMEPC Algérie.`}
-                            className="object-cover transition-transform duration-200 group-hover:scale-105"
+                            className="object-contain p-1.5 transition-transform duration-200 group-hover:scale-105"
                           />
                         </div>
                         <div className="min-w-0 flex-1">

@@ -106,7 +106,7 @@ export default function ProductGallery({
                       fill
                       src={thumb}
                       alt={`Miniature ${index + 1} de ${productName}`}
-                      className="object-cover"
+                      className="object-contain p-1.5"
                       unoptimized={isRemoteImage(thumb)}
                       onError={() => markImageFailed(thumb)}
                       sizes="(min-width: 1280px) 128px, (min-width: 1024px) 112px, 20vw"
@@ -129,7 +129,7 @@ export default function ProductGallery({
             priority
             src={activeImage}
             alt={`Image de ${productName} sur PRIMEPC Algérie.`}
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.015]"
+            className="object-contain p-4 transition-transform duration-300 group-hover:scale-[1.015] sm:p-6"
             unoptimized={isRemoteImage(activeImage)}
             onError={() => markImageFailed(activeImage)}
             sizes="(min-width: 1280px) 680px, (min-width: 1024px) 54vw, 100vw"

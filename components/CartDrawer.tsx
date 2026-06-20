@@ -127,14 +127,14 @@ export default function CartDrawer({ autoOpenViewport }: CartDrawerProps) {
                 return (
                   <li key={`${productId}:${variantId}`}>
                     <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 font-medium md:grid-cols-[20fr_60fr_20fr] md:gap-6">
-                      <div className="relative flex aspect-square size-16 overflow-hidden rounded-lg sm:size-20 md:size-22">
+                      <div className="relative flex aspect-square size-16 overflow-hidden rounded-lg bg-zinc-100 sm:size-20 md:size-22">
                         <Image
                           fill
                           src={
                             item.product.coverImage ?? "/images/accessories.png"
                           }
                           alt={`Image de ${item.product.name ?? "l’article du panier"} sur PRIMEPC Algérie.`}
-                          className="object-cover"
+                          className="object-contain p-1.5"
                           unoptimized={/^https?:\/\//i.test(
                             item.product.coverImage ?? "",
                           )}

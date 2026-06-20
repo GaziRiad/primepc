@@ -27,16 +27,22 @@ export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export const WHATSAPP_NUMBER = "213555453982";
 export const WHATSAPP_MESSAGE = "Hi! I have a question about PRIMEPC.";
+export const INSTAGRAM_URL =
+  process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ||
+  "https://www.instagram.com/riad_hallouch/";
+export const FACEBOOK_URL =
+  process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK ||
+  "https://www.facebook.com/profile.php?id=61590728039391";
 
 export const SOCIAL_LINKS = [
   {
     label: "Instagram",
-    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || "",
+    href: INSTAGRAM_URL,
     icon: Instagram,
   },
   {
     label: "Facebook",
-    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK || "",
+    href: FACEBOOK_URL,
     icon: Facebook,
   },
   {

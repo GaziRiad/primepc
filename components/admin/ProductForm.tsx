@@ -763,7 +763,7 @@ export default function ProductForm({
                 fill
                 src={coverImage || FALLBACK_IMAGE}
                 alt={name || "Cover preview"}
-                className="object-cover"
+                className="object-contain p-4"
                 sizes="(min-width: 1024px) 50vw, 100vw"
               />
             </div>

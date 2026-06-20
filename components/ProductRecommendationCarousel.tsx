@@ -114,7 +114,7 @@ export default function ProductRecommendationCarousel({
                       alt={product.name}
                       fill
                       sizes="144px"
-                      className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      className="object-contain p-3 transition-transform duration-300 group-hover:scale-[1.03]"
                       unoptimized={product.image.startsWith("http")}
                     />
                     {product.topSeller && (

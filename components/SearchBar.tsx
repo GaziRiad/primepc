@@ -225,7 +225,7 @@ export default function SearchBar() {
                             fill
                             src={result.coverImage || FALLBACK_IMAGE}
                             alt={result.name}
-                            className="object-cover transition duration-200 group-hover:scale-[1.02]"
+                            className="object-contain p-1 transition duration-200 group-hover:scale-[1.02]"
                           />
                         </div>
                         <div className="flex-1">

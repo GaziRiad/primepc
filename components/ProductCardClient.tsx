@@ -145,7 +145,7 @@ export default function ProductCardClient({
                         fill
                         src={image}
                         alt={`Image de ${name} sur PRIMEPC Algérie.`}
-                        className="object-cover"
+                        className="object-contain p-3"
                         sizes="(max-width: 639px) 50vw, 33vw"
                         unoptimized={image.startsWith("http")}
                       />
@@ -185,7 +185,7 @@ export default function ProductCardClient({
                 fill
                 src={activeImage}
                 alt={`Image de ${name} sur PRIMEPC Algérie.`}
-                className="object-cover transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
+                className="object-contain p-4 transition-transform duration-300 ease-out group-hover/image:scale-[1.02]"
                 unoptimized={activeImage.startsWith("http")}
                 sizes={
                   large
