@@ -95,6 +95,9 @@ export default function ProductGallery({
                     type="button"
                     aria-label={`Voir l’image ${index + 1} de ${productName}`}
                     aria-pressed={isActive}
+                    onPointerUp={(event) => {
+                      if (event.pointerType !== "mouse") selectImage(index);
+                    }}
                     onClick={() => selectImage(index)}
                     className={`relative aspect-square w-full overflow-hidden rounded-xl border bg-white transition ${
                       isActive
@@ -125,6 +128,7 @@ export default function ProductGallery({
           className="group relative order-1 aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-xl bg-zinc-100 lg:order-2 lg:aspect-auto lg:h-[clamp(23rem,38vw,34rem)]"
         >
           <Image
+            key={activeImage}
             fill
             priority
             src={activeImage}
