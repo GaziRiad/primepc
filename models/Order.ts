@@ -77,6 +77,11 @@ const OrderSchema = new mongoose.Schema(
     statusHistory: { type: [statusHistorySchema], default: [] },
     idempotencyKey: { type: String },
     idempotencyFingerprint: { type: String },
+    deliveryMethod: {
+      type: String,
+      enum: ["home", "stop_desk"],
+      default: "home",
+    },
     paymentMethod: { type: String, default: "cod" },
     source: { type: String, enum: ["user", "guest"], default: "user" },
     notes: { type: String, default: "" },
@@ -111,11 +116,13 @@ if (existingModel) {
   const hasVariantLabel = existingModel.schema.path("items.variantLabel");
   const hasIdempotencyKey = existingModel.schema.path("idempotencyKey");
   const hasStockRestoredAt = existingModel.schema.path("stockRestoredAt");
+  const hasDeliveryMethod = existingModel.schema.path("deliveryMethod");
   if (
     !hasArchived ||
     !hasVariantLabel ||
     !hasIdempotencyKey ||
-    !hasStockRestoredAt
+    !hasStockRestoredAt ||
+    !hasDeliveryMethod
   ) {
     delete mongoose.models.Order;
   }

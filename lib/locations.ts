@@ -1,34 +1,34 @@
-export const ALGERIA_LOCATIONS = [
-  {
-    city: "Algiers",
-    communes: ["Bab El Oued", "El Biar", "Hussein Dey", "Kouba"],
-  },
-  {
-    city: "Oran",
-    communes: ["El Hamri", "Es Senia", "Bir El Djir"],
-  },
-  {
-    city: "Constantine",
-    communes: ["El Khroub", "Didouche Mourad", "Hamma Bouziane"],
-  },
-  {
-    city: "Annaba",
-    communes: ["El Bouni", "Seraidi", "Oued El Aneb"],
-  },
-  {
-    city: "Blida",
-    communes: ["Boufarik", "Beni Mered", "Ouled Yaich"],
-  },
-  {
-    city: "Setif",
-    communes: ["Ain Arnat", "Ain Oulmene", "El Eulma"],
-  },
-  {
-    city: "Tizi Ouzou",
-    communes: ["Azazga", "Draa Ben Khedda", "Tigzirt"],
-  },
-  {
-    city: "Batna",
-    communes: ["Barika", "Ain Touta", "Tazoult"],
-  },
-] as const;
+import wilayas from "./algeria-wilayas.json";
+
+export type AlgeriaWilaya = {
+  code: string;
+  name: string;
+};
+
+export const ALGERIA_WILAYAS = wilayas as AlgeriaWilaya[];
+
+const normalizeKey = (value: string) => value.trim().toLowerCase();
+
+const WILAYA_ALIASES = new Map<string, string>([["algiers", "Alger"]]);
+
+export const normalizeWilayaName = (value: unknown) => {
+  const rawValue = String(value ?? "").trim();
+  if (!rawValue) return "";
+
+  const key = normalizeKey(rawValue);
+  const alias = WILAYA_ALIASES.get(key);
+  if (alias) return alias;
+
+  return (
+    ALGERIA_WILAYAS.find((wilaya) => normalizeKey(wilaya.name) === key)
+      ?.name ?? ""
+  );
+};
+
+export const isValidWilaya = (value: unknown) =>
+  Boolean(normalizeWilayaName(value));
+
+export const ALGERIA_LOCATIONS = ALGERIA_WILAYAS.map((wilaya) => ({
+  city: wilaya.name,
+  communes: [] as string[],
+}));

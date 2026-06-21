@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { revalidateProductCache } from "@/lib/cache";
 import { cancelAbandonedCartReminder } from "@/lib/cartRecovery";
 import startDbConnection from "@/lib/db";
+import { normalizeDeliveryMethod } from "@/lib/delivery";
+import { normalizeWilayaName } from "@/lib/locations";
 import {
   sendAdminOrderNotification,
   sendCustomerOrderConfirmation,
@@ -41,6 +43,7 @@ const MAX_NOTES_LENGTH = 1000;
 
 type CreateOrderBody = {
   customer?: Partial<CustomerDetails>;
+  deliveryMethod?: unknown;
   items?: OrderItemInput[];
   notes?: string;
 };
@@ -77,7 +80,8 @@ const normalizeCustomer = (
     email: normalizeText(customer.email, 120).toLowerCase(),
     street: normalizeText(customer.street, 160),
     apartment: normalizeText(customer.apartment, 120),
-    city: normalizeText(customer.city, 80),
+    city:
+      normalizeWilayaName(customer.city) || normalizeText(customer.city, 80),
     commune: normalizeText(customer.commune, 80),
     country: normalizeText(customer.country || "Algeria", 80) || "Algeria",
   };
@@ -94,6 +98,7 @@ const validateCustomer = (customer?: Partial<CustomerDetails>) => {
   const phoneDigits = normalized.phone.replace(/\D/g, "");
 
   if (!hasRequiredFields || phoneDigits.length < 8) return null;
+  if (!normalizeWilayaName(normalized.city)) return null;
   if (!EMAIL_REGEX.test(normalized.email)) return null;
   return normalized;
 };
@@ -147,6 +152,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const deliveryMethod = normalizeDeliveryMethod(body.deliveryMethod);
+    if (!deliveryMethod) {
+      return NextResponse.json(
+        { ok: false, error: "invalid_delivery_method" },
+        { status: 400 },
+      );
+    }
+
     const emailLimit = await consumeRateLimit(request, {
       identifier: customer.email,
       limit: 5,
@@ -174,6 +187,7 @@ export async function POST(request: Request) {
     );
     const fingerprint = createOrderFingerprint({
       customer,
+      deliveryMethod,
       items: requestedItems,
       notes,
       userId: userId ?? "",
@@ -252,6 +266,7 @@ export async function POST(request: Request) {
               subtotal: build.subtotal,
               shippingFee,
               total,
+              deliveryMethod,
               status: "pending_confirmation",
               statusHistory: [
                 {
@@ -338,6 +353,7 @@ export async function POST(request: Request) {
       subtotal: finalBuild.subtotal,
       shippingFee,
       total,
+      deliveryMethod,
       customer: {
         name: `${customer.firstName} ${customer.lastName}`.trim(),
         email: customer.email,

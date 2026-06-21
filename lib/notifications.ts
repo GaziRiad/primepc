@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
 import { recordEmailAttempt } from "@/lib/emailDelivery";
+import { getDeliveryMethodLabel, type DeliveryMethod } from "@/lib/delivery";
 import { formatDZD, SOCIAL_LINKS } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site";
 
@@ -30,6 +31,7 @@ type OrderEmailPayload = {
   items: OrderEmailItem[];
   subtotal: number;
   shippingFee: number;
+  deliveryMethod: DeliveryMethod;
   total: number;
   customer: OrderEmailCustomer;
   notes?: string;
@@ -417,6 +419,7 @@ const buildTotalsTable = (payload: OrderEmailPayload) => {
     payload.shippingFee === 0
       ? "Livraison offerte"
       : formatDZD(payload.shippingFee);
+  const deliveryLabel = getDeliveryMethodLabel(payload.deliveryMethod);
 
   return `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px;border-collapse:collapse;">
@@ -427,7 +430,7 @@ const buildTotalsTable = (payload: OrderEmailPayload) => {
         )}</td>
       </tr>
       <tr>
-        <td style="padding:6px 0;color:${BRAND_MUTED};">Expédition · Livraison à domicile :</td>
+        <td style="padding:6px 0;color:${BRAND_MUTED};">Expédition · ${escapeHtml(deliveryLabel)} :</td>
         <td style="padding:6px 0;text-align:right;">${escapeHtml(shippingLabel)}</td>
       </tr>
       <tr>
@@ -497,6 +500,7 @@ const buildAdminText = (payload: OrderEmailPayload) => {
     formatItemLines(payload.items),
     "",
     `Sous-total : ${formatDZD(payload.subtotal)}`,
+    `Mode de livraison : ${getDeliveryMethodLabel(payload.deliveryMethod)}`,
     `Expédition : ${payload.shippingFee === 0 ? "Livraison offerte" : formatDZD(payload.shippingFee)}`,
     `Total : ${formatDZD(payload.total)}`,
     "Moyen de paiement : Paiement à la livraison",
@@ -540,6 +544,7 @@ const buildCustomerText = (payload: OrderEmailPayload) => {
     formatItemLines(payload.items),
     "",
     `Sous-total : ${formatDZD(payload.subtotal)}`,
+    `Mode de livraison : ${getDeliveryMethodLabel(payload.deliveryMethod)}`,
     `Expédition : ${payload.shippingFee === 0 ? "Livraison offerte" : formatDZD(payload.shippingFee)}`,
     `Total : ${formatDZD(payload.total)}`,
     "Moyen de paiement : Paiement à la livraison",

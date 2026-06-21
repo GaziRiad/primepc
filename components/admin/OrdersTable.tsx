@@ -7,6 +7,7 @@ import { MoreHorizontal, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getDeliveryMethodLabel } from "@/lib/delivery";
 import { formatDZD } from "@/lib/utils";
 import { getOrderStatusLabel } from "@/lib/orderStatus";
 
@@ -54,6 +55,7 @@ type OrderRow = {
     note?: string;
     changedAt?: string;
   }>;
+  deliveryMethod?: string;
   paymentMethod?: string;
   notes?: string;
   user?: { name?: string; email?: string } | null;
@@ -554,6 +556,10 @@ export default function OrdersTable({
                   <div className="text-muted-foreground mt-2 flex items-center justify-between text-sm">
                     <span>Livraison</span>
                     <span>{formatDZD(activeOrder.shippingFee ?? 0)}</span>
+                  </div>
+                  <div className="text-muted-foreground mt-2 flex items-center justify-between text-sm">
+                    <span>Mode</span>
+                    <span>{getDeliveryMethodLabel(activeOrder.deliveryMethod)}</span>
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t pt-3 text-sm">
                     <span className="font-semibold">Total</span>

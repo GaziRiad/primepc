@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import startDbConnection from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { normalizeWilayaName } from "@/lib/locations";
 import User from "@/models/User";
 
 type AddressPayload = {
@@ -21,7 +22,8 @@ const normalizeAddress = (payload: AddressPayload) => ({
   phone: String(payload.phone ?? "").trim(),
   street: String(payload.street ?? "").trim(),
   apartment: String(payload.apartment ?? "").trim(),
-  city: String(payload.city ?? "").trim(),
+  city:
+    normalizeWilayaName(payload.city) || String(payload.city ?? "").trim(),
   commune: String(payload.commune ?? "").trim(),
   country: String(payload.country ?? "Algeria").trim() || "Algeria",
 });
@@ -33,7 +35,7 @@ const validateAddress = (address: ReturnType<typeof normalizeAddress>) => {
   if (!address.lastName || address.lastName.length < 2) return false;
   if (!phoneDigits || phoneDigits.length < 8) return false;
   if (!address.street || address.street.length < 4) return false;
-  if (!address.city) return false;
+  if (!normalizeWilayaName(address.city)) return false;
   if (!address.commune) return false;
 
   return true;

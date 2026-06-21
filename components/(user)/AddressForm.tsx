@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { ALGERIA_LOCATIONS } from "@/lib/locations";
+import { ALGERIA_WILAYAS, normalizeWilayaName } from "@/lib/locations";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,13 +12,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 
 const DEFAULT_COUNTRY = "Algérie";
@@ -43,8 +36,8 @@ const isValidAddress = (address: AddressState) => {
   if (!address.lastName || address.lastName.length < 2) return false;
   if (!phoneDigits || phoneDigits.length < 8) return false;
   if (!address.street || address.street.length < 4) return false;
-  if (!address.city) return false;
-  if (!address.commune) return false;
+  if (!normalizeWilayaName(address.city)) return false;
+  if (!address.commune.trim()) return false;
 
   return true;
 };
@@ -53,13 +46,6 @@ export default function AddressForm() {
   const [address, setAddress] = useState<AddressState>(emptyAddress);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  const communes = useMemo(() => {
-    const location = ALGERIA_LOCATIONS.find(
-      (entry) => entry.city === address.city,
-    );
-    return location?.communes ?? [];
-  }, [address.city]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -78,6 +64,7 @@ export default function AddressForm() {
           setAddress({
             ...emptyAddress,
             ...data.address,
+            city: normalizeWilayaName(data.address.city) || "",
             country: data.address.country || DEFAULT_COUNTRY,
           });
         }
@@ -217,60 +204,43 @@ export default function AddressForm() {
           </Field>
 
           <Field>
-            <FieldLabel>Ville</FieldLabel>
-            <Select
+            <FieldLabel htmlFor="city">Wilaya</FieldLabel>
+            <select
+              id="city"
               value={address.city}
-              onValueChange={(value) =>
+              onChange={(event) =>
                 setAddress((prev) => ({
                   ...prev,
-                  city: value,
+                  city: event.target.value,
                   commune: "",
                 }))
               }
               disabled={isLoading}
+              className="border-input bg-background h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez une ville" />
-              </SelectTrigger>
-              <SelectContent>
-                {ALGERIA_LOCATIONS.map((location) => (
-                  <SelectItem key={location.city} value={location.city}>
-                    {location.city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="">Selectionnez une wilaya</option>
+              {ALGERIA_WILAYAS.map((wilaya) => (
+                <option key={wilaya.code} value={wilaya.name}>
+                  {wilaya.code} - {wilaya.name}
+                </option>
+              ))}
+            </select>
           </Field>
 
           <Field>
-            <FieldLabel>Commune</FieldLabel>
-            <Select
+            <FieldLabel htmlFor="commune">Commune</FieldLabel>
+            <Input
+              id="commune"
               value={address.commune}
-              onValueChange={(value) =>
+              placeholder="Tapez votre commune"
+              onChange={(event) =>
                 setAddress((prev) => ({
                   ...prev,
-                  commune: value,
+                  commune: event.target.value,
                 }))
               }
-              disabled={isLoading || communes.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    communes.length === 0
-                      ? "Sélectionnez d’abord une ville"
-                      : "Sélectionnez une commune"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {communes.map((commune) => (
-                  <SelectItem key={commune} value={commune}>
-                    {commune}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              disabled={isLoading}
+            />
           </Field>
 
           <Field>

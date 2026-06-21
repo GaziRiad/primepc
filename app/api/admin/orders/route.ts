@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { toCsvValue } from "@/lib/csv";
+import { getDeliveryMethodLabel } from "@/lib/delivery";
 import {
   getOrdersForAdminExportCursor,
   getOrdersForAdminPage,
@@ -15,6 +16,7 @@ type ExportOrder = {
   subtotal?: number;
   shippingFee?: number;
   total?: number;
+  deliveryMethod?: string;
   paymentMethod?: string;
   notes?: string;
   customer?: {
@@ -52,6 +54,7 @@ export async function GET(request: Request) {
       "subtotal",
       "shipping_fee",
       "total",
+      "delivery_method",
       "payment_method",
       "customer_name",
       "phone",
@@ -103,6 +106,7 @@ export async function GET(request: Request) {
               Number(order.subtotal ?? 0),
               Number(order.shippingFee ?? 0),
               Number(order.total ?? 0),
+              getDeliveryMethodLabel(order.deliveryMethod),
               order.paymentMethod ?? "",
               customerName || "Guest",
               order.customer?.phone ?? "",

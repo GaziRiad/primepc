@@ -10,18 +10,18 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
 import { trackProductAnalytics } from "@/lib/analyticsClient";
 import { formatDZD } from "@/lib/utils";
-import { ALGERIA_LOCATIONS } from "@/lib/locations";
+import { ALGERIA_WILAYAS, normalizeWilayaName } from "@/lib/locations";
+import {
+  DEFAULT_DELIVERY_METHOD,
+  DELIVERY_METHODS,
+  getDeliveryMethodLabel,
+  isDeliveryMethod,
+  type DeliveryMethod,
+} from "@/lib/delivery";
 
 const SHIPPING_THRESHOLD = 40000;
 const SHIPPING_FEE = 500;
@@ -35,6 +35,7 @@ type CheckoutFormState = {
   apartment: string;
   city: string;
   commune: string;
+  deliveryMethod: DeliveryMethod;
   notes: string;
   country: string;
 };
@@ -81,12 +82,16 @@ const validateForm = (form: CheckoutFormState): CheckoutErrors => {
     errors.street = "L’adresse est trop courte.";
   }
 
-  if (!form.city) {
-    errors.city = "La ville est obligatoire.";
+  if (!normalizeWilayaName(form.city)) {
+    errors.city = "La wilaya est obligatoire.";
   }
 
-  if (!form.commune) {
+  if (!form.commune.trim()) {
     errors.commune = "La commune est obligatoire.";
+  }
+
+  if (!isDeliveryMethod(form.deliveryMethod)) {
+    errors.deliveryMethod = "Choisissez un mode de livraison.";
   }
 
   return errors;
@@ -116,6 +121,7 @@ export default function CheckoutPage() {
     apartment: "",
     city: "",
     commune: "",
+    deliveryMethod: DEFAULT_DELIVERY_METHOD,
     notes: "",
     country: "Algérie",
   });
@@ -137,13 +143,6 @@ export default function CheckoutPage() {
 
   const updateField = (field: keyof CheckoutFormState, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
-
-  const communes = useMemo(() => {
-    const location = ALGERIA_LOCATIONS.find(
-      (entry) => entry.city === form.city,
-    );
-    return location?.communes ?? [];
-  }, [form.city]);
 
   useEffect(() => {
     if (!session?.user?.id || addressPrefilledRef.current) return;
@@ -181,6 +180,7 @@ export default function CheckoutPage() {
             return {
               ...prev,
               ...address,
+              city: normalizeWilayaName(address.city) || prev.city,
               email: prev.email || sessionEmail,
               country: address.country || prev.country,
             };
@@ -256,6 +256,7 @@ export default function CheckoutPage() {
   const streetError = showError("street");
   const cityError = showError("city");
   const communeError = showError("commune");
+  const deliveryMethodError = showError("deliveryMethod");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -275,7 +276,7 @@ export default function CheckoutPage() {
         idempotencyKeyRef.current = crypto.randomUUID();
       }
 
-      const { notes, ...customer } = form;
+      const { notes, deliveryMethod, ...customer } = form;
       const items = cartItems.map((item) => ({
         productId: String(item.product?._id ?? item.product?.id ?? ""),
         quantity: Number(item.quantity ?? 0),
@@ -288,7 +289,7 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
           "Idempotency-Key": idempotencyKeyRef.current,
         },
-        body: JSON.stringify({ customer, notes, items }),
+        body: JSON.stringify({ customer, deliveryMethod, notes, items }),
       });
 
       const result = (await response.json()) as {
@@ -522,14 +523,57 @@ export default function CheckoutPage() {
                 />
               </div>
 
+              <div className="mt-4 flex flex-col gap-2">
+                <span className="text-sm font-medium">Mode de livraison</span>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {DELIVERY_METHODS.map((method) => (
+                    <label
+                      key={method.value}
+                      className={`flex cursor-pointer gap-3 rounded-xl border px-4 py-3 transition ${
+                        form.deliveryMethod === method.value
+                          ? "border-primary bg-primary/5"
+                          : "hover:border-primary/40 bg-white"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="deliveryMethod"
+                        value={method.value}
+                        checked={form.deliveryMethod === method.value}
+                        onChange={() => {
+                          updateField("deliveryMethod", method.value);
+                          markTouched("deliveryMethod");
+                        }}
+                        className="mt-1"
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold">
+                          {method.label}
+                        </span>
+                        <span className="text-muted-foreground mt-1 block text-xs">
+                          {method.description}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {deliveryMethodError && (
+                  <p className="text-destructive text-xs">
+                    {deliveryMethodError}
+                  </p>
+                )}
+              </div>
+
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium" htmlFor="city">
-                    Ville
+                    Wilaya
                   </label>
-                  <Select
+                  <select
+                    id="city"
                     value={form.city}
-                    onValueChange={(value) => {
+                    onChange={(event) => {
+                      const value = event.target.value;
                       setForm((prev) => ({
                         ...prev,
                         city: value,
@@ -537,22 +581,17 @@ export default function CheckoutPage() {
                       }));
                       markTouched("city");
                     }}
+                    onBlur={() => markTouched("city")}
+                    aria-invalid={Boolean(cityError)}
+                    className="border-input bg-background h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                   >
-                    <SelectTrigger
-                      id="city"
-                      className="w-full"
-                      aria-invalid={Boolean(cityError)}
-                    >
-                      <SelectValue placeholder="Sélectionnez une ville" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ALGERIA_LOCATIONS.map((location) => (
-                        <SelectItem key={location.city} value={location.city}>
-                          {location.city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <option value="">Selectionnez une wilaya</option>
+                    {ALGERIA_WILAYAS.map((wilaya) => (
+                      <option key={wilaya.code} value={wilaya.name}>
+                        {wilaya.code} - {wilaya.name}
+                      </option>
+                    ))}
+                  </select>
                   {cityError && (
                     <p className="text-destructive text-xs">{cityError}</p>
                   )}
@@ -561,37 +600,23 @@ export default function CheckoutPage() {
                   <label className="text-sm font-medium" htmlFor="commune">
                     Commune
                   </label>
-                  <Select
+                  <Input
+                    id="commune"
                     value={form.commune}
-                    onValueChange={(value) => {
-                      updateField("commune", value);
-                      markTouched("commune");
-                    }}
-                    disabled={!form.city}
-                  >
-                    <SelectTrigger
-                      id="commune"
-                      className="w-full"
-                      aria-invalid={Boolean(communeError)}
-                    >
-                      <SelectValue
-                        placeholder={
-                          form.city
-                            ? "Sélectionnez une commune"
-                            : "Sélectionnez d’abord une ville"
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {communes.map((commune) => (
-                        <SelectItem key={commune} value={commune}>
-                          {commune}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Tapez votre commune"
+                    onChange={(event) =>
+                      updateField("commune", event.target.value)
+                    }
+                    onBlur={() => markTouched("commune")}
+                    aria-invalid={Boolean(communeError)}
+                    aria-describedby={
+                      communeError ? "commune-error" : undefined
+                    }
+                  />
                   {communeError && (
-                    <p className="text-destructive text-xs">{communeError}</p>
+                    <p id="commune-error" className="text-destructive text-xs">
+                      {communeError}
+                    </p>
                   )}
                 </div>
               </div>
@@ -685,6 +710,10 @@ export default function CheckoutPage() {
                   <span>
                     {shipping === 0 ? "Gratuit" : formatDZD(shipping)}
                   </span>
+                </div>
+                <div className="text-muted-foreground flex items-center justify-between">
+                  <span>Mode</span>
+                  <span>{getDeliveryMethodLabel(form.deliveryMethod)}</span>
                 </div>
                 <div className="flex items-center justify-between border-t pt-4 text-base">
                   <span className="font-semibold">Total</span>
