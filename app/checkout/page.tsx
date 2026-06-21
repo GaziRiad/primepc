@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
 import { trackProductAnalytics } from "@/lib/analyticsClient";
+import { trackMetaPixel, type MetaPixelContent } from "@/lib/metaPixel";
 import { formatDZD } from "@/lib/utils";
 import { ALGERIA_WILAYAS, normalizeWilayaName } from "@/lib/locations";
 import {
@@ -295,6 +296,7 @@ export default function CheckoutPage() {
       const result = (await response.json()) as {
         ok?: boolean;
         orderId?: string;
+        replayed?: boolean;
         error?: string;
         message?: string;
       };
@@ -310,6 +312,49 @@ export default function CheckoutPage() {
 
       setOrderId(result.orderId);
       idempotencyKeyRef.current = "";
+      const purchaseEventKey = `primepc:meta:purchase:${result.orderId}`;
+      let shouldTrackPurchase = !result.replayed;
+      try {
+        shouldTrackPurchase =
+          shouldTrackPurchase &&
+          window.sessionStorage.getItem(purchaseEventKey) !== "1";
+        if (shouldTrackPurchase) {
+          window.sessionStorage.setItem(purchaseEventKey, "1");
+        }
+      } catch {
+        shouldTrackPurchase = !result.replayed;
+      }
+
+      if (shouldTrackPurchase) {
+        const contents = cartItems.reduce<MetaPixelContent[]>((acc, item) => {
+          const id = String(item.product?._id ?? item.product?.id ?? "");
+          if (!id) return acc;
+
+          acc.push({
+            id,
+            item_price: Number(item.product.finalPrice ?? 0),
+            quantity: Number(item.quantity ?? 0),
+          });
+
+          return acc;
+        }, []);
+
+        trackMetaPixel(
+          "Purchase",
+          {
+            content_ids: contents.map((content) => content.id),
+            content_type: "product",
+            contents,
+            currency: "DZD",
+            num_items: contents.reduce(
+              (sum, content) => sum + Number(content.quantity ?? 0),
+              0,
+            ),
+            value: total,
+          },
+          { eventID: result.orderId },
+        );
+      }
       toast.success("Commande passée avec succès.");
       await clearCart();
     } catch (error) {

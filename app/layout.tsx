@@ -9,6 +9,7 @@ import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import Footer from "@/components/Footer";
 import ClientShell from "@/components/ClientShell";
+import MetaPixel from "@/components/MetaPixel";
 
 import { cn } from "@/lib/utils";
 import { getSiteUrl, SITE_NAME } from "@/lib/site";
@@ -60,6 +61,7 @@ export default async function RootLayout({
       <body className={`relative antialiased`}>
         <ClientShell>{children}</ClientShell>
         <Footer />
+        <MetaPixel />
         <Analytics />
         <SpeedInsights />
       </body>

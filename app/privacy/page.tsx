@@ -56,13 +56,23 @@ export default function PrivacyPage() {
           items: [
             "Creer et securiser votre compte, traiter vos commandes et assurer le service apres-vente.",
             "Envoyer les confirmations et rappels deja proposes par le service.",
-            "Detecter les erreurs, limiter les abus et ameliorer les performances du site.",
+            "Mesurer l'audience, comprendre les produits consultes et ameliorer les performances du site.",
+            "Mesurer l'efficacite des publicites Meta et proposer des annonces plus pertinentes lorsque vous interagissez avec nos campagnes.",
+            "Detecter les erreurs, limiter les abus et securiser le service.",
+          ],
+        },
+        {
+          title: "Publicite et mesure d'audience",
+          items: [
+            "Le site peut utiliser Meta Pixel pour mesurer les visites, les pages produits consultees, les ajouts au panier, les debuts de commande et les commandes confirmees.",
+            "Ces informations aident PRIMEPC a comprendre les performances des campagnes publicitaires et a eviter des publicites moins pertinentes.",
+            "Meta peut traiter certaines donnees techniques liees a votre navigateur ou a votre interaction avec le site conformement a ses propres regles.",
           ],
         },
         {
           title: "Partage et conservation",
           items: [
-            "Les donnees peuvent etre transmises aux prestataires strictement necessaires, par exemple l'hebergement, la livraison, l'authentification et l'envoi d'e-mails.",
+            "Les donnees peuvent etre transmises aux prestataires strictement necessaires, par exemple l'hebergement, la livraison, l'authentification, l'envoi d'e-mails et la mesure publicitaire.",
             "PRIMEPC ne vend pas vos donnees personnelles.",
             "Les donnees sont conservees pendant la duree necessaire au service, aux obligations applicables et a la resolution des litiges.",
           ],
