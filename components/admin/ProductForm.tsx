@@ -16,6 +16,7 @@ import ProductRelationshipPicker, {
 } from "@/components/admin/ProductRelationshipPicker";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { formatDZD, getDiscountedPrice } from "@/lib/utils";
+import { PRODUCT_NAME_MAX_LENGTH } from "@/lib/productLimits";
 import {
   buildVariantKey,
   generateVariantOptions,
@@ -276,6 +277,13 @@ export default function ProductForm({
       return;
     }
 
+    if (nameValue.length > PRODUCT_NAME_MAX_LENGTH) {
+      toast.error(
+        `Le nom doit contenir au maximum ${PRODUCT_NAME_MAX_LENGTH} caracteres.`,
+      );
+      return;
+    }
+
     if (!coverValue) {
       toast.error("L’URL de l’image principale est obligatoire.");
       return;
@@ -436,7 +444,14 @@ export default function ProductForm({
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="text-sm font-medium">Nom</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+            <Input
+              value={name}
+              maxLength={PRODUCT_NAME_MAX_LENGTH}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <p className="text-muted-foreground text-xs">
+              {name.trim().length}/{PRODUCT_NAME_MAX_LENGTH} caracteres max.
+            </p>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Marque</label>

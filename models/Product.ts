@@ -1,4 +1,5 @@
 import { getDiscountedPrice } from "@/lib/utils";
+import { PRODUCT_NAME_MAX_LENGTH } from "@/lib/productLimits";
 import { model, models, Schema } from "mongoose";
 import slugify from "slugify";
 
@@ -27,8 +28,8 @@ const ProductSchema = new Schema(
       required: [true, "Le nom du produit est obligatoire"],
       trim: true, // removes white space at beginning and end of phrase
       maxLength: [
-        40,
-        "Le nom du produit doit contenir au maximum 40 caractères.",
+        PRODUCT_NAME_MAX_LENGTH,
+        `Le nom du produit doit contenir au maximum ${PRODUCT_NAME_MAX_LENGTH} caractères.`,
       ],
       minLength: [
         10,
@@ -145,10 +146,16 @@ ProductSchema.index({ similarProducts: 1 });
 ProductSchema.index({ accessoryProducts: 1 });
 
 const existingModel = models.Product;
+const existingNameMaxLength = existingModel?.schema.path("name")?.options
+  ?.maxLength;
+const existingNameMaxLengthValue = Array.isArray(existingNameMaxLength)
+  ? existingNameMaxLength[0]
+  : existingNameMaxLength;
 
 if (
   existingModel &&
   (!existingModel.schema.path("variants") ||
+    existingNameMaxLengthValue !== PRODUCT_NAME_MAX_LENGTH ||
     !existingModel.schema.path("variants.active") ||
     !existingModel.schema.path("recommendedProducts") ||
     !existingModel.schema.path("similarProducts") ||
