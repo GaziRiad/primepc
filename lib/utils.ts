@@ -23,6 +23,28 @@ export function getDiscountedPrice(price: number, discountPercent: number) {
   return Math.round(price - discountedAmount);
 }
 
+export function getDiscountPercentFromFinalPrice(
+  price: number,
+  finalPrice: number,
+) {
+  if (!Number.isFinite(price) || price <= 0) return 0;
+  if (!Number.isFinite(finalPrice)) return 0;
+
+  const boundedFinalPrice = Math.min(Math.max(finalPrice, 0), price);
+  const discount = ((price - boundedFinalPrice) / price) * 100;
+  return Number(discount.toFixed(4));
+}
+
+export function getDisplayDiscountPercent(discountPercent: number) {
+  if (!Number.isFinite(discountPercent) || discountPercent <= 0) return 0;
+
+  const safeDiscount = Math.min(Math.max(discountPercent, 0), 100);
+  if (safeDiscount < 1) return 0;
+  if (safeDiscount < 10) return Math.floor(safeDiscount);
+
+  return Math.floor(safeDiscount / 5) * 5;
+}
+
 export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export const WHATSAPP_NUMBER = "213555453982";

@@ -15,7 +15,12 @@ import ProductRelationshipPicker, {
   type RelationshipProductOption,
 } from "@/components/admin/ProductRelationshipPicker";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { formatDZD, getDiscountedPrice } from "@/lib/utils";
+import {
+  formatDZD,
+  getDiscountedPrice,
+  getDiscountPercentFromFinalPrice,
+  getDisplayDiscountPercent,
+} from "@/lib/utils";
 import { PRODUCT_NAME_MAX_LENGTH } from "@/lib/productLimits";
 import {
   buildVariantKey,
@@ -43,6 +48,7 @@ type ProductFormProduct = {
   description?: string;
   price?: number;
   discount?: number;
+  finalPrice?: number;
   stock?: number;
   coverImage?: string;
   images?: string[];
@@ -86,9 +92,19 @@ export default function ProductForm({
   const [price, setPrice] = useState(
     product?.price ? String(product.price) : "",
   );
-  const [discount, setDiscount] = useState(
-    product?.discount ? String(product.discount) : "0",
-  );
+  const [discountedPrice, setDiscountedPrice] = useState(() => {
+    if (typeof product?.finalPrice === "number") {
+      return String(product.finalPrice);
+    }
+
+    if (typeof product?.price === "number") {
+      return String(
+        getDiscountedPrice(product.price, Number(product.discount ?? 0)),
+      );
+    }
+
+    return "";
+  });
   const [stock, setStock] = useState(
     typeof product?.stock === "number" ? String(product.stock) : "0",
   );
@@ -123,15 +139,41 @@ export default function ProductForm({
   );
   const [isSaving, setIsSaving] = useState(false);
 
+  const calculatedDiscount = useMemo(() => {
+    if (discountedPrice.trim() === "") return 0;
+
+    const priceValue = Number(price);
+    const discountedPriceValue = Number(discountedPrice);
+
+    return getDiscountPercentFromFinalPrice(
+      priceValue,
+      discountedPriceValue,
+    );
+  }, [price, discountedPrice]);
+  const displayedDiscount = getDisplayDiscountPercent(calculatedDiscount);
   const finalPrice = useMemo(() => {
     const priceValue = Number(price);
-    const discountValue = Number(discount);
     if (!Number.isFinite(priceValue)) return 0;
-    return getDiscountedPrice(
-      priceValue,
-      Number.isFinite(discountValue) ? discountValue : 0,
-    );
-  }, [price, discount]);
+    return getDiscountedPrice(priceValue, calculatedDiscount);
+  }, [price, calculatedDiscount]);
+  const formattedFinalPrice = formatDZD(finalPrice);
+  const hasDiscount = displayedDiscount > 0;
+
+  const handlePriceChange = (value: string) => {
+    const previousPrice = Number(price);
+    const previousDiscountedPrice = Number(discountedPrice);
+    const shouldKeepFinalAligned =
+      discountedPrice.trim() === "" ||
+      (Number.isFinite(previousPrice) &&
+        Number.isFinite(previousDiscountedPrice) &&
+        previousDiscountedPrice >= previousPrice);
+
+    setPrice(value);
+
+    if (shouldKeepFinalAligned) {
+      setDiscountedPrice(value);
+    }
+  };
 
   const variantStock = useMemo(
     () =>
@@ -269,7 +311,11 @@ export default function ProductForm({
     const nameValue = name.trim();
     const coverValue = coverImage.trim();
     const priceValue = Number(price);
-    const discountValue = Number(discount);
+    const discountedPriceValue = Number(discountedPrice);
+    const discountValue = getDiscountPercentFromFinalPrice(
+      priceValue,
+      discountedPriceValue,
+    );
     const stockValue = Number(stock);
 
     if (!nameValue) {
@@ -291,6 +337,21 @@ export default function ProductForm({
 
     if (!Number.isFinite(priceValue) || priceValue <= 0) {
       toast.error("Le prix doit être un nombre positif.");
+      return;
+    }
+
+    if (!discountedPrice.trim() || !Number.isFinite(discountedPriceValue)) {
+      toast.error("Le prix apres remise est obligatoire.");
+      return;
+    }
+
+    if (discountedPriceValue < 0) {
+      toast.error("Le prix apres remise ne peut pas etre negatif.");
+      return;
+    }
+
+    if (discountedPriceValue > priceValue) {
+      toast.error("Le prix apres remise ne peut pas depasser le prix initial.");
       return;
     }
 
@@ -366,7 +427,7 @@ export default function ProductForm({
       brand: brand.trim(),
       description: description.trim(),
       price: priceValue,
-      discount: Number.isFinite(discountValue) ? discountValue : 0,
+      discount: discountValue,
       stock:
         normalizedVariants.length > 0
           ? normalizedVariants.reduce(
@@ -464,19 +525,23 @@ export default function ProductForm({
               min="0"
               step="1"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => handlePriceChange(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Remise (%)</label>
+            <label className="text-sm font-medium">
+              Prix apres remise (DZD)
+            </label>
             <Input
               type="number"
               min="0"
-              max="100"
               step="1"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
+              value={discountedPrice}
+              onChange={(e) => setDiscountedPrice(e.target.value)}
             />
+            <p className="text-muted-foreground text-xs">
+              Prix enregistre : {formattedFinalPrice}
+            </p>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">
@@ -492,10 +557,13 @@ export default function ProductForm({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Aperçu du prix final</label>
+            <label className="text-sm font-medium">Remise calculee</label>
             <div className="border-input bg-input/30 flex h-9 items-center rounded-4xl border px-3 text-sm">
-              {formatDZD(finalPrice)}
+              {hasDiscount ? `-${displayedDiscount}%` : "Aucune remise"}
             </div>
+            <p className="text-muted-foreground text-xs">
+              Arrondie pour l&apos;affichage public.
+            </p>
           </div>
           <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium">

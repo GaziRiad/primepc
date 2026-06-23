@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AddToCartButton from "@/components/AddToCartButton";
 import FavoriteButton from "@/components/(user)/FavoriteButton";
-import { formatDZD } from "@/lib/utils";
+import { formatDZD, getDisplayDiscountPercent } from "@/lib/utils";
 import {
   Carousel,
   CarouselContent,
@@ -68,6 +68,7 @@ export default function ProductCardClient({
   const safeIndex = activeIndex >= gallery.length ? 0 : activeIndex;
   const activeImage = gallery[safeIndex] ?? gallery[0];
   const inStock = Number(stock ?? 0) > 0;
+  const displayDiscount = getDisplayDiscountPercent(discount);
 
   const updateActiveIndex = (nextIndex: number) => {
     if (nextIndex !== lastIndexRef.current) {
@@ -246,12 +247,12 @@ export default function ProductCardClient({
           }`}
         >
           <p className="text-base font-semibold">{formatDZD(finalPrice)}</p>
-          {discount > 0 && (
+          {displayDiscount > 0 && price > finalPrice && (
             <div className="flex items-center gap-2">
               <p className="text-accent-300 text-sm line-through">
                 {formatDZD(price)}
               </p>
-              <Badge variant="secondary">-{discount}%</Badge>
+              <Badge variant="secondary">-{displayDiscount}%</Badge>
             </div>
           )}
         </div>

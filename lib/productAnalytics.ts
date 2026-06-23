@@ -6,6 +6,7 @@ import ProductAnalytics from "@/models/ProductAnalytics";
 
 const ANALYTICS_TIMEZONE = "Africa/Algiers";
 const MAX_BATCH_SIZE = 25;
+const EXCLUDED_REVENUE_ORDER_STATUSES = ["cancelled", "failed"];
 
 const dateFormatter = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
@@ -251,7 +252,12 @@ export const getProductAnalyticsSummary = async (
       },
     ]),
     Order.aggregate([
-      { $match: { createdAt: { $gte: orderStartDate } } },
+      {
+        $match: {
+          createdAt: { $gte: orderStartDate },
+          status: { $nin: EXCLUDED_REVENUE_ORDER_STATUSES },
+        },
+      },
       { $unwind: "$items" },
       {
         $group: {

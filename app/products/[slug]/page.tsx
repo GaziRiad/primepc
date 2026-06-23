@@ -18,7 +18,7 @@ import ProductGallery from "@/components/ProductGallery";
 import { ProductVariationImageProvider } from "@/components/ProductVariationImageContext";
 import ProductInfoTabs from "@/components/ProductInfoTabs";
 import ProductViewTracker from "@/components/ProductViewTracker";
-import { formatDZD } from "@/lib/utils";
+import { formatDZD, getDisplayDiscountPercent } from "@/lib/utils";
 import { getProduct } from "@/lib/services";
 import {
   productDescriptionToPlainText,
@@ -95,6 +95,9 @@ export default async function page({
   const savings = Math.max(
     0,
     Number(product.price ?? 0) - Number(product.finalPrice ?? 0),
+  );
+  const displayDiscount = getDisplayDiscountPercent(
+    Number(product.discount ?? 0),
   );
   const isLowStock = inStock && stockCount <= 3;
   const availabilityLabel = inStock
@@ -285,14 +288,14 @@ export default async function page({
                       {variants.length > 0 ? "À partir de " : ""}
                       {formatDZD(startingPrice)}
                     </span>
-                    {product.discount > 0 && (
+                    {displayDiscount > 0 && savings > 0 && (
                       <span className="text-accent-300 pb-1 text-sm line-through">
                         {formatDZD(product.price)}
                       </span>
                     )}
-                    {product.discount > 0 && (
+                    {displayDiscount > 0 && savings > 0 && (
                       <Badge className="text-primary-700 bg-white">
-                        {product.discount}% de remise
+                        {displayDiscount}% de remise
                       </Badge>
                     )}
                   </div>

@@ -91,6 +91,7 @@ export default async function page({
     description: product.description ?? "",
     price: Number(product.price ?? 0),
     discount: Number(product.discount ?? 0),
+    finalPrice: Number(product.finalPrice ?? 0),
     stock: Number(product.stock ?? 0),
     coverImage: product.coverImage ?? "",
     images: Array.isArray(product.images) ? product.images : [],
