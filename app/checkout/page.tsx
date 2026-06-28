@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
@@ -99,6 +100,7 @@ const validateForm = (form: CheckoutFormState): CheckoutErrors => {
 };
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { data: session } = useSession();
   const { cartItems, isLoading, clearCart } = useCart();
 
@@ -129,7 +131,6 @@ export default function CheckoutPage() {
   const [touched, setTouched] = useState<TouchedState>({});
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
   const addressPrefilledRef = useRef(false);
   const checkoutStartTrackedRef = useRef("");
   const idempotencyKeyRef = useRef("");
@@ -270,7 +271,6 @@ export default function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-    setOrderId(null);
 
     try {
       if (!idempotencyKeyRef.current) {
@@ -310,7 +310,6 @@ export default function CheckoutPage() {
         return;
       }
 
-      setOrderId(result.orderId);
       idempotencyKeyRef.current = "";
       const purchaseEventKey = `primepc:meta:purchase:${result.orderId}`;
       let shouldTrackPurchase = !result.replayed;
@@ -355,8 +354,8 @@ export default function CheckoutPage() {
           { eventID: result.orderId },
         );
       }
-      toast.success("Commande passée avec succès.");
       await clearCart();
+      router.replace(`/thank-you?order=${encodeURIComponent(result.orderId)}`);
     } catch (error) {
       const message =
         error instanceof Error
@@ -389,19 +388,6 @@ export default function CheckoutPage() {
       </div>
 
       <section className="bg-accent-50 py-14">
-        {orderId && (
-          <div className="mx-auto mb-6 max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="rounded-xl border-[0.5px] bg-white px-6 py-4 text-sm shadow-xs">
-              <p className="text-accent font-semibold">
-                Commande passée avec succès.
-              </p>
-              <p className="text-muted-foreground mt-1">
-                Numéro de votre commande :{" "}
-                <span className="text-foreground">{orderId}</span>
-              </p>
-            </div>
-          </div>
-        )}
         <form
           onSubmit={handleSubmit}
           className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[2fr_1fr] lg:px-8"
