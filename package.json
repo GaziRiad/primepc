@@ -16,12 +16,14 @@
     "check": "npm run lint && npm run typecheck && npm run test",
     "launch:check": "tsx scripts/launch-check.ts",
     "db:reconcile-order-stock": "tsx scripts/reconcile-order-stock.ts",
+    "storage:migrate-cloudinary-to-r2": "tsx scripts/migrate-cloudinary-to-r2.ts",
     "assets:optimize": "node scripts/optimize-public-images.mjs",
     "prod": "npm run build && npm run start",
     "db:seed:products": "tsx lib/seed-products.ts",
     "db:seed:products:reset": "tsx lib/seed-products.ts --reset"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1079.0",
     "@tiptap/react": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
     "@vercel/analytics": "^2.0.1",

@@ -1,6 +1,21 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
+const getHostname = (value?: string) => {
+  if (!value?.trim()) return "";
+
+  try {
+    return new URL(value).hostname;
+  } catch {
+    return "";
+  }
+};
+const r2PublicHostname = getHostname(
+  process.env.R2_PUBLIC_URL ?? process.env.NEXT_PUBLIC_R2_PUBLIC_URL,
+);
+const r2RemotePatterns = r2PublicHostname
+  ? [{ protocol: "https" as const, hostname: r2PublicHostname }]
+  : [];
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -68,6 +83,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      ...r2RemotePatterns,
     ],
   },
 };

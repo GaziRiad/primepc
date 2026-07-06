@@ -17,6 +17,7 @@ npm run launch:check
 npm run start
 npm run db:seed:products
 npm run db:seed:products:reset
+npm run storage:migrate-cloudinary-to-r2
 ```
 
 ## Environment
@@ -47,6 +48,23 @@ TELEGRAM_CHAT_ID=
 EMAIL_UNSUBSCRIBE_SECRET=
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=
+R2_PUBLIC_URL=
+```
+
+Image uploads prefer Cloudflare R2 when all `R2_*` variables are configured.
+If R2 is not configured, uploads fall back to Cloudinary while the legacy
+Cloudinary variables remain present.
+
+After configuring R2, migrate existing Cloudinary product images with a dry run
+first:
+
+```bash
+npm run storage:migrate-cloudinary-to-r2
+npm run storage:migrate-cloudinary-to-r2 -- --apply
 ```
 
 ## Production Checklist
@@ -78,6 +96,9 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 - Run `npm run db:reconcile-order-stock` as a dry run before deciding whether
   legacy cancelled or failed orders need stock restoration. Use `-- --apply`
   only after reviewing the live inventory.
+- Configure Cloudflare R2 for product images before removing Cloudinary. Use a
+  public custom domain when possible; the temporary `r2.dev` public URL works
+  for testing but Cloudflare marks it as non-production traffic.
 - `EMAIL_UNSUBSCRIBE_SECRET` is optional; unsubscribe links fall back to
   `AUTH_SECRET` when it is not set.
 - Verify legal pages, return policy, shipping policy, analytics, and support
