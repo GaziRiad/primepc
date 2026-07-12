@@ -21,7 +21,7 @@ export default function DeliveryReturnsPage() {
       compact
       eyebrow="Livraison et retours"
       title="Livraison, paiement et retours"
-      description="Payez a la reception avec Yalidine, verifiez votre produit avant paiement, profitez de la livraison offerte des 40,000 DA et testez votre achat pendant 3 jours."
+      description="Payez a la reception avec Yalidine, verifiez votre produit avant paiement, profitez d'une livraison a domicile a 600 DA et d'un Stop Desk gratuit, puis testez votre achat pendant 3 jours."
       cards={[
         {
           icon: Truck,
@@ -54,8 +54,8 @@ export default function DeliveryReturnsPage() {
           description:
             "PRIMEPC livre avec Yalidine. Le paiement se fait a la reception, apres verification rapide du produit.",
           items: [
-            "La livraison est offerte pour toute commande de 40,000 DA ou plus.",
-            "Pour les commandes inferieures a 40,000 DA, les frais sont affiches ou confirmes avant validation.",
+            "La livraison a domicile coute 600 DA.",
+            "Le Stop Desk est gratuit.",
             "Notre equipe peut vous contacter avant expedition pour confirmer le telephone, la wilaya, la commune et l'adresse.",
             "Les delais dependent de la wilaya, des jours ouvrables et de la disponibilite du service de livraison.",
           ],
@@ -100,11 +100,11 @@ export default function DeliveryReturnsPage() {
             A retenir
           </p>
           <h3 className="text-foreground mt-3 text-base font-semibold">
-            Livraison offerte des 40,000 DA
+            Livraison a domicile 600 DA
           </h3>
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Les commandes validees peuvent aussi participer au giveaway mensuel
-            PRIMEPC.
+            Stop Desk reste gratuit et les commandes validees peuvent aussi
+            participer au giveaway mensuel PRIMEPC.
           </p>
           <div className="text-muted-foreground mt-4 flex items-center gap-2 text-sm">
             <CalendarDays className="text-primary size-4" />

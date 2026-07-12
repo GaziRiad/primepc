@@ -18,11 +18,10 @@ import {
 import { reserveOrderStock } from "@/lib/orderInventory";
 import {
   buildOrderItems,
-  SHIPPING_FEE,
-  SHIPPING_THRESHOLD,
   type CustomerDetails,
   type OrderItemInput,
 } from "@/lib/orders";
+import { getDeliveryFee } from "@/lib/delivery";
 import { recordProductAnalyticsEvents } from "@/lib/productAnalytics";
 import { consumeRateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import Cart from "@/models/Cart";
@@ -249,12 +248,7 @@ export async function POST(request: Request) {
 
         await reserveOrderStock(build.items, dbSession);
 
-        const shippingFee =
-          build.subtotal >= SHIPPING_THRESHOLD
-            ? 0
-            : build.subtotal > 0
-              ? SHIPPING_FEE
-              : 0;
+        const shippingFee = getDeliveryFee(deliveryMethod);
         const total = build.subtotal + shippingFee;
 
         const [order] = await Order.create(
@@ -332,12 +326,7 @@ export async function POST(request: Request) {
 
     revalidateProductCache(finalBuild.productSlugs);
 
-    const shippingFee =
-      finalBuild.subtotal >= SHIPPING_THRESHOLD
-        ? 0
-        : finalBuild.subtotal > 0
-          ? SHIPPING_FEE
-          : 0;
+    const shippingFee = getDeliveryFee(deliveryMethod);
     const total = finalBuild.subtotal + shippingFee;
     const emailPayload = {
       orderId,

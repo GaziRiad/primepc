@@ -8,11 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useCart } from "@/hooks/useCart";
+import { DEFAULT_DELIVERY_METHOD, getDeliveryFee } from "@/lib/delivery";
 import { formatDZD } from "@/lib/utils";
 import Breadcrumbs from "@/components/Breadcrumbs";
-
-const SHIPPING_THRESHOLD = 40000;
-const SHIPPING_FEE = 500;
 
 export default function CartPage() {
   const { cartItems, isLoading, addToCart, decrementFromCart, removeFromCart } =
@@ -23,8 +21,7 @@ export default function CartPage() {
     0,
   );
 
-  const shipping =
-    subtotal >= SHIPPING_THRESHOLD ? 0 : subtotal > 0 ? SHIPPING_FEE : 0;
+  const shipping = getDeliveryFee(DEFAULT_DELIVERY_METHOD);
   const total = subtotal + shipping;
 
   const handleClearCart = async () => {

@@ -14,8 +14,8 @@ type Feature = {
 const Features: Feature[] = [
   {
     icon: <Rocket size={32} className="stroke-primary" />,
-    title: "Livraison offerte",
-    description: "Pour toute commande de 40 000 DA ou plus",
+    title: "Livraison flexible",
+    description: "À domicile 600 DA, Stop Desk gratuit",
   },
   {
     icon: <BadgeCheck size={32} className="stroke-primary" />,

@@ -21,7 +21,7 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export const SHIPPING_THRESHOLD = 40000;
+export const SHIPPING_THRESHOLD = 80000;
 export const SHIPPING_FEE = 500;
 
 export type OrderItemInput = {

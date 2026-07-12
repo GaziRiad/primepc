@@ -21,12 +21,10 @@ import {
   DEFAULT_DELIVERY_METHOD,
   DELIVERY_METHODS,
   getDeliveryMethodLabel,
+  getDeliveryFee,
   isDeliveryMethod,
   type DeliveryMethod,
 } from "@/lib/delivery";
-
-const SHIPPING_THRESHOLD = 40000;
-const SHIPPING_FEE = 500;
 
 type CheckoutFormState = {
   firstName: string;
@@ -109,10 +107,6 @@ export default function CheckoutPage() {
     0,
   );
 
-  const shipping =
-    subtotal >= SHIPPING_THRESHOLD ? 0 : subtotal > 0 ? SHIPPING_FEE : 0;
-  const total = subtotal + shipping;
-
   const hasItems = cartItems.length > 0;
 
   const [form, setForm] = useState<CheckoutFormState>({
@@ -134,6 +128,9 @@ export default function CheckoutPage() {
   const addressPrefilledRef = useRef(false);
   const checkoutStartTrackedRef = useRef("");
   const idempotencyKeyRef = useRef("");
+
+  const shipping = getDeliveryFee(form.deliveryMethod);
+  const total = subtotal + shipping;
 
   const errors = useMemo(() => validateForm(form), [form]);
 

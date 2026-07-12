@@ -13,6 +13,11 @@ export const DELIVERY_METHODS = [
 
 export type DeliveryMethod = (typeof DELIVERY_METHODS)[number]["value"];
 
+export const DELIVERY_FEES: Record<DeliveryMethod, number> = {
+  home: 600,
+  stop_desk: 0,
+};
+
 export const DEFAULT_DELIVERY_METHOD: DeliveryMethod = "home";
 
 export const isDeliveryMethod = (value: unknown): value is DeliveryMethod =>
@@ -29,3 +34,8 @@ export const getDeliveryMethodLabel = (value: unknown) =>
   DELIVERY_METHODS.find((method) => method.value === DEFAULT_DELIVERY_METHOD)
     ?.label ??
   "À domicile";
+
+export const getDeliveryFee = (value: unknown) => {
+  const method = normalizeDeliveryMethod(value);
+  return method ? DELIVERY_FEES[method] ?? 0 : 0;
+};
